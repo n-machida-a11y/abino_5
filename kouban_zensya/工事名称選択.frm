@@ -98,10 +98,21 @@ Private Sub UserForm_Initialize()
     Set wsTarget = wbTarget_Init.Sheets(targetSheetName)
 
     Dim r As Long
-    Dim currentStaff As String, currentKoujiName As String
+    Dim currentStaff As String, currentKoujiName As String, currentKoujiBango As String
+
+    ' 自部門コードでフィルタするための prefix
+    Dim deptPrefix As String
+    On Error Resume Next
+    deptPrefix = GetMyDeptCode() & "-"
+    On Error GoTo 0
+    If deptPrefix = "-" Then deptPrefix = "03-"
+
     For r = wsTarget.Cells(wsTarget.Rows.count, "C").End(xlUp).Row To 2 Step -1
         currentStaff = Trim(CStr(wsTarget.Cells(r, "C").Value))
+        currentKoujiBango = Trim(CStr(wsTarget.Cells(r, "D").Value))
         currentKoujiName = Trim(CStr(wsTarget.Cells(r, "E").Value))
+        ' 部門フィルタ: 自部門の工事番号のみ
+        If Left(currentKoujiBango, Len(deptPrefix)) <> deptPrefix Then GoTo NextRow_Sel
         If currentStaff <> "" And currentKoujiName <> "" Then
             If Not m_CachedKoujiList.Exists(currentStaff) Then
                 m_CachedKoujiList.Add currentStaff, CreateObject("Scripting.Dictionary")
@@ -110,6 +121,7 @@ Private Sub UserForm_Initialize()
                 m_CachedKoujiList(currentStaff).Add currentKoujiName, True
             End If
         End If
+NextRow_Sel:
     Next r
 
 FinalizeInit:

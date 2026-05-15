@@ -445,41 +445,80 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
                               ByVal dataStartRow As Long, _
                               ByVal deptFilterCol As String, _
                               ByVal deptCode As String)
+    ' 配列ベースの高速版: src の全データを一括読み込み→メモリ内でフィルタ→一括書き込み
+    ' 旧版は行ごとに .Copy していて、行数増えると激遅だった
+
+    On Error GoTo CleanupCopy
+    If src Is Nothing Or dst Is Nothing Then Exit Sub
     If src.UsedRange.Cells.CountLarge = 0 Then Exit Sub
 
     Dim lastCol As Long: lastCol = src.UsedRange.Columns.Count
     If lastCol < 1 Then lastCol = 1
     Dim lastRow As Long: lastRow = src.UsedRange.Rows.Count + src.UsedRange.Row - 1
+    If lastRow < 1 Then Exit Sub
 
-    ' ヘッダ部（dataStartRow-1まで）は無条件コピー
-    If dataStartRow > 1 Then
-        src.Range(src.Cells(1, 1), src.Cells(dataStartRow - 1, lastCol)).Copy _
-            Destination:=dst.Cells(1, 1)
+    ' UsedRange の開始セルが A1 とは限らないので、A1～(lastRow, lastCol) を明示指定
+    Dim readRange As Range
+    Set readRange = src.Range(src.Cells(1, 1), src.Cells(lastRow, lastCol))
+
+    ' 一括読込（型は Variant 2次元配列 1始まり）
+    Dim arr As Variant
+    If readRange.Cells.Count = 1 Then
+        ' 1セルだけの場合は配列にならないので個別処理
+        ReDim arr(1 To 1, 1 To 1)
+        arr(1, 1) = readRange.Value
+    Else
+        arr = readRange.Value
     End If
 
-    ' フィルタが無効なら全体コピー
-    If deptFilterCol = "" Or deptCode = "" Then
-        If lastRow >= dataStartRow Then
-            src.Range(src.Cells(dataStartRow, 1), src.Cells(lastRow, lastCol)).Copy _
-                Destination:=dst.Cells(dataStartRow, 1)
-        End If
-        Application.CutCopyMode = False
-        Exit Sub
+    ' 列文字 → 列インデックス変換（deptFilterCol が "D" → 4 等）
+    Dim filterColIdx As Long: filterColIdx = 0
+    If deptFilterCol <> "" And deptCode <> "" Then
+        filterColIdx = src.Range(deptFilterCol & "1").Column
     End If
 
-    ' 部門フィルタあり: 行ごとに判定して連続貼付け
-    Dim filterPrefix As String: filterPrefix = deptCode & "-"
-    Dim r As Long, dstRow As Long: dstRow = dataStartRow
-    Dim val As String
+    ' 出力用配列（最大行数 = 入力行数）
+    Dim outArr() As Variant
+    ReDim outArr(1 To lastRow, 1 To lastCol)
+    Dim outRow As Long: outRow = 0
+
+    Dim r As Long, c As Long
+    Dim filterPrefix As String
+    If filterColIdx > 0 Then filterPrefix = deptCode & "-"
+
+    ' ヘッダ部（dataStartRow-1 まで）: 無条件で含める
+    For r = 1 To dataStartRow - 1
+        If r > lastRow Then Exit For
+        outRow = outRow + 1
+        For c = 1 To lastCol
+            outArr(outRow, c) = arr(r, c)
+        Next c
+    Next r
+
+    ' データ部: フィルタ判定して含める
     For r = dataStartRow To lastRow
-        val = CStr(src.Cells(r, deptFilterCol).Value)
-        If Left(val, Len(filterPrefix)) = filterPrefix Then
-            src.Range(src.Cells(r, 1), src.Cells(r, lastCol)).Copy _
-                Destination:=dst.Cells(dstRow, 1)
-            dstRow = dstRow + 1
+        Dim include As Boolean: include = True
+        If filterColIdx > 0 Then
+            Dim val As String
+            val = CStr(arr(r, filterColIdx))
+            If Left(val, Len(filterPrefix)) <> filterPrefix Then include = False
+        End If
+        If include Then
+            outRow = outRow + 1
+            For c = 1 To lastCol
+                outArr(outRow, c) = arr(r, c)
+            Next c
         End If
     Next r
+
+    ' 一括書き込み
+    If outRow > 0 Then
+        dst.Range(dst.Cells(1, 1), dst.Cells(outRow, lastCol)).Value = outArr
+    End If
+
+CleanupCopy:
     Application.CutCopyMode = False
+    On Error GoTo 0
 End Sub
 
 

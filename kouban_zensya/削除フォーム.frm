@@ -75,10 +75,20 @@ Private Sub UserForm_Initialize()
     End If
     Set wsTarget = wbTarget.Sheets(SHEET_KOUJI_LIST)
 
+    ' 自部門コード（A37セル）でフィルタするためのprefix
+    Dim deptPrefix As String
+    On Error Resume Next
+    deptPrefix = GetMyDeptCode() & "-"
+    On Error GoTo 0
+    If deptPrefix = "-" Then deptPrefix = "03-"  ' フォールバック
+
     For r = wsTarget.Cells(wsTarget.Rows.count, "C").End(xlUp).Row To 2 Step -1
         currentStaff = Trim(CStr(wsTarget.Cells(r, "C").Value))
         currentKoujiBango = Trim(CStr(wsTarget.Cells(r, "D").Value))
         currentKoujiName = Trim(CStr(wsTarget.Cells(r, "E").Value))
+
+        ' 部門フィルタ: 自部門の工事番号のみ対象
+        If Left(currentKoujiBango, Len(deptPrefix)) <> deptPrefix Then GoTo NextRow_Del
 
         If currentStaff <> "" And currentKoujiName <> "" And currentKoujiBango <> "" Then
             If Not m_CachedKoujiData.Exists(currentStaff) Then
@@ -90,6 +100,7 @@ Private Sub UserForm_Initialize()
                 m_CachedKoujiData(currentStaff).item(currentKoujiBango) = currentKoujiName
             End If
         End If
+NextRow_Del:
     Next r
 
 FinalizeInit:

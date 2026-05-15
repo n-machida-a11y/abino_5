@@ -161,15 +161,27 @@ Private Sub UserForm_Activate()
     Set wsTarget_Activate = wbTarget_Activate.Sheets(m_CachedTargetSheetName)
 
     Dim foundRow As Long, r As Long
-    Dim sheetKoujiName As String, sheetStaffName As String
+    Dim sheetKoujiName As String, sheetStaffName As String, sheetKoujiBango As String
     foundRow = 0
+
+    ' 部門フィルタ用 prefix
+    Dim deptPrefix_Re As String
+    On Error Resume Next
+    deptPrefix_Re = GetMyDeptCode() & "-"
+    On Error GoTo 0
+    If deptPrefix_Re = "-" Then deptPrefix_Re = "03-"
+
     For r = 2 To wsTarget_Activate.Cells(wsTarget_Activate.Rows.count, "E").End(xlUp).Row
         sheetKoujiName = Trim(CStr(wsTarget_Activate.Cells(r, COL_KOUJI_NAME).Value))
         sheetStaffName = Trim(CStr(wsTarget_Activate.Cells(r, COL_STAFF).Value))
+        sheetKoujiBango = Trim(CStr(wsTarget_Activate.Cells(r, "D").Value))
+        ' 自部門の工事のみマッチ対象（同名工事が他部署にあっても誤マッチ防止）
+        If Left(sheetKoujiBango, Len(deptPrefix_Re)) <> deptPrefix_Re Then GoTo NextRow_Re
         If sheetKoujiName = Trim(Me.SearchedKoujiName) And sheetStaffName = Trim(Me.SelectedTantousha) Then
             foundRow = r
             Exit For
         End If
+NextRow_Re:
     Next r
 
     If foundRow = 0 Then
