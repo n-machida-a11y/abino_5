@@ -14,6 +14,12 @@ Public Const PROD_MASTER_PATH As String = "Z:\全社共有\建築事業部\30_事務\工事番
 ' ===== シート保護パスワード =====
 Public Const SHEET_PASSWORD As String = "3555"
 
+' ===== 自部門コード =====
+' この管理者ファイルが管理する部門の2桁コード（建築事業部=03 など）
+' 部門別の管理者ファイルを配布する際は、各ファイルでこの定数を変更する。
+' 配下のシート同期は、ここで指定された部門のレコードのみが対象になる。
+Public Const MY_DEPT_CODE As String = "03"
+
 ' ===== スナップショットシートのプレフィックス =====
 ' 最新取得時点のマスタ状態をこの名前で記録する（反映時の三者比較用）
 Public Const SNAPSHOT_PREFIX As String = "_snap_"
@@ -28,12 +34,15 @@ Public Const SNAPSHOT_PREFIX As String = "_snap_"
 '   参考ドキュメントなので同期対象から除外
 '================================================================================
 Public Function GetSheetSyncConfig() As Variant
+    ' Array(シート名, キー列, データ開始行, モード, 部門フィルタ列文字)
+    ' 部門フィルタ列が "" でない場合、その列の値が "MY_DEPT_CODE-*" で始まる行のみ
+    ' 同期対象にする。部署別管理者ファイルで自部門のレコードだけ扱うため。
     Dim configs(4) As Variant
-    configs(0) = Array("工事番号一覧",        "D",  4, "merge")  ' 工事番号がキー
-    configs(1) = Array("依頼履歴",           "A",  3, "merge")  ' 依頼NOがキー
-    configs(2) = Array("管理マスタ",         "B",  2, "merge")  ' 担当者番号がキー
-    configs(3) = Array("その他マスタ",        "A",  2, "merge")  ' 提出先名がキー
-    configs(4) = Array("依頼書セル設定",      "A", 10, "merge")  ' 項目名がキー
+    configs(0) = Array("工事番号一覧",        "D",  4, "merge", "D")  ' 工事番号がキー、D列で部門フィルタ
+    configs(1) = Array("依頼履歴",           "A",  3, "merge", "E")  ' 依頼NOがキー、E列(工事番号)で部門フィルタ
+    configs(2) = Array("管理マスタ",         "B",  2, "merge", "")    ' 全部署共通
+    configs(3) = Array("その他マスタ",        "A",  2, "merge", "")    ' 全部署共通
+    configs(4) = Array("依頼書セル設定",      "A", 10, "merge", "")    ' 全部署共通
     GetSheetSyncConfig = configs
 End Function
 

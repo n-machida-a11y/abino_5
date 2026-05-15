@@ -61,17 +61,19 @@ Public Sub マクロ_最新取得()
         Call SafeUnprotect(dstSh)
         Call ClearAllFilters(dstSh)
 
-        ' ローカル可視シートへコピー
+        ' 部門フィルタ列を取得
+        Dim deptFCol_get As String: deptFCol_get = ""
+        If UBound(cfg) >= 4 Then deptFCol_get = CStr(cfg(4))
+
+        ' ローカル可視シートへコピー（部門フィルタ適用）
         dstSh.Cells.Clear
         If srcSh.UsedRange.Cells.CountLarge > 0 Then
-            srcSh.UsedRange.Copy
-            dstSh.Range(srcSh.UsedRange.Address).PasteSpecial Paste:=xlPasteAllUsingSourceTheme
-            dstSh.Range(srcSh.UsedRange.Address).PasteSpecial Paste:=xlPasteColumnWidths
+            Call CopyFilteredByDept(srcSh, dstSh, CLng(cfg(2)), deptFCol_get, MY_DEPT_CODE)
         End If
         Application.CutCopyMode = False
 
-        ' スナップショットシートへもコピー（反映時の3者比較用）
-        Call WriteSnapshotFromSheet(srcSh, sheetName)
+        ' スナップショットシートへもコピー（部門フィルタ適用、反映時の3者比較用）
+        Call WriteSnapshotFromSheetFiltered(srcSh, sheetName, CLng(cfg(2)), deptFCol_get, MY_DEPT_CODE)
 
         successCount = successCount + 1
         logText = logText & " - " & sheetName & " (取得成功)" & vbCrLf
@@ -184,11 +186,13 @@ Public Sub マクロ_マスタへ反映()
             Else
                 Set snapSheet = Nothing
             End If
+            Dim deptFilterCol As String: deptFilterCol = ""
+            If UBound(cfg) >= 4 Then deptFilterCol = CStr(cfg(4))
             ret = SyncSheetMerge( _
                     ThisWorkbook.Sheets(sheetName), _
                     wbMaster.Sheets(sheetName), _
                     snapSheet, _
-                    keyCol, dataStartRow)
+                    keyCol, dataStartRow, deptFilterCol)
         End If
 
         logText = logText & " - " & sheetName & ": " & ret & vbCrLf
@@ -245,16 +249,18 @@ End Function
 '   keyCol  : キー列文字 (例: "D")
 '   dataRow : データ開始行
 '================================================================================
-Public Function SyncSheetMerge(ByVal localSh As Worksheet, ByVal masterSh As Worksheet, ByVal snapSh As Worksheet, ByVal keyCol As String, ByVal dataRow As Long) As String
+Public Function SyncSheetMerge(ByVal localSh As Worksheet, ByVal masterSh As Worksheet, ByVal snapSh As Worksheet, ByVal keyCol As String, ByVal dataRow As Long, Optional ByVal deptFilterCol As String = "") As String
 
     ' 各キー→行番号 のマップを作る
     Dim dictLocal As Object, dictMaster As Object, dictSnap As Object
+    Dim myDept As String: myDept = MY_DEPT_CODE
     Set dictLocal = BuildKeyMap(localSh, keyCol, dataRow)
-    Set dictMaster = BuildKeyMap(masterSh, keyCol, dataRow)
+    ' master と snap は部門フィルタ適用（他部署のレコードに触れないため）
+    Set dictMaster = BuildKeyMap(masterSh, keyCol, dataRow, deptFilterCol, myDept)
     If snapSh Is Nothing Then
         Set dictSnap = CreateObject("Scripting.Dictionary")  ' 空（他者追加と区別不可）
     Else
-        Set dictSnap = BuildKeyMap(snapSh, keyCol, dataRow)
+        Set dictSnap = BuildKeyMap(snapSh, keyCol, dataRow, deptFilterCol, myDept)
     End If
 
     Call SafeUnprotect(masterSh)
@@ -326,7 +332,10 @@ End Function
 '================================================================================
 ' ヘルパー: キー値 → 行番号 の辞書を作る
 '================================================================================
-Public Function BuildKeyMap(ByVal ws As Worksheet, ByVal keyCol As String, ByVal dataRow As Long) As Object
+Public Function BuildKeyMap(ByVal ws As Worksheet, ByVal keyCol As String, ByVal dataRow As Long, _
+                            Optional ByVal deptFilterCol As String = "", _
+                            Optional ByVal deptCode As String = "") As Object
+    ' deptFilterCol が指定されている時、その列の値が "deptCode-*" で始まる行のみ含める
     Dim d As Object: Set d = CreateObject("Scripting.Dictionary")
     If ws Is Nothing Then Set BuildKeyMap = d: Exit Function
 
@@ -334,12 +343,23 @@ Public Function BuildKeyMap(ByVal ws As Worksheet, ByVal keyCol As String, ByVal
     lastRow = ws.Cells(ws.Rows.Count, keyCol).End(xlUp).Row
     If lastRow < dataRow Then Set BuildKeyMap = d: Exit Function
 
-    Dim r As Long, v As String
+    Dim r As Long, v As String, filterVal As String
+    Dim filterPrefix As String
+    If deptFilterCol <> "" And deptCode <> "" Then filterPrefix = deptCode & "-"
+
     For r = dataRow To lastRow
         v = Trim(CStr(ws.Cells(r, keyCol).Value))
         If v <> "" Then
+            ' 部門フィルタチェック
+            If filterPrefix <> "" Then
+                filterVal = CStr(ws.Cells(r, deptFilterCol).Value)
+                If Left(filterVal, Len(filterPrefix)) <> filterPrefix Then
+                    GoTo NextRow  ' フィルタ外
+                End If
+            End If
             If Not d.Exists(v) Then d.Add v, r
         End If
+NextRow:
     Next r
     Set BuildKeyMap = d
 End Function
@@ -382,10 +402,18 @@ End Sub
 ' ヘルパー: srcシートの全内容をスナップショットシートに書く
 '================================================================================
 Public Sub WriteSnapshotFromSheet(ByVal src As Worksheet, ByVal baseName As String)
+    ' 全行版（既存呼び出し互換用）
+    Call WriteSnapshotFromSheetFiltered(src, baseName, 1, "", "")
+End Sub
+
+' 部門フィルタ対応版
+Public Sub WriteSnapshotFromSheetFiltered(ByVal src As Worksheet, ByVal baseName As String, _
+                                          ByVal dataStartRow As Long, _
+                                          ByVal deptFilterCol As String, _
+                                          ByVal deptCode As String)
     Dim snapName As String: snapName = SNAPSHOT_PREFIX & baseName
     Dim snapSh As Worksheet
 
-    ' 既存スナップシートを取得 or 作成
     If SheetExistsIn(ThisWorkbook, snapName) Then
         Set snapSh = ThisWorkbook.Sheets(snapName)
     Else
@@ -394,13 +422,64 @@ Public Sub WriteSnapshotFromSheet(ByVal src As Worksheet, ByVal baseName As Stri
     End If
 
     On Error Resume Next
-    snapSh.Visible = xlSheetVeryHidden  ' 非表示（管理者からも見えない）
+    snapSh.Visible = xlSheetVeryHidden
     snapSh.Cells.Clear
+
     If src.UsedRange.Cells.CountLarge > 0 Then
-        src.UsedRange.Copy snapSh.Range("A1")
+        If deptFilterCol = "" Or deptCode = "" Then
+            ' フィルタなし: 全体コピー
+            src.UsedRange.Copy snapSh.Range("A1")
+        Else
+            ' フィルタあり: 行ごとに判定してコピー
+            Call CopyFilteredByDept(src, snapSh, dataStartRow, deptFilterCol, deptCode)
+        End If
     End If
     Application.CutCopyMode = False
     On Error GoTo 0
+End Sub
+
+' 部門フィルタを適用しつつシート間をコピー
+'   dataStartRow より前はヘッダ行として無条件コピー
+'   dataStartRow 以降は deptFilterCol の値が "deptCode-*" で始まる行のみコピー
+Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
+                              ByVal dataStartRow As Long, _
+                              ByVal deptFilterCol As String, _
+                              ByVal deptCode As String)
+    If src.UsedRange.Cells.CountLarge = 0 Then Exit Sub
+
+    Dim lastCol As Long: lastCol = src.UsedRange.Columns.Count
+    If lastCol < 1 Then lastCol = 1
+    Dim lastRow As Long: lastRow = src.UsedRange.Rows.Count + src.UsedRange.Row - 1
+
+    ' ヘッダ部（dataStartRow-1まで）は無条件コピー
+    If dataStartRow > 1 Then
+        src.Range(src.Cells(1, 1), src.Cells(dataStartRow - 1, lastCol)).Copy _
+            Destination:=dst.Cells(1, 1)
+    End If
+
+    ' フィルタが無効なら全体コピー
+    If deptFilterCol = "" Or deptCode = "" Then
+        If lastRow >= dataStartRow Then
+            src.Range(src.Cells(dataStartRow, 1), src.Cells(lastRow, lastCol)).Copy _
+                Destination:=dst.Cells(dataStartRow, 1)
+        End If
+        Application.CutCopyMode = False
+        Exit Sub
+    End If
+
+    ' 部門フィルタあり: 行ごとに判定して連続貼付け
+    Dim filterPrefix As String: filterPrefix = deptCode & "-"
+    Dim r As Long, dstRow As Long: dstRow = dataStartRow
+    Dim val As String
+    For r = dataStartRow To lastRow
+        val = CStr(src.Cells(r, deptFilterCol).Value)
+        If Left(val, Len(filterPrefix)) = filterPrefix Then
+            src.Range(src.Cells(r, 1), src.Cells(r, lastCol)).Copy _
+                Destination:=dst.Cells(dstRow, 1)
+            dstRow = dstRow + 1
+        End If
+    Next r
+    Application.CutCopyMode = False
 End Sub
 
 
