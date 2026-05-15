@@ -1,0 +1,84 @@
+Attribute VB_Name = "設定用コード"
+Option Explicit
+
+'================================================================================
+' 共通設定モジュール（工事番号入力管理表.xlsm 用）
+'
+' 【VBEでの設定方法】
+'   このファイルをインポート後、プロパティウィンドウで
+'   モジュール名を「Config」に変更すること。
+'
+' 【使い方】
+'   本番リリース時は IS_TEST_MODE を False にするだけでよい。
+'   シート名や保存先セルが変わった場合もここだけ修正すれば全モジュールに反映される。
+'================================================================================
+
+' ===== テスト設定 =====
+' True: 開発・テスト用ファイルを参照する（TEST_FILE_PATH が使われる）
+' False: 「入力フォーム」シートの PATH_CELL からパスを読み取る（本番動作）
+' ★ リリース時は必ず False にすること ★
+Public Const IS_TEST_MODE As Boolean = True
+Public Const TEST_FILE_PATH As String = "Z:\Users\n-machida\Desktop\工事番号管理表.xlsm"
+
+' ===== 外部マスターファイルの参照先 =====
+' 「入力フォーム」シート上の、外部ファイルパスが記載されているセル番地
+Public Const PATH_CELL As String = "A36"
+
+' ===== シート名 =====
+Public Const SHEET_KOUJI_LIST As String = "工事番号一覧"   ' データ本体
+Public Const SHEET_KANRI_MASTER As String = "管理マスタ"    ' 担当者リスト・設定値
+Public Const SHEET_OTHER_MASTER As String = "その他マスタ"  ' 提出先・同封物リスト
+Public Const SHEET_IRAI_RIREKI As String = "依頼履歴"       ' 依頼履歴
+Public Const SHEET_IRAISHO As String = "請求書提出依頼書"
+Public Const SHEET_CELL_SETTING As String = "依頼書セル設定"  ' 請求書提出依頼書のセル位置設定シート  ' 依頼書（マクロ専用シート）
+
+' ===== 管理マスタ上のセル番地 =====
+' G3: 外部ファイル上の「対象データシート名」（再登録・名称選択・登録フォームが参照）
+Public Const CELL_TARGET_SHEET As String = "G3"
+' G5: このツール内の「ローカルコピー先シート名」（UpdateLocalListSheet が参照）
+Public Const CELL_LOCAL_COPY_SHEET As String = "G5"
+
+' ===== シート保護パスワード =====
+' 現在は未使用（空欄）。将来的に保護を設定する場合はここで一括管理する。
+Public Const SHEET_PASSWORD As String = "3555"
+
+' ===== 部門コード（自部門識別用） =====
+' 各管理Excelで「自分がどの部門のファイルか」を表す2桁コード。
+' 工事番号の採番プレフィックス（"03-..." 等）や、工事番号一覧の表示フィルタに使う。
+' 「入力フォーム」シートの DEPT_CODE_CELL セル（既定: A37）に入力する。
+'   建築事業部 → "03"
+'   土木事業部 → "05"（仮）
+' 空の場合は "03"（建築事業部）にフォールバック。
+Public Const DEPT_CODE_CELL As String = "A37"
+
+' ===== 提出依頼者の所属部署 =====
+' 各管理Excelごとに固有の値を設定する（例: "建築事業部", "土木事業部" 等）
+' 空文字の場合は書き込みをスキップする
+Public Const SUBMITTER_DEPARTMENT As String = "建築事業部"
+
+'================================================================================
+' マスターファイルのパスを返す共通関数
+' IS_TEST_MODE が True の場合はテスト用パス、False の場合は「入力フォーム」シートの
+' PATH_CELL に記載されたパスを返す。
+'================================================================================
+Public Function GetMasterPath() As String
+    If IS_TEST_MODE Then
+        GetMasterPath = TEST_FILE_PATH
+    Else
+        GetMasterPath = Trim(CStr(ThisWorkbook.Sheets("入力フォーム").Range(PATH_CELL).Value))
+    End If
+End Function
+
+'================================================================================
+' 自部門コードを返す
+'   「入力フォーム」シート DEPT_CODE_CELL（A37）の値を読む。
+'   空 or 取得失敗時は "03"（建築事業部）にフォールバック。
+'================================================================================
+Public Function GetMyDeptCode() As String
+    Dim v As String
+    On Error Resume Next
+    v = Trim(CStr(ThisWorkbook.Sheets("入力フォーム").Range(DEPT_CODE_CELL).Value))
+    On Error GoTo 0
+    If v = "" Then v = "03"
+    GetMyDeptCode = v
+End Function
