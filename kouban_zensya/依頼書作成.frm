@@ -422,7 +422,9 @@ Private Sub 依頼書作成_Click()
         ' --- ヘッダー部 ---
         .Range(GetCellAddr("請求宛名")).Value = Me.請求書提出先.Value                    ' 請求宛名
         .Range(GetCellAddr("郵送先住所")).Value = "〒" & Me.郵便番号.Value & "　" & Me.住所.Value  ' 郵送先住所
-        .Range("F7").Value = Val(Replace(Me.請求金額.Value, ",", ""))  ' 請求金額(税込)
+        ' 請求金額(税込): セル設定シートから動的取得
+        Dim invAddr As String: invAddr = GetCellAddr("請求金額(税込)")
+        If invAddr <> "" Then .Range(invAddr).Value = Val(Replace(Me.請求金額.Value, ",", ""))
         .Range(GetCellAddr("消費税テキスト")).Value = "（ 内消費税　　￥" & Me.消費税.Value & " ）"  ' 消費税テキスト
         .Range(GetCellAddr("工事名称")).Value = Me.工事名称.Value                        ' 工事名称
         .Range(GetCellAddr("工事番号")).Value = m_KoujiBangou                            ' 工事番号
@@ -435,40 +437,18 @@ Private Sub 依頼書作成_Click()
         If IsDate(Me.引渡日.Value) Then .Range(GetCellAddr("引渡日")).Value = CDate(Me.引渡日.Value)
         If IsDate(Me.提出日付.Value) Then .Range(GetCellAddr("請求書日付")).Value = CDate(Me.提出日付.Value)
         
-        ' --- 明細5行（行14-18）---
-        .Range("F14").Value = Me.txt名称1.Value
-        .Range("N14").Value = Val(Me.数量1.Value)
-        .Range("P14").Value = Me.単位1.Value
-        .Range("Q14").Value = Val(Replace(Me.金額1.Value, ",", ""))
-        .Range("R14").Value = Val(Replace(Me.金額1.Value, ",", ""))
-        
-        .Range("F15").Value = Me.txt名称2.Value
-        .Range("N15").Value = Val(Me.数量2.Value)
-        .Range("P15").Value = Me.単位2.Value
-        .Range("Q15").Value = Val(Replace(Me.金額2.Value, ",", ""))
-        .Range("R15").Value = Val(Replace(Me.金額2.Value, ",", ""))
-        
-        .Range("F16").Value = Me.txt名称3.Value
-        .Range("N16").Value = Val(Me.数量3.Value)
-        .Range("P16").Value = Me.単位3.Value
-        .Range("Q16").Value = Val(Replace(Me.金額3.Value, ",", ""))
-        .Range("R16").Value = Val(Replace(Me.金額3.Value, ",", ""))
-        
-        .Range("F17").Value = Me.txt名称4.Value
-        .Range("N17").Value = Val(Me.数量4.Value)
-        .Range("P17").Value = Me.単位4.Value
-        .Range("Q17").Value = Val(Replace(Me.金額4.Value, ",", ""))
-        .Range("R17").Value = Val(Replace(Me.金額4.Value, ",", ""))
-        
-        .Range("F18").Value = Me.txt名称5.Value
-        .Range("N18").Value = Val(Me.数量5.Value)
-        .Range("P18").Value = Me.単位5.Value
-        .Range("Q18").Value = Val(Replace(Me.金額5.Value, ",", ""))
-        .Range("R18").Value = Val(Replace(Me.金額5.Value, ",", ""))
-        
-        ' --- 小計・消費税（行19-20）---
-        .Range("R19").Value = Val(Replace(Me.小計.Value, ",", ""))
-        .Range("R20").Value = Val(Replace(Me.消費税.Value, ",", ""))
+        ' --- 明細5行: セル設定シートから動的取得（GetMeisaiCellAddr/WriteMeisaiRow使用） ---
+        Call WriteMeisaiRowOnSheet(wsRequest, 1, Me.txt名称1.Value, Me.数量1.Value, Me.単位1.Value, Me.金額1.Value)
+        Call WriteMeisaiRowOnSheet(wsRequest, 2, Me.txt名称2.Value, Me.数量2.Value, Me.単位2.Value, Me.金額2.Value)
+        Call WriteMeisaiRowOnSheet(wsRequest, 3, Me.txt名称3.Value, Me.数量3.Value, Me.単位3.Value, Me.金額3.Value)
+        Call WriteMeisaiRowOnSheet(wsRequest, 4, Me.txt名称4.Value, Me.数量4.Value, Me.単位4.Value, Me.金額4.Value)
+        Call WriteMeisaiRowOnSheet(wsRequest, 5, Me.txt名称5.Value, Me.数量5.Value, Me.単位5.Value, Me.金額5.Value)
+
+        ' --- 小計・消費税: セル設定シートから動的計算で取得 ---
+        Dim subtotalAddr As String: subtotalAddr = GetSubtotalCellAddr()
+        Dim taxAddr As String: taxAddr = GetTaxCellAddr()
+        If subtotalAddr <> "" Then .Range(subtotalAddr).Value = Val(Replace(Me.小計.Value, ",", ""))
+        If taxAddr <> "" Then .Range(taxAddr).Value = Val(Replace(Me.消費税.Value, ",", ""))
         
         ' --- 引継ぎコメント ---
         .Range(GetCellAddr("引継ぎコメント")).Value = Me.引継ぎコメント.Value
