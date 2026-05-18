@@ -66,7 +66,10 @@ Public Sub マクロ_最新取得()
         If UBound(cfg) >= 4 Then deptFCol_get = CStr(cfg(4))
 
         ' ローカル可視シートへコピー（部門フィルタ適用）
-        dstSh.Cells.Clear
+        '   ※ 値のみクリア（書式は保持）：以前は .Cells.Clear で書式まで消していたが、
+        '     工事番号一覧の罫線・塗りつぶし・列幅などが毎回リセットされる問題があったため、
+        '     .Cells.ClearContents で値だけクリアするように変更。
+        dstSh.Cells.ClearContents
         If srcSh.UsedRange.Cells.CountLarge > 0 Then
             Call CopyFilteredByDept(srcSh, dstSh, CLng(cfg(2)), deptFCol_get, MY_DEPT_CODE)
         End If
