@@ -113,6 +113,13 @@ Sub UpdateKoujiBangoListSheet(Optional ByVal ShowMessage As Boolean = True)
     ' 自部門の行のみ表示するAutoFilterを適用（D列=工事番号）
     Call ApplyDeptFilter(wsDest)
 
+    ' B列「NO」(連番) を非表示にする（2026/6/1～ 工事番号だけで管理する仕様変更による）
+    '   従来は担当者番号と組み合わせて連番管理していたが、工事番号自体が一意の通番となったため
+    '   B列の連番表示は不要との運用方針。
+    On Error Resume Next
+    wsDest.Columns("B").Hidden = True
+    On Error GoTo 0
+
     If ShowMessage Then
         MsgBox "「" & destSheetName & "」シートが正常に更新されました。", vbInformation, "更新完了"
     End If

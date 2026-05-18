@@ -75,6 +75,14 @@ Public Sub マクロ_最新取得()
         ' スナップショットシートへもコピー（部門フィルタ適用、反映時の3者比較用）
         Call WriteSnapshotFromSheetFiltered(srcSh, sheetName, CLng(cfg(2)), deptFCol_get, MY_DEPT_CODE)
 
+        ' 工事番号一覧シートのB列「NO」(連番) を非表示にする
+        '   2026/6/1～ 工事番号だけで管理する仕様変更により、B列の連番表示は不要
+        If sheetName = "工事番号一覧" Then
+            On Error Resume Next
+            dstSh.Columns("B").Hidden = True
+            On Error GoTo 0
+        End If
+
         successCount = successCount + 1
         logText = logText & " - " & sheetName & " (取得成功)" & vbCrLf
 NextSheet:
