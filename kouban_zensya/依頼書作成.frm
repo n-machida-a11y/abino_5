@@ -438,11 +438,11 @@ Private Sub 依頼書作成_Click()
         If IsDate(Me.提出日付.Value) Then .Range(GetCellAddr("請求書日付")).Value = CDate(Me.提出日付.Value)
         
         ' --- 明細5行: セル設定シートから動的取得（GetMeisaiCellAddr/WriteMeisaiRow使用） ---
-        Call WriteMeisaiRowOnSheet(wsRequest, 1, Me.txt名称1.Value, Me.数量1.Value, Me.単位1.Value, Me.金額1.Value)
-        Call WriteMeisaiRowOnSheet(wsRequest, 2, Me.txt名称2.Value, Me.数量2.Value, Me.単位2.Value, Me.金額2.Value)
-        Call WriteMeisaiRowOnSheet(wsRequest, 3, Me.txt名称3.Value, Me.数量3.Value, Me.単位3.Value, Me.金額3.Value)
-        Call WriteMeisaiRowOnSheet(wsRequest, 4, Me.txt名称4.Value, Me.数量4.Value, Me.単位4.Value, Me.金額4.Value)
-        Call WriteMeisaiRowOnSheet(wsRequest, 5, Me.txt名称5.Value, Me.数量5.Value, Me.単位5.Value, Me.金額5.Value)
+        Call WriteMeisaiRowOnSheet(wsRequest, 1, Me.名称1.Value, Me.数量1.Value, Me.単位1.Value, Me.金額1.Value)
+        Call WriteMeisaiRowOnSheet(wsRequest, 2, Me.名称2.Value, Me.数量2.Value, Me.単位2.Value, Me.金額2.Value)
+        Call WriteMeisaiRowOnSheet(wsRequest, 3, Me.名称3.Value, Me.数量3.Value, Me.単位3.Value, Me.金額3.Value)
+        Call WriteMeisaiRowOnSheet(wsRequest, 4, Me.名称4.Value, Me.数量4.Value, Me.単位4.Value, Me.金額4.Value)
+        Call WriteMeisaiRowOnSheet(wsRequest, 5, Me.名称5.Value, Me.数量5.Value, Me.単位5.Value, Me.金額5.Value)
 
         ' --- 小計・消費税: セル設定シートから動的計算で取得 ---
         Dim subtotalAddr As String: subtotalAddr = GetSubtotalCellAddr()
@@ -1070,11 +1070,11 @@ Private Function BuildMeisaiJSON() As String
     Dim hasAny As Boolean
     
     ' フォームから値を集める
-    items(1, 1) = Me.txt名称1.Value: items(1, 2) = Me.数量1.Value: items(1, 3) = Me.単位1.Value: items(1, 4) = Me.金額1.Value
-    items(2, 1) = Me.txt名称2.Value: items(2, 2) = Me.数量2.Value: items(2, 3) = Me.単位2.Value: items(2, 4) = Me.金額2.Value
-    items(3, 1) = Me.txt名称3.Value: items(3, 2) = Me.数量3.Value: items(3, 3) = Me.単位3.Value: items(3, 4) = Me.金額3.Value
-    items(4, 1) = Me.txt名称4.Value: items(4, 2) = Me.数量4.Value: items(4, 3) = Me.単位4.Value: items(4, 4) = Me.金額4.Value
-    items(5, 1) = Me.txt名称5.Value: items(5, 2) = Me.数量5.Value: items(5, 3) = Me.単位5.Value: items(5, 4) = Me.金額5.Value
+    items(1, 1) = Me.名称1.Value: items(1, 2) = Me.数量1.Value: items(1, 3) = Me.単位1.Value: items(1, 4) = Me.金額1.Value
+    items(2, 1) = Me.名称2.Value: items(2, 2) = Me.数量2.Value: items(2, 3) = Me.単位2.Value: items(2, 4) = Me.金額2.Value
+    items(3, 1) = Me.名称3.Value: items(3, 2) = Me.数量3.Value: items(3, 3) = Me.単位3.Value: items(3, 4) = Me.金額3.Value
+    items(4, 1) = Me.名称4.Value: items(4, 2) = Me.数量4.Value: items(4, 3) = Me.単位4.Value: items(4, 4) = Me.金額4.Value
+    items(5, 1) = Me.名称5.Value: items(5, 2) = Me.数量5.Value: items(5, 3) = Me.単位5.Value: items(5, 4) = Me.金額5.Value
     
     result = "["
     For i = 1 To 5
@@ -1177,11 +1177,11 @@ Private Sub ParseMeisaiJSONToForm(ByVal jsonText As String)
     Dim i As Long, rowIdx As Long
     
     ' まず全行をクリア
-    Me.txt名称1.Value = "": Me.数量1.Value = "": Me.単位1.Value = "": Me.金額1.Value = ""
-    Me.txt名称2.Value = "": Me.数量2.Value = "": Me.単位2.Value = "": Me.金額2.Value = ""
-    Me.txt名称3.Value = "": Me.数量3.Value = "": Me.単位3.Value = "": Me.金額3.Value = ""
-    Me.txt名称4.Value = "": Me.数量4.Value = "": Me.単位4.Value = "": Me.金額4.Value = ""
-    Me.txt名称5.Value = "": Me.数量5.Value = "": Me.単位5.Value = "": Me.金額5.Value = ""
+    Me.名称1.Value = "": Me.数量1.Value = "": Me.単位1.Value = "": Me.金額1.Value = ""
+    Me.名称2.Value = "": Me.数量2.Value = "": Me.単位2.Value = "": Me.金額2.Value = ""
+    Me.名称3.Value = "": Me.数量3.Value = "": Me.単位3.Value = "": Me.金額3.Value = ""
+    Me.名称4.Value = "": Me.数量4.Value = "": Me.単位4.Value = "": Me.金額4.Value = ""
+    Me.名称5.Value = "": Me.数量5.Value = "": Me.単位5.Value = "": Me.金額5.Value = ""
     
     ' オブジェクト単位に分割（}, で区切る）
     Dim working As String
@@ -1209,11 +1209,11 @@ Private Sub ParseMeisaiJSONToForm(ByVal jsonText As String)
         amountVal = ExtractJSONField(obj, "amount")
         
         Select Case rowIdx
-            Case 1: Me.txt名称1.Value = nameVal: Me.数量1.Value = qtyVal: Me.単位1.Value = unitVal: Me.金額1.Value = amountVal
-            Case 2: Me.txt名称2.Value = nameVal: Me.数量2.Value = qtyVal: Me.単位2.Value = unitVal: Me.金額2.Value = amountVal
-            Case 3: Me.txt名称3.Value = nameVal: Me.数量3.Value = qtyVal: Me.単位3.Value = unitVal: Me.金額3.Value = amountVal
-            Case 4: Me.txt名称4.Value = nameVal: Me.数量4.Value = qtyVal: Me.単位4.Value = unitVal: Me.金額4.Value = amountVal
-            Case 5: Me.txt名称5.Value = nameVal: Me.数量5.Value = qtyVal: Me.単位5.Value = unitVal: Me.金額5.Value = amountVal
+            Case 1: Me.名称1.Value = nameVal: Me.数量1.Value = qtyVal: Me.単位1.Value = unitVal: Me.金額1.Value = amountVal
+            Case 2: Me.名称2.Value = nameVal: Me.数量2.Value = qtyVal: Me.単位2.Value = unitVal: Me.金額2.Value = amountVal
+            Case 3: Me.名称3.Value = nameVal: Me.数量3.Value = qtyVal: Me.単位3.Value = unitVal: Me.金額3.Value = amountVal
+            Case 4: Me.名称4.Value = nameVal: Me.数量4.Value = qtyVal: Me.単位4.Value = unitVal: Me.金額4.Value = amountVal
+            Case 5: Me.名称5.Value = nameVal: Me.数量5.Value = qtyVal: Me.単位5.Value = unitVal: Me.金額5.Value = amountVal
         End Select
         
         rowIdx = rowIdx + 1
