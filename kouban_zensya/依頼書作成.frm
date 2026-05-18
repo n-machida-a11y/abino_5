@@ -453,11 +453,13 @@ Private Sub 依頼書作成_Click()
         ' --- 引継ぎコメント ---
         .Range(GetCellAddr("引継ぎコメント")).Value = Me.引継ぎコメント.Value
         
-        ' --- 作成日（年・月・日を分割）---
+        ' --- 作成日（一つのセルに書き込み。着手日・完成日・引渡日と同様の形式） ---
+        '     旧VBAは [作成日(年)/作成日(月)/作成日(日)] の3セルに分割していたが、
+        '     お客様要望により1セルへ統一（LoadCellSettings で定義された "作成日" のセルを使う）。
+        '     3セル分割の互換運用が必要な場合は、依頼書セル設定シートに "作成日" を追加すればよい。
         If IsDate(Me.作成日.Value) Then
-            .Range(GetCellAddr("作成日(年)")).Value = Year(CDate(Me.作成日.Value))
-            .Range(GetCellAddr("作成日(月)")).Value = Month(CDate(Me.作成日.Value))
-            .Range(GetCellAddr("作成日(日)")).Value = Day(CDate(Me.作成日.Value))
+            Dim createdAddr As String: createdAddr = GetCellAddr("作成日")
+            If createdAddr <> "" Then .Range(createdAddr).Value = CDate(Me.作成日.Value)
         End If
         
         ' --- 担当者名 ---
