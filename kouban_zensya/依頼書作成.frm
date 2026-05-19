@@ -425,7 +425,7 @@ Private Sub 依頼書作成_Click()
         ' 請求金額(税込): セル設定シートから動的取得
         Dim invAddr As String: invAddr = GetCellAddr("請求金額(税込)")
         If invAddr <> "" Then .Range(invAddr).Value = Val(Replace(Me.請求金額.Value, ",", ""))
-        .Range(GetCellAddr("消費税テキスト")).Value = "（ 内消費税　　￥" & Me.消費税.Value & " ）"  ' 消費税テキスト
+        .Range(GetCellAddr("消費税テキスト")).Value = "（ 内消費税　　" & Me.消費税.Value & " ）"  ' 消費税テキスト（￥は新書式の要望により削除）
         .Range(GetCellAddr("工事名称")).Value = Me.工事名称.Value                        ' 工事名称
         .Range(GetCellAddr("工事番号")).Value = m_KoujiBangou                            ' 工事番号
         .Range(GetCellAddr("提出要項")).Value = GetSelectedTeishutsuyoukou()             ' 提出要項
@@ -464,6 +464,20 @@ Private Sub 依頼書作成_Click()
         
         ' --- 担当者名 ---
         .Range(GetCellAddr("担当者名")).Value = Me.担当者.Value
+
+        ' --- 但陽信金口座指定 ---
+        '     チェックが入っていれば "有" を書き込む（チェック無しは空欄）
+        '     依頼履歴シートのW列と同じ仕様。書き込み先セル番地は
+        '     「依頼書セル設定」シートの "但陽信金口座指定" 項目で指定。
+        '     項目が未登録 or セル番地が空欄なら書き込みをスキップ。
+        Dim tanyoAddr As String: tanyoAddr = GetCellAddr("但陽信金口座指定")
+        If tanyoAddr <> "" Then
+            If Me.但陽信金口座指定.Value = True Then
+                .Range(tanyoAddr).Value = "有"
+            Else
+                .Range(tanyoAddr).Value = ""
+            End If
+        End If
 
         ' --- 提出依頼者所属部署（各管理Excelごとに設定用コード.basで固定値を設定） ---
         If SUBMITTER_DEPARTMENT <> "" Then

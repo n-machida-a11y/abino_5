@@ -28,6 +28,14 @@ Private Sub Workbook_Open()
 
     On Error GoTo ErrorHandler
 
+    ' 工事番号一覧の B列「NO」(連番) を起動時に必ず非表示化
+    '   2026/6/1～ 工事番号で一意管理する仕様変更による
+    '   「更新」マクロ未実行でも、ファイルを開いた時点で確実に非表示にする
+    On Error Resume Next
+    ThisWorkbook.Sheets(SHEET_KOUJI_LIST).Columns("B").Hidden = True
+    Err.Clear
+    On Error GoTo ErrorHandler
+
     For Each ws In ThisWorkbook.Worksheets
         ' シートごとに独立してエラー処理（1枚失敗しても他は継続）
         ' interactive:=False でInputBoxを出さないようにする（起動時に邪魔なので）

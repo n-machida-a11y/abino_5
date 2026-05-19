@@ -317,17 +317,18 @@ Private Function CreateNewKoujiBangou(ByVal wsTarget As Worksheet, ByVal wsMaste
     staffNumberValue = wsMaster.Cells(matchRow, MASTER_COL_STAFF_NO).Value  ' 行データ用に取得（工事番号には使わない）
 
     ' 担当者番号は工事番号に含めない（2026/6/1～の新ルール）
-    '   旧: "03-YYZZ-NNN" (YY=年度, ZZ=担当者番号, NNN=3桁通し番号)
-    '   新: "03-YY-NNNNNN" (YY=年度, NNNNNN=6桁通し番号)
+    '   旧旧: "03-YYZZ-NNN" (YY=年度, ZZ=担当者番号, NNN=3桁通し番号)
+    '   旧:   "03-YY-NNNNNN" (YY=年度, NNNNNN=6桁通し番号)
+    '   新:   "03-YYNNNNN" (YY=年度, NNNNN=5桁通し番号、ハイフンは部門の後だけ)
     Dim deptCode As String: deptCode = GetMyDeptCode()  ' 自部門コード（A37セル）
-    prefix = deptCode & "-" & Right(CStr(inputYearShort), 2) & "-"  ' 例: "03-26-"
+    prefix = deptCode & "-" & Right(CStr(inputYearShort), 2)  ' 例: "03-26"
 
     maxZZZ = 0
     For r = 1 To wsTarget.Cells(wsTarget.Rows.count, COL_KOUJI_BANGO).End(xlUp).Row
         koujiBangou = CStr(wsTarget.Cells(r, COL_KOUJI_BANGO).Value)
         If Left(koujiBangou, Len(prefix)) = prefix Then
             Dim existingZZZ As String
-            ' プレフィックスより後ろの部分（6桁通し番号）を取得
+            ' プレフィックスより後ろの部分（5桁通し番号）を取得
             existingZZZ = Mid(koujiBangou, Len(prefix) + 1)
             If IsNumeric(existingZZZ) Then
                 If CLng(existingZZZ) > maxZZZ Then maxZZZ = CLng(existingZZZ)
@@ -335,7 +336,7 @@ Private Function CreateNewKoujiBangou(ByVal wsTarget As Worksheet, ByVal wsMaste
         End If
     Next r
 
-    CreateNewKoujiBangou = prefix & Format(maxZZZ + 1, "000000")  ' 6桁通し番号
+    CreateNewKoujiBangou = prefix & Format(maxZZZ + 1, "00000")  ' 5桁通し番号
 End Function
 
 Private Sub TransferDataToSheet(ByVal wsTarget As Worksheet, ByVal targetRow As Long, ByVal newKoujiBangou As String)
