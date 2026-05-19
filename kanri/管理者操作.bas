@@ -54,6 +54,18 @@ Public Sub マクロ_最新取得()
             GoTo NextSheet
         End If
 
+        ' 依頼書セル設定は最新取得から除外
+        '   → 管理者がローカルで編集中の項目（但陽信金口座指定 等）が
+        '     マスタの値で上書きされて消えてしまう事故を防ぐ。
+        '   → 同期は「マスタへ反映」マクロ側で差分マージにて行う設計。
+        '   ※ スナップショットは更新する（マスタへ反映時の3者比較のため）
+        If sheetName = "依頼書セル設定" Then
+            Call WriteSnapshotFromSheetFiltered(wbMaster.Sheets(sheetName), sheetName, CLng(cfg(2)), "", "")
+            logText = logText & " - " & sheetName & " (最新取得から除外。ローカル編集を保持)" & vbCrLf
+            skipCount = skipCount + 1
+            GoTo NextSheet
+        End If
+
         Dim srcSh As Worksheet, dstSh As Worksheet
         Set srcSh = wbMaster.Sheets(sheetName)
         Set dstSh = ThisWorkbook.Sheets(sheetName)
@@ -66,7 +78,10 @@ Public Sub マクロ_最新取得()
         If UBound(cfg) >= 4 Then deptFCol_get = CStr(cfg(4))
 
         ' ローカル可視シートへコピー（部門フィルタ適用）
-        dstSh.Cells.Clear
+        '   ※ 値のみクリア（書式は保持）：以前は .Cells.Clear で書式まで消していたが、
+        '     工事番号一覧の罫線・塗りつぶし・列幅などが毎回リセットされる問題があったため、
+        '     .Cells.ClearContents で値だけクリアするように変更。
+        dstSh.Cells.ClearContents
         If srcSh.UsedRange.Cells.CountLarge > 0 Then
             Call CopyFilteredByDept(srcSh, dstSh, CLng(cfg(2)), deptFCol_get, MY_DEPT_CODE)
         End If
