@@ -316,7 +316,8 @@ Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific A
     wsDest.Range(DEST_SUBJECT).Value = "上記工事代"
     
     If IsNumeric(wsSource.Range(SRC_AMOUNT).Value) Then
-        wsDest.Range(DEST_AMOUNT).Value = Int(wsSource.Range(SRC_AMOUNT).Value / 1.1)
+        ' 浮動小数点誤差対策で Round に変更（旧: Int だと 33000000/1.1 が 29999999.99... になり切り捨てで 29999999 になる）
+        wsDest.Range(DEST_AMOUNT).Value = Application.WorksheetFunction.Round(wsSource.Range(SRC_AMOUNT).Value / 1.1, 0)
     End If
     wsDest.Range(DEST_PROJECT_NO).Value = pNo
     
