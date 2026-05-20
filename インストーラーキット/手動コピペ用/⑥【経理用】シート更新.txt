@@ -171,6 +171,8 @@ Public Sub マクロ_新規作成()
     ' 履歴シートへの行追加
     lastRow = wsRireki.Cells(wsRireki.Rows.Count, "A").End(xlUp).Row
     Dim nextRow As Long: nextRow = lastRow + 1
+    ' 【シート保護対応】新規行追加前に保護解除
+    Call SafeUnprotect(wsRireki)
     wsRireki.Cells(nextRow, "A").Value = newIraiNo ' 文字列としてセットされるよう注意
     
     Dim logMsg As String
@@ -239,6 +241,8 @@ End Function
 
 Private Sub WriteDataToRireki(wsRireki As Worksheet, wsSearch As Worksheet, targetRow As Long, _
                               isNew As Boolean, autoReason As String, oldIraiNo As String)
+    ' 【シート保護対応】ローカル依頼履歴が保護されている場合に備えて解除
+    Call SafeUnprotect(wsRireki)
     With wsRireki
         .Cells(targetRow, 2).Value = wsSearch.Range(CELL_KEIRI_NO).Value
         .Cells(targetRow, 3).Value = wsSearch.Range(CELL_DATE_ISSUE).Value
@@ -291,6 +295,8 @@ Private Sub WriteDataToRireki(wsRireki As Worksheet, wsSearch As Worksheet, targ
     
     wsSearch.Range(CELL_HISTORY).Value = wsRireki.Cells(targetRow, 24).Value
     wsSearch.Range(CELL_MEMO).Value = wsRireki.Cells(targetRow, 25).Value
+    ' 【シート保護対応】書き込み完了後、再保護
+    Call SafeProtect(wsRireki)
     ' ThisWorkbook.Save は呼び出し元で「マスタ同期成功時のみ」実行する
     ' （先に物理保存するとマスタ同期失敗時にローカルだけ新値で残って不整合になる）
 End Sub
