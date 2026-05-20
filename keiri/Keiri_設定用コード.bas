@@ -91,12 +91,25 @@ End Function
 '================================================================================
 Public Const SHEET_PASSWORD As String = "3555"
 
-'--- 保護解除（パスワード違いでもエラーで止まらないように On Error 付き）---
+'--- 保護解除（複数パスワードを試して確実に解除）---
+'   1. SHEET_PASSWORD (3555) で試す
+'   2. パスワード無しで試す（パスワード設定無しの保護に対応）
+'   3. それでも保護されたままなら、書込時にエラーになる
+'      （その時はユーザーに保護解除を依頼するしかない）
 Public Sub SafeUnprotect(ByVal ws As Worksheet)
     If ws Is Nothing Then Exit Sub
+
     On Error Resume Next
+    ' (1) 既定パスワードで試す
     ws.Unprotect Password:=SHEET_PASSWORD
-    ' パスワード不一致でもエラーで止まらない（パスワード無しで保護解除を試みた事になる）
+    Err.Clear
+
+    ' (2) まだ保護されていればパスワード無しで試す
+    If ws.ProtectContents Then
+        ws.Unprotect
+        Err.Clear
+    End If
+
     On Error GoTo 0
 End Sub
 

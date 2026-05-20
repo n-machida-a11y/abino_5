@@ -305,7 +305,7 @@ PostCopyProcess:
     End If
     
     targetWs.Activate
-    Call TransferData(wsSrc, targetWs, honorific)
+    Call TransferData(wsSrc, targetWs, honorific, templateName)
     
     newSheetName = "No_" & targetWs.Range(DEST_KEIRI_NO).Value & "_" & templateName
     If Len(newSheetName) > 31 Then newSheetName = Left(newSheetName, 31)
@@ -343,7 +343,7 @@ Private Function SheetExists(sheetName As String) As Boolean
     Next ws
 End Function
 
-Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific As String)
+Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific As String, Optional ByVal templateName As String = "請求書")
     wsDest.Range(DEST_KEIRI_NO).Value = wsSource.Range(SRC_KEIRI_NO).Value
     
     Dim dSub As Variant: dSub = wsSource.Range(SRC_DATE_SUBMISSION).Value
@@ -425,7 +425,10 @@ Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific A
     End Select
     ' ------------------------------------------
     
-    Dim fn As String: fn = wsSource.Range(SRC_KEIRI_NO).Value & "_請求書_" & dName & "_" & pName & "_" & pNo
+    ' 【変更 2026/5/20】テンプレ種類をファイル名に含める
+    '   旧: "1_請求書_..." 固定 → 但陽信用金庫等で同名衝突していた
+    '   新: "1_<templateName>_..." → 種類ごとに別ファイル名
+    Dim fn As String: fn = wsSource.Range(SRC_KEIRI_NO).Value & "_" & templateName & "_" & dName & "_" & pName & "_" & pNo
     Dim invalid, c: invalid = Array("/", "\", ":", "*", "?", "<", ">", "|", "[", "]")
     For Each c In invalid: fn = Replace(fn, c, " "): Next
     wsDest.Range(DEST_FILENAME_CELL).Value = Trim(fn)
