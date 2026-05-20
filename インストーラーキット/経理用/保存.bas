@@ -271,7 +271,10 @@ Private Sub SyncInvoiceNoToMaster()
 
     targetRow = found.Row
     accountingNo = ActiveSheet.Range(CELL_ACCOUNTING_NO).Value
+    ' 【シート保護対応 2026/5/20】マスタの依頼履歴が保護されている場合に備え、解除→書込→再保護
+    Call SafeUnprotect(wsRireki)
     wsRireki.Cells(targetRow, 2).Value = accountingNo   ' B列に経理No書き込み
+    Call SafeProtect(wsRireki)
 
     wbMaster.Save
 

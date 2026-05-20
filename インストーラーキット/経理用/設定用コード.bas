@@ -77,3 +77,36 @@ Public Function GetMasterPath() As String
         GetMasterPath = Trim(CStr(ThisWorkbook.Sheets(SHEET_IRAI_RIREKI).Range(MASTER_PATH_CELL_KEIRI).Value))
     End If
 End Function
+
+
+'================================================================================
+' シート保護関連（マスタへの書き込み時に使用）
+'================================================================================
+' 【追加 2026/5/20】お客様環境ではマスタの依頼履歴シートが保護されており、
+' マクロ_上書き保存 / マクロ_新規作成 / 保存 等でマスタへ書き込む際に
+' 「実行時エラー 1004: 変更しようとしているセルは保護されているシート上にあります」
+' が発生したため、保護解除→書き込み→再保護のヘルパーを追加。
+'
+' パスワード「3555」は他のVBA(現場用・管理者用)と統一されている。
+'================================================================================
+Public Const SHEET_PASSWORD As String = "3555"
+
+'--- 保護解除（パスワード違いでもエラーで止まらないように On Error 付き）---
+Public Sub SafeUnprotect(ByVal ws As Worksheet)
+    If ws Is Nothing Then Exit Sub
+    On Error Resume Next
+    ws.Unprotect Password:=SHEET_PASSWORD
+    ' パスワード不一致でもエラーで止まらない（パスワード無しで保護解除を試みた事になる）
+    On Error GoTo 0
+End Sub
+
+'--- 再保護（フィルタ・ソートは許可する）---
+Public Sub SafeProtect(ByVal ws As Worksheet)
+    If ws Is Nothing Then Exit Sub
+    On Error Resume Next
+    ws.Protect Password:=SHEET_PASSWORD, _
+               AllowFiltering:=True, _
+               AllowSorting:=True, _
+               UserInterfaceOnly:=False
+    On Error GoTo 0
+End Sub

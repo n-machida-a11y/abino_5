@@ -365,6 +365,9 @@ Public Function SyncAllDataToMaster(ByVal targetIraiNo As String, ByVal isNew As
     
     Set wsM = wbM.Sheets(m_IRAI_RIREKI_SHEET_NAME)
     
+    ' 【シート保護対応】マスタの依頼履歴シートが保護されている場合に備え、書き込み前に解除
+    Call SafeUnprotect(wsM)
+    
     If isNew Then
         targetRow = wsM.Cells(wsM.Rows.Count, "A").End(xlUp).Row + 1
         wsM.Cells(targetRow, "A").Value = targetIraiNo
@@ -409,6 +412,9 @@ Public Function SyncAllDataToMaster(ByVal targetIraiNo As String, ByVal isNew As
         .Cells(targetRow, 24).Value = wsS.Range(CELL_HISTORY).Value
         .Cells(targetRow, 25).Value = wsS.Range(CELL_MEMO).Value
     End With
+    
+    ' 【シート保護対応】書き込み完了後、再保護
+    Call SafeProtect(wsM)
     
     wbM.Save
     wbM.Close False
