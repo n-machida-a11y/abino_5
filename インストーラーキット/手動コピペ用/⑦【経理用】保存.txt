@@ -1,12 +1,66 @@
 ﻿Option Explicit
 
-Private Const CELL_INVOICE_FILE_NAME As String = "AK1"
-Private Const CELL_ACCOUNTING_NO As String = "AF1"
-Private Const CELL_MONTH_COL1 As String = "AE3"
-Private Const CELL_MONTH_COL2 As String = "AB3"
+'================================================================================
+' モジュール: 保存（【共有_経理用】請求書作成.xlsm 用）
+'================================================================================
+' 【役割】
+'   請求書シート（No_xx_請求書 等）の保存処理。
+'   - シートを xlsx として独立ファイルに保存
+'   - 同時にマスタの依頼履歴へ経理番号を書き戻し
+'
+' 【ボタン登録】
+'   各テンプレート請求書シートの右側（AJ列以降）にある「保存」ボタンに
+'   登録されている。保存実行時は、その請求書シートが ActiveSheet になる。
+'
+' 【保存パス構造】
+'   依頼検索!C1（ベース）\YYYY年M月請求書\<AK1のファイル名>.xlsx
+'
+'   - ベースフォルダ: 依頼検索!C1 セルで指定（空ならDownloads）
+'   - 年月フォルダ : ActiveSheet の AB3(年) + AE3(月) から構築
+'   - ファイル名   : ActiveSheet の AK1 から取得
+'
+' 【依存関係】
+'   - Config モジュール: GetMasterPath(), SHEET_IRAI_RIREKI, SHEET_IRAI_SEARCH
+'
+' 【重要なバグ修正履歴】
+'   - 2026/5/20: シートコピー Before→After に修正（保存xlsxがまっさらになるバグ）
+'   - 2026/5/20: AJ列以降のシェイプ削除（保存ボタンが xlsx に残るバグ）
+'   - 2026/5/18: 月年フォルダ名を「2026年4月」順に修正（旧: 4月2026 だった）
+'   - 2026/5/18: 依頼検索!C1 から保存パス取得に変更（旧: 環境変数固定だった）
+'
+' 【セル位置定数の解説】
+'   AK1 = 保存ファイル名（請求書作成マクロが書き込む。例: "1_請求書_㈱○○_工事名_03-2600001"）
+'   AF1 = 経理番号（マスタへ書き戻す対象）
+'   AB3 = 年（請求書日付の年。月年フォルダ名に使う）
+'   AE3 = 月（請求書日付の月。月年フォルダ名に使う）
+'================================================================================
+
+
+' --- セル位置定数（請求書シート上の重要セル） ---
+Private Const CELL_INVOICE_FILE_NAME As String = "AK1"   ' 保存ファイル名
+Private Const CELL_ACCOUNTING_NO     As String = "AF1"   ' 経理番号
+Private Const CELL_MONTH_COL1        As String = "AE3"   ' 月
+Private Const CELL_MONTH_COL2        As String = "AB3"   ' 年
+
 
 '================================================================================
-' 主要処理：保存＆印刷
+' 主要処理：保存＆印刷（ボタンから呼び出される）
+'================================================================================
+' 【処理フロー】
+'   1. マスタ同期       : SyncInvoiceNoToMaster で経理No をマスタに書き込み
+'   2. ファイル名取得   : ActiveSheet!AK1 から取得
+'   3. 年月取得         : ActiveSheet!AB3, AE3 から「YYYY年M月」を構築
+'   4. 保存先決定       : 依頼検索!C1（無ければ Downloads）+ 年月フォルダ
+'   5. フォルダ作成     : FileSystemObject で確実に作成
+'   6. 新ブック作成     : ActiveSheet を新ブックに After:= でコピー
+'   7. 不要シート削除   : 元の空 Sheet1 を削除
+'   8. ボタン削除       : AJ列以降のシェイプを削除（保存ボタン等を除く）
+'   9. xlsx保存         : SaveAs → Close
+'  10. 完了メッセージ   : 保存パスをユーザーに通知
+'
+' 【エラー時】
+'   On Error GoTo Cleanup で診断情報付きメッセージを表示
+'   ScreenUpdating は必ず元に戻す
 '================================================================================
 Public Sub 保存_印刷作業()
     Dim activeSht As Worksheet
@@ -17,20 +71,24 @@ Public Sub 保存_印刷作業()
     Application.ScreenUpdating = False
     On Error GoTo Cleanup
 
+    ' --- ① マスタ同期：経理番号をマスタの依頼履歴へ書き込み ---
     Call SyncInvoiceNoToMaster
 
     Dim baseFolder As String, invoiceFolder As String
     Dim fileName As String, monthYear As String
 
+    ' --- ② ファイル名取得（AK1）---
     fileName = CStr(activeSht.Range(CELL_INVOICE_FILE_NAME).Value)
-    ' 年月フォルダ名を「YYYY年M月」形式で構築（旧: 月+年 のおかしな順序だった）
-    Dim yearVal As String: yearVal = CStr(activeSht.Range(CELL_MONTH_COL2).Value)  ' AB3 = 年
+
+    ' --- ③ 年月フォルダ名を「YYYY年M月」形式で構築 ---
+    '   旧: 月+年 のおかしな順序だった不具合を修正
+    Dim yearVal As String:  yearVal  = CStr(activeSht.Range(CELL_MONTH_COL2).Value)  ' AB3 = 年
     Dim monthVal As String: monthVal = CStr(activeSht.Range(CELL_MONTH_COL1).Value)  ' AE3 = 月
-    If yearVal = "" Then yearVal = CStr(Year(Date))
-    If monthVal = "" Then monthVal = CStr(Month(Date))
+    If yearVal = "" Then yearVal = CStr(Year(Date))    ' 空欄なら今日の年でフォールバック
+    If monthVal = "" Then monthVal = CStr(Month(Date)) ' 空欄なら今日の月でフォールバック
     monthYear = yearVal & "年" & monthVal & "月"
 
-    ' ファイル名に使えない文字(\/:*?<>|)を除去
+    ' --- ④ ファイル名に使えない文字(\/:*?<>|)を除去 ---
     fileName = SanitizeFileName(fileName)
     monthYear = SanitizeFileName(monthYear)
 
@@ -40,8 +98,8 @@ Public Sub 保存_印刷作業()
         Exit Sub
     End If
 
-    ' 保存先ベースフォルダ: 依頼検索!C1 セルの値を優先使用
-    ' C1 が空の場合は Downloads にフォールバック
+    ' --- ⑤ 保存先ベースフォルダ取得 ---
+    '   依頼検索!C1 の値を優先使用、空なら Downloads フォルダにフォールバック
     On Error Resume Next
     baseFolder = Trim(CStr(ThisWorkbook.Sheets("依頼検索").Range("C1").Value))
     On Error GoTo Cleanup
@@ -63,7 +121,8 @@ Public Sub 保存_印刷作業()
 
     invoiceFolder = baseFolder & "\" & monthYear & "請求書"
 
-    ' FileSystemObjectで確実にフォルダ作成（OneDrive等でMkDirが失敗する環境対策）
+    ' --- ⑥ FileSystemObject でフォルダ確実作成 ---
+    '   OneDrive等の Known Folder Move 環境では MkDir が失敗するため FSO 必須
     Dim fso As Object
     Set fso = CreateObject("Scripting.FileSystemObject")
     If Not fso.FolderExists(baseFolder) Then
@@ -83,6 +142,7 @@ Public Sub 保存_印刷作業()
         Exit Sub
     End If
 
+    ' --- ⑦ 新ブック作成＆シートコピー ---
     Dim newWb As Workbook
     Set newWb = Workbooks.Add
     ' 【バグ修正 2026/5/20】
@@ -95,7 +155,10 @@ Public Sub 保存_印刷作業()
     newWb.Sheets(1).Delete  ' 元のSheet1（空）を削除。コピーした請求書は残る。
     Application.DisplayAlerts = True
 
-    ' AJ列以降のボタン・図形を削除（保存ボタン等を xlsx に含めない）
+    ' --- ⑧ AJ列以降のボタン・図形を削除 ---
+    '   テンプレ請求書の右側（AJ列以降）には「保存」ボタン等のマクロ用
+    '   オブジェクトが配置されている。これが xlsx に含まれてお客様に渡ると
+    '   不要なので、保存前に削除する。
     Dim copiedSht As Worksheet
     Set copiedSht = newWb.Sheets(1)
     Dim ajLeft As Double: ajLeft = copiedSht.Range("AJ1").Left
@@ -106,13 +169,15 @@ Public Sub 保存_印刷作業()
         On Error GoTo 0
     Next shp
 
+    ' --- ⑨ xlsx 保存 ---
     Dim filePath As String
     filePath = invoiceFolder & "\" & fileName & ".xlsx"
     newWb.SaveAs filePath, FileFormat:=xlOpenXMLWorkbook
     newWb.Close SaveChanges:=False
 
-    ' 保存後もシートは削除せず、そのまま残す
-    ' (印刷し直しや再確認のため。不要になったらユーザー側で手動削除)
+    ' --- ⑩ 完了 ---
+    '   ※ 保存後の請求書シート（No_xx_請求書）はこのブック内に残す
+    '     （印刷し直しや再確認のため。不要になったらユーザー側で手動削除）
 
     Application.ScreenUpdating = initialScreen
     MsgBox "ファイルを保存しました。" & vbCrLf & "保存先：" & filePath, vbInformation
@@ -133,9 +198,24 @@ Cleanup:
     MsgBox diag, vbCritical
 End Sub
 
+
 '================================================================================
-' マスタ同期処理：請求書番号をマスタ依頼履歴に書き込む
-' 【修正】複数の早期 Exit を廃止し、Cleanup ラベルで一元管理する。
+' SyncInvoiceNoToMaster: マスタ同期処理
+'================================================================================
+' 【役割】
+'   現在の請求書シート（ActiveSheet）の AF1（経理番号）を、
+'   マスタファイルの「依頼履歴」シートのB列に書き込む。
+'   検索キーは「依頼検索!A2」の依頼NO。
+'
+' 【副作用】
+'   - マスタファイルを開く（書き込み権限）→ 書き込み後に Save → Close
+'   - エラー時も必ず Cleanup ラベルを通って wbMaster.Close を実行
+'
+' 【エラー条件】
+'   - マスタファイルのパスが空 → メッセージ表示してスキップ
+'   - マスタファイルが存在しない → 同上
+'   - マスタにロックがかかっている → Open で例外、Cleanup へ
+'   - 依頼NOがマスタに存在しない → メッセージ表示してスキップ
 '================================================================================
 Private Sub SyncInvoiceNoToMaster()
     Dim mPath As String
@@ -149,12 +229,12 @@ Private Sub SyncInvoiceNoToMaster()
 
     Set wsSearch = ThisWorkbook.Sheets(SHEET_IRAI_SEARCH)
 
-    ' 【変更】Application.Run("GetMasterPath") → GetMasterPath() の直接呼び出し
+    ' Config モジュールから直接マスタパスを取得（旧: Application.Run でラップしていた）
     mPath = GetMasterPath()
 
     On Error GoTo Cleanup
 
-    ' 空パス対策：Dir("") はエラー52(ファイル名が不正)を投げる
+    ' 空パス対策：Dir("") はエラー52(ファイル名が不正)を投げるため事前チェック
     If Trim(mPath) = "" Then
         MsgBox "マスタファイルのパスが設定されていません。" & vbCrLf & _
                "依頼履歴シートのG1セルにパスを設定してください。", vbCritical
@@ -190,20 +270,24 @@ Private Sub SyncInvoiceNoToMaster()
 
     targetRow = found.Row
     accountingNo = ActiveSheet.Range(CELL_ACCOUNTING_NO).Value
-    wsRireki.Cells(targetRow, 2).Value = accountingNo
+    wsRireki.Cells(targetRow, 2).Value = accountingNo   ' B列に経理No書き込み
 
     wbMaster.Save
 
 Cleanup:
-    ' 正常時もエラー時も必ずここを通る
+    ' 正常時もエラー時も必ずここを通る（マスタファイルが残らないように）
     If Not wbMaster Is Nothing Then wbMaster.Close False
     If Err.Number <> 0 Then
         MsgBox "マスタ同期中にエラーが発生しました。" & vbCrLf & Err.Description, vbCritical
     End If
 End Sub
 
+
 '================================================================================
-' ファイル名に使えない文字を安全な記号で置換
+' SanitizeFileName: ファイル名に使えない文字を安全な記号で置換
+'================================================================================
+' Windowsのファイル名禁止文字 \/:*?"<>| を全て "_" に置換する。
+' 工事名に「㈱」や「（）」が含まれる場合があるので、それらは禁止文字に該当しないので残る。
 '================================================================================
 Private Function SanitizeFileName(ByVal name As String) As String
     Dim bad As String, i As Long, ch As String
