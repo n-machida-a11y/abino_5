@@ -463,84 +463,121 @@ End Sub
 ' 部門フィルタを適用しつつシート間をコピー
 '   dataStartRow より前はヘッダ行として無条件コピー
 '   dataStartRow 以降は deptFilterCol の値が "deptCode-*" で始まる行のみコピー
+'
+' 【v2】2026/5/19 リファクタ:
+'   - UsedRange の絶対座標から lastCol/lastRow を算出（起点が A1 でなくても安全）
+'   - 出力配列のサイズを「実際にコピーする行数」で正確に確保（書き込み時の
+'     サイズ不一致による書き込み失敗を排除）
+'   - エラー握りつぶしを止め、Debug.Print で動作ログを出力
+'     （イミディエイトウィンドウ Ctrl+G で確認可能）
 Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
                               ByVal dataStartRow As Long, _
                               ByVal deptFilterCol As String, _
                               ByVal deptCode As String)
-    ' 配列ベースの高速版: src の全データを一括読み込み→メモリ内でフィルタ→一括書き込み
-    ' 旧版は行ごとに .Copy していて、行数増えると激遅だった
+    If src Is Nothing Or dst Is Nothing Then
+        Debug.Print "[CopyFilteredByDept] ABORT: src or dst is Nothing"
+        Exit Sub
+    End If
 
-    On Error GoTo CleanupCopy
-    If src Is Nothing Or dst Is Nothing Then Exit Sub
-    If src.UsedRange.Cells.CountLarge = 0 Then Exit Sub
+    Dim usedRng As Range
+    Set usedRng = src.UsedRange
+    If usedRng Is Nothing Then
+        Debug.Print "[CopyFilteredByDept] ABORT: src has no UsedRange (sheet=" & src.Name & ")"
+        Exit Sub
+    End If
+    If usedRng.Cells.CountLarge = 0 Then
+        Debug.Print "[CopyFilteredByDept] ABORT: UsedRange is empty (sheet=" & src.Name & ")"
+        Exit Sub
+    End If
 
-    Dim lastCol As Long: lastCol = src.UsedRange.Columns.Count
+    ' UsedRange の絶対座標から右下端を算出
+    Dim lastCol As Long
+    Dim lastRow As Long
+    lastCol = usedRng.Column + usedRng.Columns.Count - 1
+    lastRow = usedRng.Row + usedRng.Rows.Count - 1
     If lastCol < 1 Then lastCol = 1
-    Dim lastRow As Long: lastRow = src.UsedRange.Rows.Count + src.UsedRange.Row - 1
     If lastRow < 1 Then Exit Sub
 
-    ' UsedRange の開始セルが A1 とは限らないので、A1～(lastRow, lastCol) を明示指定
+    Debug.Print "[CopyFilteredByDept] sheet=" & src.Name & _
+                " UsedRange=" & usedRng.Address & _
+                " lastRow=" & lastRow & " lastCol=" & lastCol & _
+                " dataStartRow=" & dataStartRow & _
+                " deptFilterCol=" & deptFilterCol & " deptCode=" & deptCode
+
+    ' A1～(lastRow, lastCol) を一括読み込み
     Dim readRange As Range
     Set readRange = src.Range(src.Cells(1, 1), src.Cells(lastRow, lastCol))
-
-    ' 一括読込（型は Variant 2次元配列 1始まり）
     Dim arr As Variant
     If readRange.Cells.Count = 1 Then
-        ' 1セルだけの場合は配列にならないので個別処理
         ReDim arr(1 To 1, 1 To 1)
         arr(1, 1) = readRange.Value
     Else
         arr = readRange.Value
     End If
 
-    ' 列文字 → 列インデックス変換（deptFilterCol が "D" → 4 等）
+    ' フィルタ列インデックス
     Dim filterColIdx As Long: filterColIdx = 0
     If deptFilterCol <> "" And deptCode <> "" Then
+        On Error Resume Next
         filterColIdx = src.Range(deptFilterCol & "1").Column
+        On Error GoTo 0
     End If
 
-    ' 出力用配列（最大行数 = 入力行数）
-    Dim outArr() As Variant
-    ReDim outArr(1 To lastRow, 1 To lastCol)
-    Dim outRow As Long: outRow = 0
-
-    Dim r As Long, c As Long
     Dim filterPrefix As String
     If filterColIdx > 0 Then filterPrefix = deptCode & "-"
 
-    ' ヘッダ部（dataStartRow-1 まで）: 無条件で含める
+    ' フィルタ後の対象行をリストに溜める
+    Dim resultRows As Collection
+    Set resultRows = New Collection
+    Dim r As Long
+
+    ' ヘッダ部（無条件）
     For r = 1 To dataStartRow - 1
         If r > lastRow Then Exit For
-        outRow = outRow + 1
-        For c = 1 To lastCol
-            outArr(outRow, c) = arr(r, c)
-        Next c
+        resultRows.Add r
     Next r
 
-    ' データ部: フィルタ判定して含める
+    ' データ部（フィルタ判定）
+    Dim filteredOutCount As Long: filteredOutCount = 0
     For r = dataStartRow To lastRow
         Dim include As Boolean: include = True
         If filterColIdx > 0 Then
             Dim val As String
             val = CStr(arr(r, filterColIdx))
-            If Left(val, Len(filterPrefix)) <> filterPrefix Then include = False
+            If Left(val, Len(filterPrefix)) <> filterPrefix Then
+                include = False
+                filteredOutCount = filteredOutCount + 1
+            End If
         End If
-        If include Then
-            outRow = outRow + 1
-            For c = 1 To lastCol
-                outArr(outRow, c) = arr(r, c)
-            Next c
-        End If
+        If include Then resultRows.Add r
     Next r
 
-    ' 一括書き込み
-    If outRow > 0 Then
-        dst.Range(dst.Cells(1, 1), dst.Cells(outRow, lastCol)).Value = outArr
+    Debug.Print "[CopyFilteredByDept] result rows=" & resultRows.Count & _
+                " (filtered out=" & filteredOutCount & ")"
+
+    If resultRows.Count = 0 Then
+        Debug.Print "[CopyFilteredByDept] No rows to copy. Skipped."
+        Exit Sub
     End If
 
-CleanupCopy:
+    ' 結果配列を正確なサイズで構築（書き込み時のサイズ不一致を防ぐ）
+    Dim outArr() As Variant
+    ReDim outArr(1 To resultRows.Count, 1 To lastCol)
+    Dim outR As Long, c As Long
+    For outR = 1 To resultRows.Count
+        Dim srcR As Long: srcR = resultRows(outR)
+        For c = 1 To lastCol
+            outArr(outR, c) = arr(srcR, c)
+        Next c
+    Next outR
+
+    ' 一括書き込み
+    dst.Range(dst.Cells(1, 1), dst.Cells(resultRows.Count, lastCol)).Value = outArr
+
+    Debug.Print "[CopyFilteredByDept] WROTE " & resultRows.Count & " rows × " & _
+                lastCol & " cols to " & dst.Name
+
     Application.CutCopyMode = False
-    On Error GoTo 0
 End Sub
 
 
