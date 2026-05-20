@@ -95,6 +95,17 @@ Public Sub 保存_印刷作業()
     newWb.Sheets(1).Delete  ' 元のSheet1（空）を削除。コピーした請求書は残る。
     Application.DisplayAlerts = True
 
+    ' AJ列以降のボタン・図形を削除（保存ボタン等を xlsx に含めない）
+    Dim copiedSht As Worksheet
+    Set copiedSht = newWb.Sheets(1)
+    Dim ajLeft As Double: ajLeft = copiedSht.Range("AJ1").Left
+    Dim shp As Object
+    For Each shp In copiedSht.Shapes
+        On Error Resume Next
+        If shp.Left >= ajLeft Then shp.Delete
+        On Error GoTo 0
+    Next shp
+
     Dim filePath As String
     filePath = invoiceFolder & "\" & fileName & ".xlsx"
     newWb.SaveAs filePath, FileFormat:=xlOpenXMLWorkbook
