@@ -86,9 +86,14 @@ Public Sub 保存_印刷作業()
 
     Dim newWb As Workbook
     Set newWb = Workbooks.Add
-    activeSht.Copy Before:=newWb.Sheets(1)
+    ' 【バグ修正 2026/5/20】
+    '   旧: Copy Before:=Sheets(1) → Sheets(1).Delete
+    '     これだとコピーした請求書シートが Sheets(1) になってしまい、
+    '     Sheets(1).Delete が「コピーした請求書」を削除する致命的バグだった。
+    '   新: Copy After:=Sheets(1) で末尾にコピー → 元の空Sheet1(=Sheets(1))を削除。
+    activeSht.Copy After:=newWb.Sheets(1)
     Application.DisplayAlerts = False  ' シート削除の確認ダイアログを抑制
-    newWb.Sheets(1).Delete
+    newWb.Sheets(1).Delete  ' 元のSheet1（空）を削除。コピーした請求書は残る。
     Application.DisplayAlerts = True
 
     Dim filePath As String
