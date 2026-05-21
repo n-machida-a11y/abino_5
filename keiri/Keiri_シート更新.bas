@@ -300,8 +300,7 @@ Private Sub WriteDataToRireki(wsRireki As Worksheet, wsSearch As Worksheet, targ
     
     wsSearch.Range(CELL_HISTORY).Value = wsRireki.Cells(targetRow, 24).Value
     wsSearch.Range(CELL_MEMO).Value = wsRireki.Cells(targetRow, 25).Value
-    ' 【シート保護対応】書き込み完了後、再保護
-    Call SafeProtect(wsRireki)
+    ' 【2026/5/20】ローカル経理用ブックは保護なし運用 → SafeProtect不要
     ' ThisWorkbook.Save は呼び出し元で「マスタ同期成功時のみ」実行する
     ' （先に物理保存するとマスタ同期失敗時にローカルだけ新値で残って不整合になる）
 End Sub
@@ -597,8 +596,7 @@ Function UpdateKeiriRirekiSheet(Optional ByVal ShowMessage As Boolean = True) As
         wsSrc.Range("A2:Z" & l).Copy wsDst.Range("A3")
     End If
     
-    ' 【シート保護対応】書き込み完了後、再保護
-    Call SafeProtect(wsDst)
+    ' 【2026/5/20】ローカル経理用ブックは保護なし運用 → SafeProtect不要
     
     wbT.Close False
     If ShowMessage Then MsgBox "最新データを取得しました。"

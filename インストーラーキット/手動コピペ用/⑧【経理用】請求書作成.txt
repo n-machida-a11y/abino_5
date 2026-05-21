@@ -228,33 +228,25 @@ Public Sub AssignAccountingInvoiceNo()
             maxNo = Application.WorksheetFunction.Max(wsRireki.Range("B3:B" & lastRow))
         End If
         
-        Call SafeUnprotect(wsSearch)
         wsSearch.Range(SRC_KEIRI_NO).Value = Int(maxNo) + 1
-        Call SafeProtect(wsSearch)
         
         Set f = wsRireki.Columns("A").Find(What:=irNo, LookIn:=xlValues, LookAt:=xlWhole)
         If Not f Is Nothing Then
-            Call SafeUnprotect(wsRireki)
             wsRireki.Cells(f.Row, "B").Value = wsSearch.Range(SRC_KEIRI_NO).Value
-            Call SafeProtect(wsRireki)
         End If
     End If
 
     ' --- 発行日入力（F9が空の場合のみ、今日の日付） ---
     '   2026/5/20: 請求書作成時に発行日も自動入力するよう追加
     If wsSearch.Range(SRC_DATE_ISSUE).Value = "" Then
-        Call SafeUnprotect(wsSearch)
         wsSearch.Range(SRC_DATE_ISSUE).Value = Date
-        Call SafeProtect(wsSearch)
         
-        ' マスタの依頼履歴 C列(発行日) にも書き込み
+        ' ローカル依頼履歴 C列(発行日) にも書き込み
         If f Is Nothing Then
             Set f = wsRireki.Columns("A").Find(What:=irNo, LookIn:=xlValues, LookAt:=xlWhole)
         End If
         If Not f Is Nothing Then
-            Call SafeUnprotect(wsRireki)
             wsRireki.Cells(f.Row, "C").Value = Date
-            Call SafeProtect(wsRireki)
         End If
     End If
 End Sub
@@ -368,9 +360,8 @@ Private Function SheetExists(sheetName As String) As Boolean
 End Function
 
 Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific As String, Optional ByVal templateName As String = "請求書")
-    ' 【シート保護対応 2026/5/20】テンプレシートが保護されている場合、
-    ' コピーされた wsDest にも保護が継承されるため、書き込み前に解除する
-    Call SafeUnprotect(wsDest)
+    ' 【2026/5/20】ローカル経理用ブックは保護なし運用
+    '   ※ もしテンプレが保護されていてここでエラーになる場合のみ SafeUnprotect 再追加
     
     wsDest.Range(DEST_KEIRI_NO).Value = wsSource.Range(SRC_KEIRI_NO).Value
     
@@ -461,8 +452,9 @@ Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific A
     For Each c In invalid: fn = Replace(fn, c, " "): Next
     wsDest.Range(DEST_FILENAME_CELL).Value = Trim(fn)
     
-    ' 【シート保護対応】書き込み完了後、再保護
-    Call SafeProtect(wsDest)
+    ' 【2026/5/20 修正】請求書シート(No_xx_請求書)はユーザーが内容確認・
+    ' 編集するシートなので、再保護しない。
+    ' 冒頭の SafeUnprotect は「テンプレからの保護継承」を解除するためのもの。
 End Sub
 
 Private Function DetermineHonorific(ByVal t As String) As String
