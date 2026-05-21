@@ -583,11 +583,17 @@ Function UpdateKeiriRirekiSheet(Optional ByVal ShowMessage As Boolean = True) As
     Set wsSrc = wbT.Sheets(m_IRAI_RIREKI_SHEET_NAME)
     Set wsDst = ThisWorkbook.Sheets(m_IRAI_RIREKI_SHEET_NAME)
     
+    ' 【シート保護対応】ローカル依頼履歴シートが保護されている場合に備え、解除
+    Call SafeUnprotect(wsDst)
+    
     wsDst.Range("A3:Z" & wsDst.Rows.Count).Clear
     l = wsSrc.Cells(wsSrc.Rows.Count, "A").End(xlUp).Row
     If l >= 2 Then
         wsSrc.Range("A2:Z" & l).Copy wsDst.Range("A3")
     End If
+    
+    ' 【シート保護対応】書き込み完了後、再保護
+    Call SafeProtect(wsDst)
     
     wbT.Close False
     If ShowMessage Then MsgBox "最新データを取得しました。"
