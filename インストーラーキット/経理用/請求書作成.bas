@@ -344,6 +344,10 @@ Private Function SheetExists(sheetName As String) As Boolean
 End Function
 
 Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific As String, Optional ByVal templateName As String = "請求書")
+    ' 【シート保護対応 2026/5/20】テンプレシートが保護されている場合、
+    ' コピーされた wsDest にも保護が継承されるため、書き込み前に解除する
+    Call SafeUnprotect(wsDest)
+    
     wsDest.Range(DEST_KEIRI_NO).Value = wsSource.Range(SRC_KEIRI_NO).Value
     
     Dim dSub As Variant: dSub = wsSource.Range(SRC_DATE_SUBMISSION).Value
@@ -432,6 +436,9 @@ Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific A
     Dim invalid, c: invalid = Array("/", "\", ":", "*", "?", "<", ">", "|", "[", "]")
     For Each c In invalid: fn = Replace(fn, c, " "): Next
     wsDest.Range(DEST_FILENAME_CELL).Value = Trim(fn)
+    
+    ' 【シート保護対応】書き込み完了後、再保護
+    Call SafeProtect(wsDest)
 End Sub
 
 Private Function DetermineHonorific(ByVal t As String) As String

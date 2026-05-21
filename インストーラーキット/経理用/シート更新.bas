@@ -98,6 +98,11 @@ Private Const CELL_HISTORY As String = "A11"      ' 操作履歴 (旧D11)
 '================================================================================
 Public Sub マクロ_検索実行()
     Call ExecuteUpdateAndSearch
+    ' 検索後は依頼検索シートに戻す（UpdateKeiriRirekiSheet で依頼履歴シートに
+    ' 遷移してしまう副作用への対策）
+    On Error Resume Next
+    ThisWorkbook.Sheets(m_IRAI_SEARCH_SHEET_NAME).Activate
+    On Error GoTo 0
 End Sub
 
 Public Sub マクロ_上書き保存()
