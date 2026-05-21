@@ -63,6 +63,7 @@ Option Explicit
 
 '--- 参照元（依頼検索シート）のセル ---
 Private Const SRC_KEIRI_NO As String = "B2"       ' 請求書番号(固定)
+Private Const SRC_DATE_ISSUE As String = "F9"     ' 発行日 (依頼検索シート上の発行日セル)
 Private Const SRC_PROJECT_NO As String = "A5"     ' 工事番号
 Private Const SRC_DATE_SUBMISSION As String = "B5" ' 提出日付
 Private Const SRC_DESTINATION As String = "C5"    ' 請求書提出先
@@ -217,20 +218,44 @@ Public Sub AssignAccountingInvoiceNo()
     Dim irNo As String: irNo = Trim(wsSearch.Range("A2").Value) ' 検索キーはA2固定
 
     If irNo = "" Then Exit Sub
-    ' 経理番号が空なら採番
-    If wsSearch.Range(SRC_KEIRI_NO).Value <> "" Then Exit Sub
 
-    lastRow = wsRireki.Cells(wsRireki.Rows.Count, "B").End(xlUp).Row
-    If lastRow < 3 Then
-        maxNo = 0
-    Else
-        maxNo = Application.WorksheetFunction.Max(wsRireki.Range("B3:B" & lastRow))
+    ' --- 経理番号採番（B2が空の場合のみ） ---
+    If wsSearch.Range(SRC_KEIRI_NO).Value = "" Then
+        lastRow = wsRireki.Cells(wsRireki.Rows.Count, "B").End(xlUp).Row
+        If lastRow < 3 Then
+            maxNo = 0
+        Else
+            maxNo = Application.WorksheetFunction.Max(wsRireki.Range("B3:B" & lastRow))
+        End If
+        
+        Call SafeUnprotect(wsSearch)
+        wsSearch.Range(SRC_KEIRI_NO).Value = Int(maxNo) + 1
+        Call SafeProtect(wsSearch)
+        
+        Set f = wsRireki.Columns("A").Find(What:=irNo, LookIn:=xlValues, LookAt:=xlWhole)
+        If Not f Is Nothing Then
+            Call SafeUnprotect(wsRireki)
+            wsRireki.Cells(f.Row, "B").Value = wsSearch.Range(SRC_KEIRI_NO).Value
+            Call SafeProtect(wsRireki)
+        End If
     End If
-    
-    wsSearch.Range(SRC_KEIRI_NO).Value = Int(maxNo) + 1
-    Set f = wsRireki.Columns("A").Find(What:=irNo, LookIn:=xlValues, LookAt:=xlWhole)
-    If Not f Is Nothing Then
-        wsRireki.Cells(f.Row, "B").Value = wsSearch.Range(SRC_KEIRI_NO).Value
+
+    ' --- 発行日入力（F9が空の場合のみ、今日の日付） ---
+    '   2026/5/20: 請求書作成時に発行日も自動入力するよう追加
+    If wsSearch.Range(SRC_DATE_ISSUE).Value = "" Then
+        Call SafeUnprotect(wsSearch)
+        wsSearch.Range(SRC_DATE_ISSUE).Value = Date
+        Call SafeProtect(wsSearch)
+        
+        ' マスタの依頼履歴 C列(発行日) にも書き込み
+        If f Is Nothing Then
+            Set f = wsRireki.Columns("A").Find(What:=irNo, LookIn:=xlValues, LookAt:=xlWhole)
+        End If
+        If Not f Is Nothing Then
+            Call SafeUnprotect(wsRireki)
+            wsRireki.Cells(f.Row, "C").Value = Date
+            Call SafeProtect(wsRireki)
+        End If
     End If
 End Sub
 
