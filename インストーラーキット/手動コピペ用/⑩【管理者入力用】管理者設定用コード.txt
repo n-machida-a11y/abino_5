@@ -25,6 +25,12 @@ Public Const MY_DEPT_CODE_DEFAULT As String = "03"
 ' 互換用：既存コードから参照される可能性がある定数（GetMyDeptCode を使うのが推奨）
 Public Const MY_DEPT_CODE As String = "03"
 
+' ===== スナップショットシートのプレフィックス =====
+' 最新取得時点のマスタ状態をこの名前で記録する（反映時の三者比較用）
+' 【2026/5/22 位置修正】
+' VBAルール「モジュール定数は Function/Sub の前」のため、ここに配置。
+Public Const SNAPSHOT_PREFIX As String = "_snap_"
+
 '================================================================================
 ' GetMyDeptCode: 「操作」シートの B1 セルから部門コードを取得
 '================================================================================
@@ -41,10 +47,6 @@ Public Function GetMyDeptCode() As String
     If v = "" Then v = MY_DEPT_CODE_DEFAULT
     GetMyDeptCode = v
 End Function
-
-' ===== スナップショットシートのプレフィックス =====
-' 最新取得時点のマスタ状態をこの名前で記録する（反映時の三者比較用）
-Public Const SNAPSHOT_PREFIX As String = "_snap_"
 
 '================================================================================
 ' 各シートの同期設定
