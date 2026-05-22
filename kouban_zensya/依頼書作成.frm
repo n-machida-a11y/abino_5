@@ -465,12 +465,12 @@ Private Sub 依頼書作成_Click()
         ' --- 担当者名 ---
         .Range(GetCellAddr("担当者名")).Value = Me.担当者.Value
 
-        ' --- 但陽信金口座指定 ---
+        ' --- 但陽信金指定口座 ---
         '     チェックが入っていれば "有" を書き込む（チェック無しは空欄）
         '     依頼履歴シートのW列と同じ仕様。書き込み先セル番地は
-        '     「依頼書セル設定」シートの "但陽信金口座指定" 項目で指定。
+        '     「依頼書セル設定」シートの "但陽信金指定口座" 項目で指定。
         '     項目が未登録 or セル番地が空欄なら書き込みをスキップ。
-        Dim tanyoAddr As String: tanyoAddr = GetCellAddr("但陽信金口座指定")
+        Dim tanyoAddr As String: tanyoAddr = GetCellAddr("但陽信金指定口座")
         If tanyoAddr <> "" Then
             If Me.但陽信金口座指定.Value = True Then
                 .Range(tanyoAddr).Value = "有"
@@ -689,7 +689,7 @@ Private Sub AddDataToIraiRireki(ByVal wsRireki As Worksheet)
         
             .Cells(nextRow, "U").Value = "" ' 18:領収書注意文 (U列) ※廃止
             .Cells(nextRow, "V").Value = "" ' 19:振込手数料注意文 (V列) ※廃止
-        If Me.但陽信金口座指定.Value = True Then ' 20:但陽信金口座指定 (W列)
+        If Me.但陽信金口座指定.Value = True Then ' 20:但陽信金指定口座 (W列)
             .Cells(nextRow, "W").Value = "有"
         Else
             .Cells(nextRow, "W").Value = ""
