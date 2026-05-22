@@ -16,9 +16,32 @@ Public Const SHEET_PASSWORD As String = "3555"
 
 ' ===== 自部門コード =====
 ' この管理者ファイルが管理する部門の2桁コード（建築事業部=03 など）
-' 部門別の管理者ファイルを配布する際は、各ファイルでこの定数を変更する。
-' 配下のシート同期は、ここで指定された部門のレコードのみが対象になる。
+' 【2026/5/22 改修】
+'   旧: 定数 MY_DEPT_CODE を VBE で書き換える運用
+'   新: 「操作」シートの B1 セルから GetMyDeptCode() で取得する運用
+'        → VBE 書換不要、シート上で設定変更できる
+'   既存コードとの互換性のため定数は「フォールバック既定値」として残す。
+Public Const MY_DEPT_CODE_DEFAULT As String = "03"
+
+' 互換用：既存コードから参照される可能性がある定数（GetMyDeptCode を使うのが推奨）
 Public Const MY_DEPT_CODE As String = "03"
+
+'================================================================================
+' GetMyDeptCode: 「操作」シートの B1 セルから部門コードを取得
+'================================================================================
+' 配布時の運用：
+'   建築事業部用: 「操作」シート B1 セルに "03" を入力
+'   土木事業部用: 「操作」シート B1 セルに "05" を入力
+'   空欄なら MY_DEPT_CODE_DEFAULT ("03") にフォールバック
+'================================================================================
+Public Function GetMyDeptCode() As String
+    On Error Resume Next
+    Dim v As String
+    v = Trim(CStr(ThisWorkbook.Sheets("操作").Range("B1").Value))
+    On Error GoTo 0
+    If v = "" Then v = MY_DEPT_CODE_DEFAULT
+    GetMyDeptCode = v
+End Function
 
 ' ===== スナップショットシートのプレフィックス =====
 ' 最新取得時点のマスタ状態をこの名前で記録する（反映時の三者比較用）

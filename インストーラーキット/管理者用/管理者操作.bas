@@ -83,12 +83,12 @@ Public Sub マクロ_最新取得()
         '     .Cells.ClearContents で値だけクリアするように変更。
         dstSh.Cells.ClearContents
         If srcSh.UsedRange.Cells.CountLarge > 0 Then
-            Call CopyFilteredByDept(srcSh, dstSh, CLng(cfg(2)), deptFCol_get, MY_DEPT_CODE)
+            Call CopyFilteredByDept(srcSh, dstSh, CLng(cfg(2)), deptFCol_get, GetMyDeptCode())
         End If
         Application.CutCopyMode = False
 
         ' スナップショットシートへもコピー（部門フィルタ適用、反映時の3者比較用）
-        Call WriteSnapshotFromSheetFiltered(srcSh, sheetName, CLng(cfg(2)), deptFCol_get, MY_DEPT_CODE)
+        Call WriteSnapshotFromSheetFiltered(srcSh, sheetName, CLng(cfg(2)), deptFCol_get, GetMyDeptCode())
 
         ' 工事番号一覧シートのB列「NO」(連番) を非表示にする
         '   2026/6/1～ 工事番号だけで管理する仕様変更により、B列の連番表示は不要
@@ -175,9 +175,15 @@ Public Sub マクロ_マスタへ反映()
     Application.DisplayAlerts = False
     On Error GoTo Cleanup
 
-    Set wbMaster = Workbooks.Open(fileName:=masterPath, ReadOnly:=False, UpdateLinks:=0)
-    If wbMaster.ReadOnly Then
-        MsgBox "マスタファイルを書き込み可能で開けませんでした。他のユーザーが編集中の可能性があります。", vbCritical
+    ' 【マスタロック時の自動リトライ 2026/5/22】
+    '   他部署の管理者がマスタを編集中だと ReadOnly fallback される。
+    '   最大3回まで5秒間隔でリトライし、それでも書込可で開けない場合は中断。
+    Set wbMaster = OpenMasterWithRetry(masterPath, retryCount:=3, retryWaitSec:=5)
+    If wbMaster Is Nothing Then
+        MsgBox "マスタファイルを書き込み可能で開けませんでした。" & vbCrLf & _
+               "他部署の管理者がマスタを編集中の可能性があります。" & vbCrLf & _
+               "（3回リトライしましたが全て失敗）" & vbCrLf & vbCrLf & _
+               "しばらく時間をおいてから再度お試しください。", vbCritical
         GoTo Cleanup
     End If
 
@@ -276,7 +282,7 @@ Public Function SyncSheetMerge(ByVal localSh As Worksheet, ByVal masterSh As Wor
 
     ' 各キー→行番号 のマップを作る
     Dim dictLocal As Object, dictMaster As Object, dictSnap As Object
-    Dim myDept As String: myDept = MY_DEPT_CODE
+    Dim myDept As String: myDept = GetMyDeptCode()
     Set dictLocal = BuildKeyMap(localSh, keyCol, dataRow)
     ' master と snap は部門フィルタ適用（他部署のレコードに触れないため）
     Set dictMaster = BuildKeyMap(masterSh, keyCol, dataRow, deptFilterCol, myDept)
@@ -608,3 +614,44 @@ Public Sub SilentRefreshSnapshots()
 Cleanup:
     If Not wbMaster Is Nothing Then wbMaster.Close SaveChanges:=False
 End Sub
+
+
+'================================================================================
+' OpenMasterWithRetry: マスタを書込可能で開く（ロック時自動リトライ）
+'================================================================================
+' 他部署の管理者が同時にマスタを編集中だと、Excel が ReadOnly fallback する。
+' 最大 retryCount 回、retryWaitSec 秒間隔でリトライ。
+' すべて失敗したら Nothing を返す（呼び出し側でエラー処理）。
+'
+' 【追加 2026/5/22】部門間同時操作時の UX 改善。
+'================================================================================
+Public Function OpenMasterWithRetry(ByVal masterPath As String, _
+                                     Optional ByVal retryCount As Long = 3, _
+                                     Optional ByVal retryWaitSec As Long = 5) As Workbook
+    Dim attempt As Long
+    Dim wb As Workbook
+
+    For attempt = 1 To retryCount
+        Set wb = Nothing
+        On Error Resume Next
+        Set wb = Workbooks.Open(fileName:=masterPath, ReadOnly:=False, UpdateLinks:=0)
+        On Error GoTo 0
+
+        ' 書込可で開けた場合
+        If Not wb Is Nothing Then
+            If Not wb.ReadOnly Then
+                Set OpenMasterWithRetry = wb
+                Exit Function
+            End If
+            ' ReadOnly で開かれた → 閉じてリトライ
+            wb.Close False
+        End If
+
+        ' 最終リトライでなければ待機
+        If attempt < retryCount Then
+            Application.Wait Now + TimeValue("0:00:" & Format(retryWaitSec, "00"))
+        End If
+    Next attempt
+
+    Set OpenMasterWithRetry = Nothing
+End Function

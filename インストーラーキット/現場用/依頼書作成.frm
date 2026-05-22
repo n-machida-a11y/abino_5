@@ -479,11 +479,12 @@ Private Sub 依頼書作成_Click()
             End If
         End If
 
-        ' --- 提出依頼者所属部署（各管理Excelごとに設定用コード.basで固定値を設定） ---
-        If SUBMITTER_DEPARTMENT <> "" Then
-            Dim depCell As String: depCell = GetCellAddr("提出依頼者所属部署")
-            If depCell <> "" Then .Range(depCell).Value = SUBMITTER_DEPARTMENT
-        End If
+        ' --- 提出依頼者所属部署 ---
+        '   【2026/5/22 変更】A37セルの部門コードから自動判定（GetMyDepartmentName）
+        '   旧: SUBMITTER_DEPARTMENT 定数のハードコード値
+        '   新: 部門コード "03"→"建築事業部" / "05"→"土木事業部"
+        Dim depCell As String: depCell = GetCellAddr("提出依頼者所属部署")
+        If depCell <> "" Then .Range(depCell).Value = GetMyDepartmentName()
 
         ' --- PDF作成用: ファイル名に使うセル位置を Named Range で記憶 ---
         '     (PDF作成.bas がレイアウト変更に追従できるように)

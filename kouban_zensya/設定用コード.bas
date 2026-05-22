@@ -82,3 +82,25 @@ Public Function GetMyDeptCode() As String
     If v = "" Then v = "03"
     GetMyDeptCode = v
 End Function
+
+'================================================================================
+' GetMyDepartmentName: 自部門の名称を返す（依頼書の「提出依頼者所属部署」欄用）
+'================================================================================
+' 部門コード(A37)を元に、部門名を自動判定する。
+'   "03" → "建築事業部"
+'   "05" → "土木事業部"
+'   その他 → "建築事業部" にフォールバック（=既定）
+'
+' 【追加 2026/5/22】
+' 旧 SUBMITTER_DEPARTMENT 定数によるハードコードを廃止し、
+' A37セルの部門コードから自動判定するように変更。
+' 各部署用xlsm配布時の設定漏れを防ぐ。
+'================================================================================
+Public Function GetMyDepartmentName() As String
+    Dim code As String: code = GetMyDeptCode()
+    Select Case code
+        Case "03": GetMyDepartmentName = "建築事業部"
+        Case "05": GetMyDepartmentName = "土木事業部"
+        Case Else: GetMyDepartmentName = "建築事業部"  ' 既定（フォールバック）
+    End Select
+End Function
