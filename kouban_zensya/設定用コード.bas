@@ -17,7 +17,7 @@ Option Explicit
 ' True: 開発・テスト用ファイルを参照する（TEST_FILE_PATH が使われる）
 ' False: 「入力フォーム」シートの PATH_CELL からパスを読み取る（本番動作）
 ' ★ リリース時は必ず False にすること ★
-Public Const IS_TEST_MODE As Boolean = True
+Public Const IS_TEST_MODE As Boolean = False
 Public Const TEST_FILE_PATH As String = "Z:\Users\n-machida\Desktop\工事番号管理表.xlsm"
 
 ' ===== 外部マスターファイルの参照先 =====
