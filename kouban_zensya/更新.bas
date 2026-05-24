@@ -88,9 +88,9 @@ Sub UpdateKoujiBangoListSheet(Optional ByVal ShowMessage As Boolean = True)
     Set wsSource = wbTarget.Sheets(SHEET_KOUJI_LIST)
     Set wsMaster = wbTarget.Sheets(SHEET_KANRI_MASTER)
 
-    destSheetName = Trim(CStr(wsMaster.Range(CELL_LOCAL_COPY_SHEET).Value))
+    destSheetName = GetSheetNameFromMaster(ThisWorkbook, "工事番号一覧シート", SHEET_KOUJI_LIST)
     If destSheetName = "" Then
-        MsgBox "外部ファイルの「" & SHEET_KANRI_MASTER & "」シート" & CELL_LOCAL_COPY_SHEET & "セルにコピー先のシート名が指定されていません。", vbExclamation
+        MsgBox "「管理マスタ」シートの「工事番号一覧シート」項目に値が設定されていません。", vbExclamation
         GoTo FinalizeUpdateList
     End If
 

@@ -73,20 +73,18 @@ Private Sub UserForm_Initialize()
 
     Set wbTarget_Init = Application.Workbooks.Open(fileName:=targetFilePath, ReadOnly:=True, UpdateLinks:=0)
 
-    ' 【変更】m_KANRI_MASTER_NAME → SHEET_KANRI_MASTER
-    If Not SheetExists(wbTarget_Init, SHEET_KANRI_MASTER) Then
-        MsgBox "外部ファイルに「" & SHEET_KANRI_MASTER & "」が見つかりません。", vbCritical
+    ' 【2026/5/24 改修】担当者リストは担当者マスタから自部門フィルタで取得
+    m_CachedStaffList = GetStaffListFiltered(wbTarget_Init, GetMyDeptCode())
+    If IsEmpty(m_CachedStaffList) Then
+        MsgBox "担当者マスタに自部門(" & GetMyDeptCode() & ")の担当者が見つかりません。", vbExclamation
         GoTo FinalizeInit
     End If
-    Set wsMaster_Init = wbTarget_Init.Sheets(SHEET_KANRI_MASTER)
-
-    m_CachedStaffList = wsMaster_Init.Range("A2:A" & wsMaster_Init.Cells(wsMaster_Init.Rows.count, "A").End(xlUp).Row).Value
     Me.担当者.List = m_CachedStaffList
 
-    ' 【変更】MASTER_TARGET_SHEET_NAME_CELL → CELL_TARGET_SHEET
-    targetSheetName = Trim(CStr(wsMaster_Init.Range(CELL_TARGET_SHEET).Value))
+    ' 工事番号一覧シート名を管理マスタA列「工事番号一覧シート」項目から取得
+    targetSheetName = GetSheetNameFromMaster(wbTarget_Init, "工事番号一覧シート", SHEET_KOUJI_LIST)
     If targetSheetName = "" Then
-        MsgBox "「" & SHEET_KANRI_MASTER & "」G3セルに対象シート名が設定されていません。", vbCritical
+        MsgBox "「管理マスタ」シートの「工事番号一覧シート」項目に値が設定されていません。", vbCritical
         GoTo FinalizeInit
     End If
 

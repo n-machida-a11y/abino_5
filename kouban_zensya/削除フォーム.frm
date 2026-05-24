@@ -55,13 +55,21 @@ Private Sub UserForm_Initialize()
 
     Set wbTarget = Application.Workbooks.Open(fileName:=m_TARGET_FILE_PATH, ReadOnly:=True, UpdateLinks:=0)
 
-    If Not SheetExists(wbTarget, SHEET_KANRI_MASTER) Then
-        MsgBox "担当者マスタシート「" & SHEET_KANRI_MASTER & "」が見つかりません。", vbCritical, "シートエラー"
+    ' 【2026/5/24 改修】担当者リストは担当者マスタから自部門フィルタで取得
+    Dim staffList As Variant
+    staffList = GetStaffListFiltered(wbTarget, GetMyDeptCode())
+    If IsEmpty(staffList) Then
+        MsgBox "担当者マスタに自部門(" & GetMyDeptCode() & ")の担当者が見つかりません。", vbExclamation
         GoTo FinalizeInit
     End If
-    Set wsMaster = wbTarget.Sheets(SHEET_KANRI_MASTER)
+    Me.担当者.List = staffList
 
-    Me.担当者.List = wsMaster.Range("A2:A" & wsMaster.Cells(wsMaster.Rows.count, "A").End(xlUp).Row).Value
+    ' 互換用: 後続コードで wsMaster を参照する箇所があれば担当者マスタを開く
+    Dim staffSheetName_Init As String
+    staffSheetName_Init = GetSheetNameFromMaster(wbTarget, "担当者マスタシート", SHEET_STAFF_MASTER)
+    If SheetExists(wbTarget, staffSheetName_Init) Then
+        Set wsMaster = wbTarget.Sheets(staffSheetName_Init)
+    End If
 
     Set m_CachedKoujiData = CreateObject("Scripting.Dictionary")
 
@@ -286,13 +294,15 @@ Private Sub 削除_Click()
         MsgBox "データシート「" & SHEET_KOUJI_LIST & "」が見つかりません。", vbCritical
         GoTo CleanUpDelete
     End If
-    If Not SheetExists(wbTarget, SHEET_KANRI_MASTER) Then
-        MsgBox "担当者マスタシート「" & SHEET_KANRI_MASTER & "」が見つかりません。", vbCritical
+    Dim staffSheetName_Del As String
+    staffSheetName_Del = GetSheetNameFromMaster(wbTarget, "担当者マスタシート", SHEET_STAFF_MASTER)
+    If Not SheetExists(wbTarget, staffSheetName_Del) Then
+        MsgBox "担当者マスタシート「" & staffSheetName_Del & "」が見つかりません。", vbCritical
         GoTo CleanUpDelete
     End If
 
     Set wsTarget = wbTarget.Sheets(SHEET_KOUJI_LIST)
-    Set wsMaster = wbTarget.Sheets(SHEET_KANRI_MASTER)
+    Set wsMaster = wbTarget.Sheets(staffSheetName_Del)
 
     rowToDelete = 0
     For r = wsTarget.Cells(wsTarget.Rows.count, "E").End(xlUp).Row To 2 Step -1
@@ -350,9 +360,9 @@ Private Sub UpdateLocalListSheet(ByVal wsSource As Worksheet, ByVal wsMaster As 
 
     On Error GoTo ErrorHandlerUpdateLocal
 
-    destSheetName = Trim(CStr(wsMaster.Range(CELL_LOCAL_COPY_SHEET).Value))
+    destSheetName = GetSheetNameFromMaster(ThisWorkbook, "工事番号一覧シート", SHEET_KOUJI_LIST)
     If destSheetName = "" Then
-        MsgBox "「" & SHEET_KANRI_MASTER & "」" & CELL_LOCAL_COPY_SHEET & "セルにシート名が指定されていません。", vbExclamation
+        MsgBox "「管理マスタ」シートの「工事番号一覧シート」項目に値が設定されていません。", vbExclamation
         GoTo FinalizeUpdateLocal
     End If
 

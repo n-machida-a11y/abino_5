@@ -77,15 +77,10 @@ Private Sub UserForm_Initialize()
     Me.担当者.Clear
     Set wbTarget_Init = Application.Workbooks.Open(fileName:=targetFilePath, ReadOnly:=True, UpdateLinks:=0)
 
-    If Not SheetExists(wbTarget_Init, SHEET_KANRI_MASTER) Then
-        MsgBox "参照ファイルに「" & SHEET_KANRI_MASTER & "」が見つかりません。", vbCritical, "シートエラー"
-        GoTo FinalizeInit
-    End If
-    Set wsMaster_Init = wbTarget_Init.Sheets(SHEET_KANRI_MASTER)
-
-    m_CachedTargetSheetName = Trim(CStr(wsMaster_Init.Range(CELL_TARGET_SHEET).Value))
+    ' 工事番号一覧シート名を管理マスタから取得
+    m_CachedTargetSheetName = GetSheetNameFromMaster(wbTarget_Init, "工事番号一覧シート", SHEET_KOUJI_LIST)
     If m_CachedTargetSheetName = "" Then
-        MsgBox "「" & SHEET_KANRI_MASTER & "」" & CELL_TARGET_SHEET & "セルに対象シート名が設定されていません。", vbCritical, "設定エラー"
+        MsgBox "「管理マスタ」シートの「工事番号一覧シート」項目に値が設定されていません。", vbCritical, "設定エラー"
         GoTo FinalizeInit
     End If
 
@@ -94,10 +89,12 @@ Private Sub UserForm_Initialize()
         GoTo FinalizeInit
     End If
 
-    m_CachedStaffList = wsMaster_Init.Range( _
-        wsMaster_Init.Cells(2, MASTER_COL_STAFF_NAME), _
-        wsMaster_Init.Cells(wsMaster_Init.Rows.count, MASTER_COL_STAFF_NAME).End(xlUp) _
-    ).Value
+    ' 担当者リスト = 担当者マスタから自部門でフィルタ
+    m_CachedStaffList = GetStaffListFiltered(wbTarget_Init, GetMyDeptCode())
+    If IsEmpty(m_CachedStaffList) Then
+        MsgBox "担当者マスタに自部門(" & GetMyDeptCode() & ")の担当者が見つかりません。", vbExclamation
+        GoTo FinalizeInit
+    End If
     Me.担当者.List = m_CachedStaffList
 
 FinalizeInit:
@@ -272,6 +269,7 @@ Private Sub 再登録_Click()
         GoTo TheEndReg
     End If
 
+    ' 互換用シート参照（実際の値は GetSheetNameFromMaster を使うようになった）
     If Not SheetExists(wbTarget_Reg, SHEET_KANRI_MASTER) Then
         MsgBox "登録先Excelに「" & SHEET_KANRI_MASTER & "」が見つかりません。", vbCritical
         GoTo TheEndReg
@@ -377,7 +375,7 @@ Private Sub UpdateLocalListSheet(ByVal wsSource As Worksheet, ByVal wsMaster As 
 
     On Error GoTo ErrorHandlerUpdateLocal
 
-    destSheetName = Trim(CStr(wsMaster.Range(CELL_LOCAL_COPY_SHEET).Value))
+    destSheetName = GetSheetNameFromMaster(ThisWorkbook, "工事番号一覧シート", SHEET_KOUJI_LIST)
     If destSheetName = "" Then Exit Sub
 
     Set wsDest = ThisWorkbook.Sheets(destSheetName)

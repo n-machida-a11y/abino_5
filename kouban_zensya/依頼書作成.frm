@@ -923,9 +923,9 @@ Private Sub UpdateLocalListSheet(ByVal wsSource As Worksheet, ByVal wsMaster As 
     Application.DisplayAlerts = False
     Application.EnableEvents = False
     On Error GoTo ErrorHandlerUpdateLocal
-    destSheetName = Trim(CStr(wsMaster.Range(CELL_LOCAL_COPY_SHEET).Value))
+    destSheetName = GetSheetNameFromMaster(ThisWorkbook, "工事番号一覧シート", SHEET_KOUJI_LIST)
     If destSheetName = "" Then
-        MsgBox "「" & SHEET_KANRI_MASTER & "」" & CELL_LOCAL_COPY_SHEET & "セルにシート名が指定されていません。", vbExclamation
+        MsgBox "「管理マスタ」シートの「工事番号一覧シート」項目に値が設定されていません。", vbExclamation
         GoTo FinalizeUpdateLocal
     End If
     On Error Resume Next
@@ -1380,4 +1380,4 @@ Private Function SheetExists(ByVal wb As Workbook, ByVal sheetName As String) As
     On Error GoTo 0
     SheetExists = Not ws Is Nothing
 End Function
-
+

@@ -71,15 +71,10 @@ Private Sub UserForm_Initialize()
 
     Set wbTarget_Init = Application.Workbooks.Open(fileName:=targetFilePath, ReadOnly:=True, UpdateLinks:=0)
 
-    If Not SheetExists(wbTarget_Init, SHEET_KANRI_MASTER) Then
-        MsgBox "参照先のファイルに「" & SHEET_KANRI_MASTER & "」が見つかりません。", vbCritical, "シートエラー"
-        GoTo FinalizeInit
-    End If
-    Set wsMaster_Init = wbTarget_Init.Sheets(SHEET_KANRI_MASTER)
-
-    m_CachedTargetSheetName = Trim(CStr(wsMaster_Init.Range(CELL_TARGET_SHEET).Value))
+    ' 工事番号一覧シート名を管理マスタA列「工事番号一覧シート」項目から取得
+    m_CachedTargetSheetName = GetSheetNameFromMaster(wbTarget_Init, "工事番号一覧シート", SHEET_KOUJI_LIST)
     If m_CachedTargetSheetName = "" Then
-        MsgBox "「" & SHEET_KANRI_MASTER & "」シートの" & CELL_TARGET_SHEET & "セルに対象シート名が指定されていません。", vbCritical, "設定エラー"
+        MsgBox "「管理マスタ」シートの「工事番号一覧シート」項目に値が設定されていません。", vbCritical, "設定エラー"
         GoTo FinalizeInit
     End If
 
@@ -89,10 +84,12 @@ Private Sub UserForm_Initialize()
     End If
 
     Me.担当者.Clear
-    m_CachedStaffList = wsMaster_Init.Range( _
-        wsMaster_Init.Cells(2, MASTER_COL_STAFF_NAME), _
-        wsMaster_Init.Cells(wsMaster_Init.Rows.count, MASTER_COL_STAFF_NAME).End(xlUp) _
-    ).Value
+    ' 担当者リスト = 担当者マスタA列から自部門コード(B列)でフィルタ
+    m_CachedStaffList = GetStaffListFiltered(wbTarget_Init, GetMyDeptCode())
+    If IsEmpty(m_CachedStaffList) Then
+        MsgBox "担当者マスタに自部門(" & GetMyDeptCode() & ")の担当者が見つかりません。", vbExclamation
+        GoTo FinalizeInit
+    End If
     Me.担当者.List = m_CachedStaffList
 
 FinalizeInit:
@@ -193,11 +190,13 @@ Private Sub 登録_Click()
         GoTo TheEndReg
     End If
 
-    If Not SheetExists(wbTarget_Reg, SHEET_KANRI_MASTER) Then
-        MsgBox "登録先Excelに「" & SHEET_KANRI_MASTER & "」が見つかりません。", vbCritical
+    Dim staffSheetName_Reg As String
+    staffSheetName_Reg = GetSheetNameFromMaster(wbTarget_Reg, "担当者マスタシート", SHEET_STAFF_MASTER)
+    If Not SheetExists(wbTarget_Reg, staffSheetName_Reg) Then
+        MsgBox "登録先Excelに「" & staffSheetName_Reg & "」が見つかりません。", vbCritical
         GoTo TheEndReg
     End If
-    Set wsMaster_Reg = wbTarget_Reg.Sheets(SHEET_KANRI_MASTER)
+    Set wsMaster_Reg = wbTarget_Reg.Sheets(staffSheetName_Reg)
 
     If Not SheetExists(wbTarget_Reg, m_CachedTargetSheetName) Then
         MsgBox "登録先Excelに「" & m_CachedTargetSheetName & "」が見つかりません。", vbCritical
@@ -309,6 +308,7 @@ Private Function CreateNewKoujiBangou(ByVal wsTarget As Worksheet, ByVal wsMaste
     If Month(decisionDate) >= 6 Then inputYearShort = Year(decisionDate) Else inputYearShort = Year(decisionDate) - 1
 
     selectedStaff = Me.担当者.Value
+    ' wsMaster は登録_Click から「担当者マスタ」シートが渡される（2026/5/24 改修）
     matchRow = Application.Match(selectedStaff, wsMaster.Columns(MASTER_COL_STAFF_NAME), 0)
     If IsError(matchRow) Then
         CreateNewKoujiBangou = "ERROR"
@@ -394,9 +394,9 @@ Private Function UpdateLocalListSheet(ByVal wsSource As Worksheet, ByVal wsMaste
 
     UpdateLocalListSheet = False
 
-    destSheetName = Trim(CStr(wsMaster.Range(CELL_LOCAL_COPY_SHEET).Value))
+    destSheetName = GetSheetNameFromMaster(ThisWorkbook, "工事番号一覧シート", SHEET_KOUJI_LIST)
     If destSheetName = "" Then
-        MsgBox "「" & SHEET_KANRI_MASTER & "」シートの" & CELL_LOCAL_COPY_SHEET & "セルにコピー先シート名が指定されていません。", vbExclamation
+        MsgBox "「管理マスタ」シートの「工事番号一覧シート」項目に値が設定されていません。", vbExclamation
         Exit Function
     End If
 

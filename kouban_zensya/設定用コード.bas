@@ -28,6 +28,7 @@ Public Const PATH_CELL As String = "A36"
 Public Const SHEET_KOUJI_LIST As String = "工事番号一覧"   ' データ本体
 Public Const SHEET_KANRI_MASTER As String = "管理マスタ"    ' 担当者リスト・設定値
 Public Const SHEET_OTHER_MASTER As String = "その他マスタ"  ' 提出先・同封物リスト
+Public Const SHEET_STAFF_MASTER As String = "担当者マスタ"  ' 担当者リスト（部署フィルタあり）
 Public Const SHEET_IRAI_RIREKI As String = "依頼履歴"       ' 依頼履歴
 Public Const SHEET_IRAISHO As String = "請求書提出依頼書"
 Public Const SHEET_CELL_SETTING As String = "依頼書セル設定"  ' 請求書提出依頼書のセル位置設定シート  ' 依頼書（マクロ専用シート）
@@ -104,3 +105,128 @@ Public Function GetMyDepartmentName() As String
         Case Else: GetMyDepartmentName = "建築事業部"  ' 既定（フォールバック）
     End Select
 End Function
+
+'================================================================================
+' GetSheetNameFromMaster: 「管理マスタ」シートのkey/value表からシート名を取得
+'   wb       : 検索対象のワークブック（マスタExcel）
+'   itemName : A列の項目名（例: "工事番号一覧シート"）
+'   defaultVal : 見つからない/空の場合のフォールバック値
+' 【2026/5/24 新規】
+'   旧 G3/G5 セル固定方式から、A列項目名キーの key/value 方式に移行。
+'   管理マスタ A列に項目名（日本語）、B列にシート名を記入する運用。
+'================================================================================
+Public Function GetSheetNameFromMaster(ByVal wb As Workbook, ByVal itemName As String, _
+                                        Optional ByVal defaultVal As String = "") As String
+    Dim ws As Worksheet
+    On Error Resume Next
+    Set ws = wb.Sheets("管理マスタ")
+    On Error GoTo 0
+    If ws Is Nothing Then
+        GetSheetNameFromMaster = defaultVal
+        Exit Function
+    End If
+
+    Dim lastRow As Long, r As Long
+    lastRow = ws.Cells(ws.Rows.count, "A").End(xlUp).Row
+    For r = 2 To lastRow
+        If Trim(CStr(ws.Cells(r, "A").Value)) = itemName Then
+            Dim v As String
+            v = Trim(CStr(ws.Cells(r, "B").Value))
+            If v <> "" Then
+                GetSheetNameFromMaster = v
+                Exit Function
+            End If
+        End If
+    Next r
+    GetSheetNameFromMaster = defaultVal
+End Function
+
+'================================================================================
+' GetStaffListFiltered: 担当者マスタから自部門の担当者リストを取得
+'   wb       : 検索対象のワークブック（マスタExcel）
+'   deptCode : 部門コード（"03" / "05" 等）
+' 戻り値    : Variant配列（担当者名の1次元配列、空なら Empty）
+' 【2026/5/24 新規】
+'   担当者リストを「管理マスタA列」→「担当者マスタA列」に移行。
+'   担当者マスタB列の部署番号で自部門のみフィルタする。
+'================================================================================
+Public Function GetStaffListFiltered(ByVal wb As Workbook, ByVal deptCode As String) As Variant
+    Dim staffSheetName As String
+    staffSheetName = GetSheetNameFromMaster(wb, "担当者マスタシート", "担当者マスタ")
+
+    Dim wsStaff As Worksheet
+    On Error Resume Next
+    Set wsStaff = wb.Sheets(staffSheetName)
+    On Error GoTo 0
+    If wsStaff Is Nothing Then
+        GetStaffListFiltered = Empty
+        Exit Function
+    End If
+
+    Dim lastRow As Long
+    lastRow = wsStaff.Cells(wsStaff.Rows.count, "A").End(xlUp).Row
+    If lastRow < 2 Then
+        GetStaffListFiltered = Empty
+        Exit Function
+    End If
+
+    Dim arr As Variant
+    arr = wsStaff.Range("A2:B" & lastRow).Value
+
+    Dim filtered() As String
+    ReDim filtered(0 To UBound(arr, 1) - 1)
+    Dim cnt As Long: cnt = 0
+    Dim i As Long
+    Dim dept As String, name As String
+    Dim myDept As String
+    myDept = Trim(deptCode)
+    If Len(myDept) = 1 Then myDept = "0" & myDept
+
+    For i = 1 To UBound(arr, 1)
+        name = Trim(CStr(arr(i, 1)))
+        dept = Trim(CStr(arr(i, 2)))
+        If Len(dept) = 1 Then dept = "0" & dept  ' "3" → "03" に正規化
+        If name <> "" And dept = myDept Then
+            filtered(cnt) = name
+            cnt = cnt + 1
+        End If
+    Next i
+
+    If cnt = 0 Then
+        GetStaffListFiltered = Empty
+    Else
+        ReDim Preserve filtered(0 To cnt - 1)
+        GetStaffListFiltered = filtered
+    End If
+End Function
+
+'================================================================================
+' GetStaffNumber: 担当者マスタから特定の担当者の部署番号を取得
+'   wb       : 検索対象のワークブック（マスタExcel）
+'   staffName: 担当者名
+' 戻り値    : B列の値（部署番号）、見つからなければ ""
+' 【2026/5/24 新規】
+'   旧 管理マスタA列で Match → B列値取得 を担当者マスタに移行。
+'================================================================================
+Public Function GetStaffNumber(ByVal wb As Workbook, ByVal staffName As String) As String
+    Dim staffSheetName As String
+    staffSheetName = GetSheetNameFromMaster(wb, "担当者マスタシート", "担当者マスタ")
+
+    Dim wsStaff As Worksheet
+    On Error Resume Next
+    Set wsStaff = wb.Sheets(staffSheetName)
+    On Error GoTo 0
+    If wsStaff Is Nothing Then
+        GetStaffNumber = ""
+        Exit Function
+    End If
+
+    Dim matchRow As Variant
+    matchRow = Application.Match(staffName, wsStaff.Columns("A"), 0)
+    If IsError(matchRow) Then
+        GetStaffNumber = ""
+        Exit Function
+    End If
+    GetStaffNumber = Trim(CStr(wsStaff.Cells(matchRow, "B").Value))
+End Function
+
