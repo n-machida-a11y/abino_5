@@ -23,6 +23,8 @@ Sub UpdateAllSheets()
     Dim originalScreenUpdating As Boolean
     Dim originalDisplayAlerts As Boolean
     Dim originalEnableEvents As Boolean
+    Dim wsOriginal As Worksheet
+    Set wsOriginal = ActiveSheet  ' 元のアクティブシートを記憶（最後に戻すため）
 
     originalScreenUpdating = Application.ScreenUpdating
     originalDisplayAlerts = Application.DisplayAlerts
@@ -37,9 +39,18 @@ Sub UpdateAllSheets()
     Call UpdateKoujiBangoListSheet(False)
     Call UpdateIraiRirekiSheet(False)
 
+    ' 元のシートに戻す（AutoFilter適用で勝手にシート移動するのを防ぐ）
+    On Error Resume Next
+    If Not wsOriginal Is Nothing Then wsOriginal.Activate
+    On Error GoTo 0
+
     MsgBox "「工事番号一覧」と「依頼履歴」シートが正常に更新されました。", vbInformation, "更新完了"
 
 FinalizeUpdateAll:
+    ' 例外時も元のシートに戻す
+    On Error Resume Next
+    If Not wsOriginal Is Nothing Then wsOriginal.Activate
+    On Error GoTo 0
     Application.ScreenUpdating = originalScreenUpdating
     Application.DisplayAlerts = originalDisplayAlerts
     Application.EnableEvents = originalEnableEvents
