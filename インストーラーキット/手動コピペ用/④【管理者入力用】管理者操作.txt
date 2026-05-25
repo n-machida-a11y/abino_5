@@ -135,10 +135,16 @@ NextSheet:
     Exit Sub
 
 Cleanup:
+    Dim errNo As Long: errNo = Err.Number
+    Dim errDesc As String: errDesc = Err.Description
+    Dim errSheet As String: errSheet = sheetName  ' エラー発生時に処理中だったシート名
     If Not wbMaster Is Nothing Then wbMaster.Close SaveChanges:=False
     Application.ScreenUpdating = True
     Application.DisplayAlerts = True
-    MsgBox "最新取得中にエラーが発生しました: " & vbCrLf & Err.Description, vbCritical
+    MsgBox "最新取得中にエラーが発生しました:" & vbCrLf & _
+           "エラー番号: " & errNo & vbCrLf & _
+           "内容: " & errDesc & vbCrLf & _
+           "処理中のシート: " & errSheet, vbCritical
 End Sub
 
 
@@ -517,17 +523,27 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
         Exit Sub
     End If
 
-    ' UsedRange の絶対座標から右下端を算出
+    ' UsedRange から列範囲を、A列 End(xlUp) から行範囲を算出
+    '   【2026/5/22 修正】
+    '   UsedRange.Rows.Count は削除済みデータの書式痕跡を含み、実データが178行
+    '   程度でも 1,048,576 まで膨らむことがある（UsedRangeゴースト）。
+    '   その場合 arr = readRange.Value のメモリ確保が失敗し、
+    '   「実行時エラー6: オーバーフローしました」が発生する。
+    '   実データ最終行は A列の End(xlUp) で安全に判定する。
     Dim lastCol As Long
     Dim lastRow As Long
+    Dim usedLastRow As Long
     lastCol = usedRng.Column + usedRng.Columns.Count - 1
-    lastRow = usedRng.Row + usedRng.Rows.Count - 1
+    usedLastRow = usedRng.Row + usedRng.Rows.Count - 1
+    lastRow = src.Cells(src.Rows.Count, 1).End(xlUp).Row
+    ' ヘッダ行があり A列が空の場合に備えて、UsedRange の開始行は最低保持
+    If lastRow < usedRng.Row Then lastRow = usedRng.Row
     If lastCol < 1 Then lastCol = 1
     If lastRow < 1 Then Exit Sub
 
     Debug.Print "[CopyFilteredByDept] sheet=" & src.Name & _
                 " UsedRange=" & usedRng.Address & _
-                " lastRow=" & lastRow & " lastCol=" & lastCol & _
+                " usedLastRow=" & usedLastRow & " actualLastRow=" & lastRow & " lastCol=" & lastCol & _
                 " dataStartRow=" & dataStartRow & _
                 " deptFilterCol=" & deptFilterCol & " deptCode=" & deptCode
 
