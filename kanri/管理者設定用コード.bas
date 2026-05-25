@@ -82,8 +82,8 @@ Public Function GetSheetSyncConfig() As Variant
     ' 部門フィルタ列が "" でない場合、その列の値が "MY_DEPT_CODE-*" で始まる行のみ
     ' 同期対象にする。部署別管理者ファイルで自部門のレコードだけ扱うため。
     Dim configs(5) As Variant
-    configs(0) = Array("工事番号一覧",        "D",  4, "merge",     "D")  ' 工事番号がキー、D列で部門フィルタ
-    configs(1) = Array("依頼履歴",           "A",  3, "merge",     "E")  ' 依頼NOがキー、E列(工事番号)で部門フィルタ
+    configs(0) = Array("工事番号一覧",        "D",  5, "merge",     "D")  ' 工事番号がキー、D列で部門フィルタ
+    configs(1) = Array("依頼履歴",           "A",  2, "merge",     "E")  ' 依頼NOがキー、E列(工事番号)で部門フィルタ
     configs(2) = Array("管理マスタ",         "A",  2, "overwrite", "")    ' 全部署共通・key/value 形式のため全上書き
     configs(3) = Array("その他マスタ",        "A",  2, "merge",     "")    ' 全部署共通
     configs(4) = Array("依頼書セル設定",      "A", 10, "merge",     "")    ' 全部署共通
