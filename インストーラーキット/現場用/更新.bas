@@ -279,7 +279,7 @@ Public Sub ApplyDeptFilter(ByVal ws As Worksheet, Optional ByVal koujiBangouColI
 
     Dim lastRow As Long
     lastRow = ws.Cells(ws.Rows.count, "A").End(xlUp).Row
-    If lastRow < 3 Then GoTo ProtectAndExit   データ最低1行（R3）必要
+    If lastRow < 3 Then GoTo ProtectAndExit  ' データ最低1行（R3）必要
 
     If ws.AutoFilterMode Then ws.AutoFilterMode = False
     ws.Range("A2:X" & lastRow).AutoFilter Field:=koujiBangouColIndex, _
