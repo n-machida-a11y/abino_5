@@ -137,6 +137,10 @@ Sub UpdateKoujiBangoListSheet(Optional ByVal ShowMessage As Boolean = True)
     ' 自部門の行のみ表示するAutoFilterを適用（D列=工事番号）
     Call ApplyDeptFilter(wsDest)
 
+    ' ApplyDeptFilter 内で SafeProtectData により保護されているので、
+    ' 一旦 SafeUnprotect してから Hidden を設定する。
+    Call SafeUnprotect(wsDest)
+
     ' B列「NO」(連番) を非表示にする（2026/6/1～ 工事番号だけで管理する仕様変更による）
     '   従来は担当者番号と組み合わせて連番管理していたが、工事番号自体が一意の通番となったため
     '   B列の連番表示は不要との運用方針。
