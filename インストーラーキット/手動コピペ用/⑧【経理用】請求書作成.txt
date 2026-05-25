@@ -1,82 +1,98 @@
 Option Explicit
 
 '================================================================================
-' ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«: è«‹æ±‚æ›¸ä½œæˆï¼ˆã€å…±æœ‰_çµŒç†ç”¨ã€‘è«‹æ±‚æ›¸ä½œæˆ.xlsm ç”¨ï¼‰
-'================================================================================
-' ã€å½¹å‰²ã€‘
-'   ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆã«è¡¨ç¤ºã•ã‚ŒãŸæ¡ˆä»¶æƒ…å ±ã‚’ã€è«‹æ±‚æ›¸ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã«è»¢è¨˜ã—ã¦
-'   æ–°ã—ã„ã€ŒNo_xx_è«‹æ±‚æ›¸ã€ã‚·ãƒ¼ãƒˆã‚’ç”Ÿæˆã™ã‚‹ã€‚
+' [¿‹‘] Keiri_¿‹‘ì¬iu¿‹‘ì¬vƒ{ƒ^ƒ“‚Ì–{‘Ìj
+'--------------------------------------------------------------------------------
+' y‰½‚Ìƒtƒ@ƒCƒ‹Hz
+'   ‘I‘ğ‚³‚ê‚½ˆË—ŠNO‚©‚ç¿‹‘ƒeƒ“ƒvƒŒ[ƒgi¿‹‘‚Ğ‚ÈŒ`j‚É
+'   ‹àŠzEˆ¶–¼E–¾×‚È‚Ç‚ğ‘‚«‚İAŒo——p‚Ì¿‹‘ƒV[ƒg‚ğ¶¬‚·‚éB
 '
-' ã€ä¸»ãªå…¬é–‹ãƒã‚¯ãƒ­ã€‘
-'   AssignAccountingInvoiceNo  : çµŒç†ç•ªå·ã‚’æ¡ç•ªã—ã¦ãƒã‚¹ã‚¿ã«æ›¸ãè¾¼ã‚€
-'                                ï¼ˆè«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆä½œæˆã§ã¯ãªãã€ç•ªå·æ¡ç•ªã ã‘ï¼‰
-'   CreateInvoiceFromTemplate  : ãƒ†ãƒ³ãƒ—ãƒ¬ã‚’è¤‡è£½ã—ã¦æ–°ã—ã„è«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆã‚’ä½œã‚‹
-'                                 â€»Privateãªã®ã§ã€åˆ¥ãƒã‚¯ãƒ­ã‹ã‚‰å‘¼ã°ã‚Œã‚‹
+' y“üŒûz
+'   ˆË—ŠŒŸõƒV[ƒg‚Ìu¿‹‘ì¬vƒ{ƒ^ƒ“ ¨ AssignAccountingInvoiceNo
 '
-' ã€ãƒ†ãƒ³ãƒ—ãƒ¬è«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆï¼ˆã‚³ãƒ”ãƒ¼å…ƒï¼‰ã€‘
-'   - è«‹æ±‚æ›¸                         ï¼ˆé€šå¸¸ï¼‰
-'   - è«‹æ±‚æ›¸(æŒ¯è¾¼æ‰‹æ•°æ–™æœ‰)
-'   - è«‹æ±‚æ›¸(é ˜åæœ‰)
-'   - è«‹æ±‚æ›¸(é ˜åæœ‰ãƒ»æŒ¯è¾¼æ‰‹æ•°æ–™æœ‰ï¼‰
-'   - ä½†é™½ä¿¡ç”¨é‡‘åº«                   ï¼ˆä½†é™½ä¿¡é‡‘å£åº§æŒ‡å®šã®å ´åˆï¼‰
-'
-' ã€ãƒ‡ãƒ¼ã‚¿ã®æµã‚Œã€‘
-'   ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆï¼ˆA2ã«ä¾é ¼NOï¼‰
-'      â†“ æ¤œç´¢å®Ÿè¡Œã§å–å¾—ã—ãŸæ¡ˆä»¶ãƒ‡ãƒ¼ã‚¿ï¼ˆB5ï½F5, A7ï½B7 ç­‰ï¼‰
-'   ãƒ†ãƒ³ãƒ—ãƒ¬è«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆï¼ˆè«‹æ±‚æ›¸ ç­‰ï¼‰
-'      â†“ CreateInvoiceFromTemplate ã§è¤‡è£½
-'   No_xx_è«‹æ±‚æ›¸ ã‚·ãƒ¼ãƒˆï¼ˆç”Ÿæˆã•ã‚Œã‚‹ï¼‰
-'      â†“ TransferData ã§å„ã‚»ãƒ«ã«å€¤ã‚’æ›¸ãè¾¼ã¿
-'   ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒå†…å®¹ç¢ºèª â†’ ä¿å­˜ãƒœã‚¿ãƒ³ â†’ xlsxå‡ºåŠ›
-'
-' ã€é‡è¦ãªãƒã‚°ä¿®æ­£å±¥æ­´ã€‘
-'   - 2026/5/20: ç¨æŠœé‡‘é¡ï¼ˆAA19ï¼‰ã®æµ®å‹•å°æ•°ç‚¹èª¤å·®ã‚’ Round ã§ä¿®æ­£
-'                æ—§: Int(33000000/1.1) = 29999999  â† ãƒã‚°
-'                æ–°: Round(33000000/1.1) = 30000000 â† æ­£è§£
-'
-' ã€ã‚»ãƒ«ä½ç½®å®šæ•°ã®è§£èª¬ã€‘
-'   ï¼œã‚½ãƒ¼ã‚¹ï¼ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆï¼ˆãƒã‚¹ã‚¿ã‹ã‚‰å–å¾—ã—ãŸæ¡ˆä»¶æƒ…å ±ï¼‰
-'     B2 = è«‹æ±‚æ›¸ç•ªå·(å›ºå®š)
-'     A5 = å·¥äº‹ç•ªå·
-'     B5 = è«‹æ±‚æ›¸æ—¥ä»˜ï¼ˆ=æœˆå¹´ãƒ•ã‚©ãƒ«ãƒ€ã®å…ƒã«ãªã‚‹ï¼‰
-'     C5 = è«‹æ±‚æ›¸æå‡ºå…ˆï¼ˆå®›åï¼‰
-'     D5 = å·¥äº‹åç§°
-'     E5 = è«‹è² é‡‘é¡ï¼ˆç¨è¾¼ï¼‰
-'     F5 = æ‹…å½“è€…
-'     A7 = å·¥æœŸç€æ‰‹
-'     B7 = å·¥æœŸå®Œæˆ
-'
-'   ï¼œã‚¿ãƒ¼ã‚²ãƒƒãƒˆï¼è«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆï¼ˆãƒ†ãƒ³ãƒ—ãƒ¬ã‹ã‚‰è¤‡è£½ã—ãŸæ–°ã‚·ãƒ¼ãƒˆï¼‰
-'     AF1     = çµŒç†ç•ªå·
-'     AB3,AE3 = è«‹æ±‚æ›¸æ—¥ä»˜ã®å¹´ãƒ»æœˆï¼ˆä¿å­˜æ™‚ã®æœˆå¹´ãƒ•ã‚©ãƒ«ãƒ€åã«ä½¿ã†ï¼‰
-'     AG3     = è«‹æ±‚æ›¸æ—¥ä»˜ã®æ—¥
-'     C5:N5   = å®›åï¼ˆè«‹æ±‚æ›¸æå‡ºå…ˆï¼‰
-'     O5      = æ•¬ç§°ï¼ˆå¾¡ä¸­/æ§˜ï¼‰
-'     AB15:AD15 = éƒ¨ç½²å
-'     AG15:AH15 = æ‹…å½“è€…å
-'     C18:T18 = å·¥äº‹åç§°
-'     F19     = ä»¶å
-'     AA19:AE19 = é‡‘é¡ï¼ˆç¨æŠœãƒ»æ•´æ•°ï¼‰
-'     AK1     = ä¿å­˜ãƒ•ã‚¡ã‚¤ãƒ«å
-'     AK2     = å·¥äº‹ç•ªå·
+' y‚µ‚­‚İz
+'   - Å”²iÅ/1.1j‚Í Round() ‚ÅŒvZiIEEE754 Œë·‘Îôj
+'   - ”­s“ú F9 ‚ÍÀs‚É©“®“ü—Í
 '================================================================================
 
-'--- å‚ç…§å…ƒï¼ˆä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆï¼‰ã®ã‚»ãƒ« ---
-Private Const SRC_KEIRI_NO As String = "B2"       ' è«‹æ±‚æ›¸ç•ªå·(å›ºå®š)
-Private Const SRC_DATE_ISSUE As String = "F9"     ' ç™ºè¡Œæ—¥ (ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆä¸Šã®ç™ºè¡Œæ—¥ã‚»ãƒ«)
-Private Const SRC_PROJECT_NO As String = "A5"     ' å·¥äº‹ç•ªå·
-Private Const SRC_DATE_SUBMISSION As String = "B5" ' æå‡ºæ—¥ä»˜
-Private Const SRC_DESTINATION As String = "C5"    ' è«‹æ±‚æ›¸æå‡ºå…ˆ
 
-' Main_Search_Updateã«åˆã‚ã›ã¦ä¿®æ­£ (D5:åç§°, E5:é‡‘é¡)
-Private Const SRC_PROJECT_NAME As String = "D5"   ' å·¥äº‹åç§°
-Private Const SRC_AMOUNT As String = "E5"         ' è«‹è² é‡‘é¡
-Private Const SRC_STAFF_NAME As String = "F5"     ' æ‹…å½“è€…
+'================================================================================
+' ƒ‚ƒWƒ…[ƒ‹: ¿‹‘ì¬iy‹¤—L_Œo——pz¿‹‘ì¬.xlsm —pj
+'================================================================================
+' y–ğŠ„z
+'   ˆË—ŠŒŸõƒV[ƒg‚É•\¦‚³‚ê‚½ˆÄŒî•ñ‚ğA¿‹‘ƒeƒ“ƒvƒŒ[ƒg‚É“]‹L‚µ‚Ä
+'   V‚µ‚¢uNo_xx_¿‹‘vƒV[ƒg‚ğ¶¬‚·‚éB
+'
+' yå‚ÈŒöŠJƒ}ƒNƒz
+'   AssignAccountingInvoiceNo  : Œo—”Ô†‚ğÌ”Ô‚µ‚Äƒ}ƒXƒ^‚É‘‚«‚Ş
+'                                i¿‹‘ƒV[ƒgì¬‚Å‚Í‚È‚­A”Ô†Ì”Ô‚¾‚¯j
+'   CreateInvoiceFromTemplate  : ƒeƒ“ƒvƒŒ‚ğ•¡»‚µ‚ÄV‚µ‚¢¿‹‘ƒV[ƒg‚ğì‚é
+'                                 ¦Private‚È‚Ì‚ÅA•Êƒ}ƒNƒ‚©‚çŒÄ‚Î‚ê‚é
+'
+' yƒeƒ“ƒvƒŒ¿‹‘ƒV[ƒgiƒRƒs[Œ³jz
+'   - ¿‹‘                         i’Êíj
+'   - ¿‹‘(Uè”—¿—L)
+'   - ¿‹‘(—Ìû—L)
+'   - ¿‹‘(—Ìû—LEUè”—¿—Lj
+'   - ’A—zM—p‹àŒÉ                   i’A—zM‹àŒûÀw’è‚Ìê‡j
+'
+' yƒf[ƒ^‚Ì—¬‚êz
+'   ˆË—ŠŒŸõƒV[ƒgiA2‚ÉˆË—ŠNOj
+'      « ŒŸõÀs‚Åæ“¾‚µ‚½ˆÄŒƒf[ƒ^iB5`F5, A7`B7 “™j
+'   ƒeƒ“ƒvƒŒ¿‹‘ƒV[ƒgi¿‹‘ “™j
+'      « CreateInvoiceFromTemplate ‚Å•¡»
+'   No_xx_¿‹‘ ƒV[ƒgi¶¬‚³‚ê‚éj
+'      « TransferData ‚ÅŠeƒZƒ‹‚É’l‚ğ‘‚«‚İ
+'   ƒ†[ƒU[‚ª“à—eŠm”F ¨ •Û‘¶ƒ{ƒ^ƒ“ ¨ xlsxo—Í
+'
+' yd—v‚ÈƒoƒOC³—š—ğz
+'   - 2026/5/20: Å”²‹àŠziAA19j‚Ì•‚“®¬”“_Œë·‚ğ Round ‚ÅC³
+'                ‹Œ: Int(33000000/1.1) = 29999999  © ƒoƒO
+'                V: Round(33000000/1.1) = 30000000 © ³‰ğ
+'
+' yƒZƒ‹ˆÊ’u’è”‚Ì‰ğàz
+'   ƒƒ\[ƒX„ˆË—ŠŒŸõƒV[ƒgiƒ}ƒXƒ^‚©‚çæ“¾‚µ‚½ˆÄŒî•ñj
+'     B2 = ¿‹‘”Ô†(ŒÅ’è)
+'     A5 = H–”Ô†
+'     B5 = ¿‹‘“ú•ti=Œ”NƒtƒHƒ‹ƒ_‚ÌŒ³‚É‚È‚éj
+'     C5 = ¿‹‘’ñoæiˆ¶–¼j
+'     D5 = H––¼Ì
+'     E5 = ¿•‰‹àŠziÅj
+'     F5 = ’S“–Ò
+'     A7 = HŠú’…è
+'     B7 = HŠúŠ®¬
+'
+'   ƒƒ^[ƒQƒbƒg„¿‹‘ƒV[ƒgiƒeƒ“ƒvƒŒ‚©‚ç•¡»‚µ‚½VƒV[ƒgj
+'     AF1     = Œo—”Ô†
+'     AB3,AE3 = ¿‹‘“ú•t‚Ì”NEŒi•Û‘¶‚ÌŒ”NƒtƒHƒ‹ƒ_–¼‚Ég‚¤j
+'     AG3     = ¿‹‘“ú•t‚Ì“ú
+'     C5:N5   = ˆ¶–¼i¿‹‘’ñoæj
+'     O5      = ŒhÌiŒä’†/—lj
+'     AB15:AD15 = •”–¼
+'     AG15:AH15 = ’S“–Ò–¼
+'     C18:T18 = H––¼Ì
+'     F19     = Œ–¼
+'     AA19:AE19 = ‹àŠziÅ”²E®”j
+'     AK1     = •Û‘¶ƒtƒ@ƒCƒ‹–¼
+'     AK2     = H–”Ô†
+'================================================================================
 
-Private Const SRC_START_DATE As String = "A7"     ' å·¥æœŸç€æ‰‹
-Private Const SRC_END_DATE As String = "B7"       ' å·¥æœŸå®Œæˆ
+'--- QÆŒ³iˆË—ŠŒŸõƒV[ƒgj‚ÌƒZƒ‹ ---
+Private Const SRC_KEIRI_NO As String = "B2"       ' ¿‹‘”Ô†(ŒÅ’è)
+Private Const SRC_DATE_ISSUE As String = "F9"     ' ”­s“ú (ˆË—ŠŒŸõƒV[ƒgã‚Ì”­s“úƒZƒ‹)
+Private Const SRC_PROJECT_NO As String = "A5"     ' H–”Ô†
+Private Const SRC_DATE_SUBMISSION As String = "B5" ' ’ño“ú•t
+Private Const SRC_DESTINATION As String = "C5"    ' ¿‹‘’ñoæ
 
-'--- è»¢è¨˜å…ˆï¼ˆè«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆï¼‰ã®ã‚»ãƒ«ï¼ˆå¤‰æ›´ãªã—ï¼‰ ---
+' Main_Search_Update‚É‡‚í‚¹‚ÄC³ (D5:–¼Ì, E5:‹àŠz)
+Private Const SRC_PROJECT_NAME As String = "D5"   ' H––¼Ì
+Private Const SRC_AMOUNT As String = "E5"         ' ¿•‰‹àŠz
+Private Const SRC_STAFF_NAME As String = "F5"     ' ’S“–Ò
+
+Private Const SRC_START_DATE As String = "A7"     ' HŠú’…è
+Private Const SRC_END_DATE As String = "B7"       ' HŠúŠ®¬
+
+'--- “]‹Læi¿‹‘ƒV[ƒgj‚ÌƒZƒ‹i•ÏX‚È‚µj ---
 Private Const DEST_KEIRI_NO As String = "AF1"
 Private Const DEST_DATE_YEAR As String = "AB3"
 Private Const DEST_DATE_MONTH As String = "AE3"
@@ -91,7 +107,7 @@ Private Const DEST_AMOUNT As String = "AA19:AE19"
 Private Const DEST_PROJECT_NO As String = "AK2"
 Private Const DEST_FILENAME_CELL As String = "AK1"
 
-'--- å·¥æœŸè»¢è¨˜å…ˆï¼ˆæ—¥ä»˜åˆ†è§£ç”¨ï¼‰ ---
+'--- HŠú“]‹Læi“ú•t•ª‰ğ—pj ---
 Private Const DEST_TERM_YEAR As String = "A18"
 Private Const DEST_TERM_START_MONTH As String = "A19"
 Private Const DEST_TERM_START_DAY As String = "B19"
@@ -101,9 +117,9 @@ Private Const DEST_TERM_END_MONTH As String = "A21"
 Private Const DEST_TERM_END_DAY As String = "B21"
 
 '=========================================================
-' ã€ãƒ¡ã‚¤ãƒ³ã€‘è«‹æ±‚æ›¸ä½œæˆãƒ¡ãƒ‹ãƒ¥ãƒ¼
+' yƒƒCƒ“z¿‹‘ì¬ƒƒjƒ…[
 '=========================================================
-Sub è«‹æ±‚æ›¸ä½œæˆãƒ¡ãƒ‹ãƒ¥ãƒ¼()
+Sub ¿‹‘ì¬ƒƒjƒ…[()
     Dim wsMenu As Worksheet
     Dim chkBox As CheckBox
     Dim btn As Button
@@ -115,26 +131,26 @@ Sub è«‹æ±‚æ›¸ä½œæˆãƒ¡ãƒ‹ãƒ¥ãƒ¼()
     
     On Error Resume Next
     Application.DisplayAlerts = False
-    Worksheets("ä½œæˆé¸æŠ").Delete
+    Worksheets("ì¬‘I‘ğ").Delete
     Application.DisplayAlerts = True
     On Error GoTo 0
     
     Set wsMenu = Worksheets.Add
-    wsMenu.Name = "ä½œæˆé¸æŠ"
+    wsMenu.Name = "ì¬‘I‘ğ"
     
     With wsMenu.Range("B2")
-        .Value = "ä½œæˆã™ã‚‹è«‹æ±‚æ›¸ã«ãƒã‚§ãƒƒã‚¯ã‚’å…¥ã‚Œã¦ãã ã•ã„"
+        .Value = "ì¬‚·‚é¿‹‘‚Éƒ`ƒFƒbƒN‚ğ“ü‚ê‚Ä‚­‚¾‚³‚¢"
         .Font.Bold = True
         .Font.Size = 14
     End With
     
-    ' â˜…ä¿®æ­£ï¼šã‚«ãƒƒã‚³ã‚’å…¨ã¦åŠè§’ã«çµ±ä¸€
-    ' â€»Excelå´ã®ã‚·ãƒ¼ãƒˆåã‚‚å…¨ã¦åŠè§’ã‚«ãƒƒã‚³ã€Œ(ã€ã€Œ)ã€ã«ãªã£ã¦ã„ã‚‹ã‹ç¢ºèªã—ã¦ãã ã•ã„ã€‚
-    arrLabels = Array("è«‹æ±‚æ›¸", _
-                      "è«‹æ±‚æ›¸(æŒ¯è¾¼æ‰‹æ•°æ–™æœ‰)", _
-                      "è«‹æ±‚æ›¸(é ˜åæœ‰)", _
-                      "è«‹æ±‚æ›¸(é ˜åæœ‰ãƒ»æŒ¯è¾¼æ‰‹æ•°æ–™æœ‰)", _
-                      "ä½†é™½ä¿¡ç”¨é‡‘åº«")
+    ' šC³FƒJƒbƒR‚ğ‘S‚Ä”¼Šp‚É“ˆê
+    ' ¦Excel‘¤‚ÌƒV[ƒg–¼‚à‘S‚Ä”¼ŠpƒJƒbƒRu(vu)v‚É‚È‚Á‚Ä‚¢‚é‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢B
+    arrLabels = Array("¿‹‘", _
+                      "¿‹‘(Uè”—¿—L)", _
+                      "¿‹‘(—Ìû—L)", _
+                      "¿‹‘(—Ìû—LEUè”—¿—L)", _
+                      "’A—zM—p‹àŒÉ")
     
     topPos = 60
     For i = 0 To UBound(arrLabels)
@@ -149,7 +165,7 @@ Sub è«‹æ±‚æ›¸ä½œæˆãƒ¡ãƒ‹ãƒ¥ãƒ¼()
     
     Set btn = wsMenu.Buttons.Add(Left:=50, Top:=topPos + 20, Width:=150, Height:=40)
     With btn
-        .Caption = "é¸æŠã—ãŸè«‹æ±‚æ›¸ã‚’ä½œæˆ"
+        .Caption = "‘I‘ğ‚µ‚½¿‹‘‚ğì¬"
         .Font.Bold = True
         .Font.Size = 12
         .OnAction = "'GenerateFromSelection'"
@@ -162,14 +178,14 @@ End Sub
 
 Sub GenerateFromSelection()
     Dim wsMenu As Worksheet
-    Dim wsSearch As Worksheet: Set wsSearch = ThisWorkbook.Worksheets("ä¾é ¼æ¤œç´¢")
+    Dim wsSearch As Worksheet: Set wsSearch = ThisWorkbook.Worksheets("ˆË—ŠŒŸõ")
     Dim i As Integer
     Dim anySelected As Boolean
     Dim isSelected(1 To 5) As Boolean
     Dim honorificValue As String
     
     On Error Resume Next
-    Set wsMenu = ThisWorkbook.Worksheets("ä½œæˆé¸æŠ")
+    Set wsMenu = ThisWorkbook.Worksheets("ì¬‘I‘ğ")
     On Error GoTo 0
     
     If wsMenu Is Nothing Then
@@ -185,11 +201,11 @@ Sub GenerateFromSelection()
     Next i
     
     If Not anySelected Then
-        MsgBox "è«‹æ±‚æ›¸ãŒé¸æŠã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚", vbExclamation
+        MsgBox "¿‹‘‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB", vbExclamation
         Exit Sub
     End If
     
-    ' æ•¬ç§°ç¢ºèªï¼ˆ1å›ã®ã¿å®Ÿè¡Œï¼‰
+    ' ŒhÌŠm”Fi1‰ñ‚Ì‚İÀsj
     honorificValue = DetermineHonorific(Trim(wsSearch.Range(SRC_DESTINATION).Value))
     
     Call AssignAccountingInvoiceNo
@@ -200,26 +216,26 @@ Sub GenerateFromSelection()
     
     Application.ScreenUpdating = False
     
-    ' æ–‡å­—åˆ—ã‚’çµ±ä¸€ã—ã¦å‘¼ã³å‡ºã—
-    If isSelected(1) Then Call CreateInvoiceFromTemplate("è«‹æ±‚æ›¸", honorificValue)
-    If isSelected(2) Then Call CreateInvoiceFromTemplate("è«‹æ±‚æ›¸(æŒ¯è¾¼æ‰‹æ•°æ–™æœ‰)", honorificValue)
-    If isSelected(3) Then Call CreateInvoiceFromTemplate("è«‹æ±‚æ›¸(é ˜åæœ‰)", honorificValue)
-    If isSelected(4) Then Call CreateInvoiceFromTemplate("è«‹æ±‚æ›¸(é ˜åæœ‰ãƒ»æŒ¯è¾¼æ‰‹æ•°æ–™æœ‰)", honorificValue)
-    If isSelected(5) Then Call CreateInvoiceFromTemplate("ä½†é™½ä¿¡ç”¨é‡‘åº«", honorificValue)
+    ' •¶š—ñ‚ğ“ˆê‚µ‚ÄŒÄ‚Ño‚µ
+    If isSelected(1) Then Call CreateInvoiceFromTemplate("¿‹‘", honorificValue)
+    If isSelected(2) Then Call CreateInvoiceFromTemplate("¿‹‘(Uè”—¿—L)", honorificValue)
+    If isSelected(3) Then Call CreateInvoiceFromTemplate("¿‹‘(—Ìû—L)", honorificValue)
+    If isSelected(4) Then Call CreateInvoiceFromTemplate("¿‹‘(—Ìû—LEUè”—¿—L)", honorificValue)
+    If isSelected(5) Then Call CreateInvoiceFromTemplate("’A—zM—p‹àŒÉ", honorificValue)
     
     Application.ScreenUpdating = True
-    MsgBox "è«‹æ±‚æ›¸ã®ä½œæˆãŒå®Œäº†ã—ã¾ã—ãŸã€‚", vbInformation
+    MsgBox "¿‹‘‚Ìì¬‚ªŠ®—¹‚µ‚Ü‚µ‚½B", vbInformation
 End Sub
 
 Public Sub AssignAccountingInvoiceNo()
-    Dim wsRireki As Worksheet: Set wsRireki = ThisWorkbook.Sheets("ä¾é ¼å±¥æ­´")
-    Dim wsSearch As Worksheet: Set wsSearch = ThisWorkbook.Sheets("ä¾é ¼æ¤œç´¢")
+    Dim wsRireki As Worksheet: Set wsRireki = ThisWorkbook.Sheets("ˆË—Š—š—ğ")
+    Dim wsSearch As Worksheet: Set wsSearch = ThisWorkbook.Sheets("ˆË—ŠŒŸõ")
     Dim lastRow As Long, maxNo As Double, f As Range
-    Dim irNo As String: irNo = Trim(wsSearch.Range("A2").Value) ' æ¤œç´¢ã‚­ãƒ¼ã¯A2å›ºå®š
+    Dim irNo As String: irNo = Trim(wsSearch.Range("A2").Value) ' ŒŸõƒL[‚ÍA2ŒÅ’è
 
     If irNo = "" Then Exit Sub
 
-    ' --- çµŒç†ç•ªå·æ¡ç•ªï¼ˆB2ãŒç©ºã®å ´åˆã®ã¿ï¼‰ ---
+    ' --- Œo—”Ô†Ì”ÔiB2‚ª‹ó‚Ìê‡‚Ì‚İj ---
     If wsSearch.Range(SRC_KEIRI_NO).Value = "" Then
         lastRow = wsRireki.Cells(wsRireki.Rows.Count, "B").End(xlUp).Row
         If lastRow < 3 Then
@@ -236,12 +252,12 @@ Public Sub AssignAccountingInvoiceNo()
         End If
     End If
 
-    ' --- ç™ºè¡Œæ—¥å…¥åŠ›ï¼ˆF9ãŒç©ºã®å ´åˆã®ã¿ã€ä»Šæ—¥ã®æ—¥ä»˜ï¼‰ ---
-    '   2026/5/20: è«‹æ±‚æ›¸ä½œæˆæ™‚ã«ç™ºè¡Œæ—¥ã‚‚è‡ªå‹•å…¥åŠ›ã™ã‚‹ã‚ˆã†è¿½åŠ 
+    ' --- ”­s“ú“ü—ÍiF9‚ª‹ó‚Ìê‡‚Ì‚İA¡“ú‚Ì“ú•tj ---
+    '   2026/5/20: ¿‹‘ì¬‚É”­s“ú‚à©“®“ü—Í‚·‚é‚æ‚¤’Ç‰Á
     If wsSearch.Range(SRC_DATE_ISSUE).Value = "" Then
         wsSearch.Range(SRC_DATE_ISSUE).Value = Date
         
-        ' ãƒ­ãƒ¼ã‚«ãƒ«ä¾é ¼å±¥æ­´ Cåˆ—(ç™ºè¡Œæ—¥) ã«ã‚‚æ›¸ãè¾¼ã¿
+        ' ƒ[ƒJƒ‹ˆË—Š—š—ğ C—ñ(”­s“ú) ‚É‚à‘‚«‚İ
         If f Is Nothing Then
             Set f = wsRireki.Columns("A").Find(What:=irNo, LookIn:=xlValues, LookAt:=xlWhole)
         End If
@@ -252,71 +268,71 @@ Public Sub AssignAccountingInvoiceNo()
 End Sub
 
 Private Sub CreateInvoiceFromTemplate(templateName As String, honorific As String)
-    Dim wsSrc As Worksheet: Set wsSrc = ThisWorkbook.Worksheets("ä¾é ¼æ¤œç´¢")
+    Dim wsSrc As Worksheet: Set wsSrc = ThisWorkbook.Worksheets("ˆË—ŠŒŸõ")
     Dim newSheetName As String
     Dim templateWs As Worksheet
-    Dim targetWs As Worksheet ' ä½œæˆã•ã‚Œã‚‹ã‚·ãƒ¼ãƒˆï¼ˆã‚³ãƒ”ãƒ¼å…ˆï¼‰
+    Dim targetWs As Worksheet ' ì¬‚³‚ê‚éƒV[ƒgiƒRƒs[æj
     
-    ' ãƒ–ãƒƒã‚¯ä¿è­·ãƒã‚§ãƒƒã‚¯
+    ' ƒuƒbƒN•ÛŒìƒ`ƒFƒbƒN
     If ThisWorkbook.ProtectStructure Then
-        MsgBox "ãƒ–ãƒƒã‚¯ã®æ§‹æˆãŒä¿è­·ã•ã‚Œã¦ã„ã‚‹ãŸã‚ã€ã‚·ãƒ¼ãƒˆã‚’ã‚³ãƒ”ãƒ¼ã§ãã¾ã›ã‚“ã€‚" & vbCrLf & _
-               "Excelã®ã€Œæ ¡é–²ã€ã‚¿ãƒ–ã‹ã‚‰ã€Œãƒ–ãƒƒã‚¯ã®ä¿è­·ã€ã‚’è§£é™¤ã—ã¦ã‹ã‚‰å®Ÿè¡Œã—ã¦ãã ã•ã„ã€‚", vbCritical
+        MsgBox "ƒuƒbƒN‚Ì\¬‚ª•ÛŒì‚³‚ê‚Ä‚¢‚é‚½‚ßAƒV[ƒg‚ğƒRƒs[‚Å‚«‚Ü‚¹‚ñB" & vbCrLf & _
+               "Excel‚ÌuZ‰{vƒ^ƒu‚©‚çuƒuƒbƒN‚Ì•ÛŒìv‚ğ‰ğœ‚µ‚Ä‚©‚çÀs‚µ‚Ä‚­‚¾‚³‚¢B", vbCritical
         Exit Sub
     End If
     
-    ' ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆå–å¾—ãƒã‚§ãƒƒã‚¯ï¼ˆãƒ«ãƒ¼ãƒ—ãƒã‚§ãƒƒã‚¯ã«å¤‰æ›´ï¼‰
+    ' ƒeƒ“ƒvƒŒ[ƒgæ“¾ƒ`ƒFƒbƒNiƒ‹[ƒvƒ`ƒFƒbƒN‚É•ÏXj
     If Not SheetExists(templateName) Then
-        MsgBox "ã‚¨ãƒ©ãƒ¼ï¼šãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã‚·ãƒ¼ãƒˆã€Œ" & templateName & "ã€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚", vbCritical
+        MsgBox "ƒGƒ‰[Fƒeƒ“ƒvƒŒ[ƒgƒV[ƒgu" & templateName & "v‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB", vbCritical
         Exit Sub
     End If
     Set templateWs = ThisWorkbook.Sheets(templateName)
     
-    ' éè¡¨ç¤ºå¯¾ç­–
+    ' ”ñ•\¦‘Îô
     Dim originalVisibleState As XlSheetVisibility
     originalVisibleState = templateWs.Visible
     If originalVisibleState <> xlSheetVisible Then templateWs.Visible = xlSheetVisible
     
     ' -----------------------------------------------------
-    ' ã€æœ€å¼·ã®ã‚³ãƒ”ãƒ¼å‡¦ç†ã€‘
+    ' yÅ‹­‚ÌƒRƒs[ˆ—z
     ' -----------------------------------------------------
     On Error GoTo FallbackCopyMode
     
-    ' 1. é€šå¸¸ã®ã‚³ãƒ”ãƒ¼ã‚’è©¦è¡Œ
+    ' 1. ’Êí‚ÌƒRƒs[‚ğs
     templateWs.Copy After:=wsSrc
     Set targetWs = ActiveSheet
     
-    On Error GoTo 0 ' ã‚¨ãƒ©ãƒ¼è§£é™¤
+    On Error GoTo 0 ' ƒGƒ‰[‰ğœ
     GoTo PostCopyProcess
     
 FallbackCopyMode:
-    ' 2. é€šå¸¸ã‚³ãƒ”ãƒ¼å¤±æ•—æ™‚ã®æ•‘æ¸ˆæªç½®ï¼ˆæ‰‹å‹•ã‚³ãƒ”ãƒ¼ãƒ¢ãƒ¼ãƒ‰ï¼‰
+    ' 2. ’ÊíƒRƒs[¸”s‚Ì‹~Ï‘[’uiè“®ƒRƒs[ƒ‚[ƒhj
     Err.Clear
     On Error Resume Next
     
-    ' ç©ºã®ã‚·ãƒ¼ãƒˆã‚’è¿½åŠ 
+    ' ‹ó‚ÌƒV[ƒg‚ğ’Ç‰Á
     Set targetWs = Worksheets.Add(After:=wsSrc)
     
-    ' ä¸­èº«ã‚’å…¨ã¦ã‚³ãƒ”ãƒ¼ã—ã¦è²¼ã‚Šä»˜ã‘
+    ' ’†g‚ğ‘S‚ÄƒRƒs[‚µ‚Ä“\‚è•t‚¯
     templateWs.Cells.Copy targetWs.Range("A1")
     
-    ' ã€é‡è¦ã€‘PageSetupé–¢é€£ã®ã‚¨ãƒ©ãƒ¼å›é¿ã®ãŸã‚ã€ã‚³ãƒ¼ãƒ‰ã‚’ç„¡åŠ¹åŒ–ã—ã¦ã„ã¾ã™ã€‚
-    ' å°åˆ·è¨­å®šãŒå¿…è¦ãªå ´åˆã¯æ‰‹å‹•ã§è¨­å®šã™ã‚‹ã‹ã€ãƒ‰ãƒ©ã‚¤ãƒã®å•é¡Œã‚’è§£æ±ºå¾Œã«æœ‰åŠ¹åŒ–ã—ã¦ãã ã•ã„ã€‚
+    ' yd—vzPageSetupŠÖ˜A‚ÌƒGƒ‰[‰ñ”ğ‚Ì‚½‚ßAƒR[ƒh‚ğ–³Œø‰»‚µ‚Ä‚¢‚Ü‚·B
+    ' ˆóüİ’è‚ª•K—v‚Èê‡‚Íè“®‚Åİ’è‚·‚é‚©Aƒhƒ‰ƒCƒo‚Ì–â‘è‚ğ‰ğŒˆŒã‚É—LŒø‰»‚µ‚Ä‚­‚¾‚³‚¢B
     ' targetWs.PageSetup.PrintArea = templateWs.PageSetup.PrintArea
     ' targetWs.PageSetup.Orientation = templateWs.PageSetup.Orientation
     
     On Error GoTo 0
 
 PostCopyProcess:
-    ' å…ƒã®ã‚·ãƒ¼ãƒˆã®è¡¨ç¤ºçŠ¶æ…‹ã‚’æˆ»ã™
+    ' Œ³‚ÌƒV[ƒg‚Ì•\¦ó‘Ô‚ğ–ß‚·
     If Not templateWs Is Nothing Then
         If originalVisibleState <> xlSheetVisible Then templateWs.Visible = originalVisibleState
     End If
 
     ' ---------------------------------------------------------
-    ' ãƒ‡ãƒ¼ã‚¿è»¢è¨˜å‡¦ç†ï¼ˆtargetWs ã«å¯¾ã—ã¦è¡Œã†ï¼‰
+    ' ƒf[ƒ^“]‹Lˆ—itargetWs ‚É‘Î‚µ‚Äs‚¤j
     ' ---------------------------------------------------------
     If targetWs Is Nothing Then
-        MsgBox "ã‚·ãƒ¼ãƒˆã®ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", vbCritical
+        MsgBox "ƒV[ƒg‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½B", vbCritical
         Exit Sub
     End If
     
@@ -326,20 +342,20 @@ PostCopyProcess:
     newSheetName = "No_" & targetWs.Range(DEST_KEIRI_NO).Value & "_" & templateName
     If Len(newSheetName) > 31 Then newSheetName = Left(newSheetName, 31)
     
-    ' â˜…ä¿®æ­£ï¼šåŒåã‚·ãƒ¼ãƒˆå‰Šé™¤å‡¦ç†ã®å¼·åŒ–ï¼ˆã‚¨ãƒ©ãƒ¼9å›é¿ï¼‰
-    ' On Error Resume Nextã«é ¼ã‚‰ãšã€å­˜åœ¨ç¢ºèªé–¢æ•°(SheetExists)ã‚’ä½¿ã£ã¦å®‰å…¨ã«å‰Šé™¤ã—ã¾ã™
+    ' šC³F“¯–¼ƒV[ƒgíœˆ—‚Ì‹­‰»iƒGƒ‰[9‰ñ”ğj
+    ' On Error Resume Next‚É—Š‚ç‚¸A‘¶İŠm”FŠÖ”(SheetExists)‚ğg‚Á‚ÄˆÀ‘S‚Éíœ‚µ‚Ü‚·
     If SheetExists(newSheetName) Then
         Application.DisplayAlerts = False
         ThisWorkbook.Sheets(newSheetName).Delete
         Application.DisplayAlerts = True
     End If
     
-    ' ã‚·ãƒ¼ãƒˆåã‚’å¤‰æ›´ï¼ˆã‚¨ãƒ©ãƒ¼ãƒãƒ³ãƒ‰ãƒªãƒ³ã‚°ä»˜ãï¼‰
+    ' ƒV[ƒg–¼‚ğ•ÏXiƒGƒ‰[ƒnƒ“ƒhƒŠƒ“ƒO•t‚«j
     On Error Resume Next
     targetWs.Name = newSheetName
     If Err.Number <> 0 Then
-        MsgBox "ã‚·ãƒ¼ãƒˆåã®å¤‰æ›´ã«å¤±æ•—ã—ã¾ã—ãŸã€‚" & vbCrLf & "åå‰ï¼š" & newSheetName & vbCrLf & _
-               "åŸå› ï¼šåŒåã®ã‚·ãƒ¼ãƒˆãŒæ®‹ã£ã¦ã„ã‚‹ã‹ã€åå‰ã«ä½¿ç”¨ã§ããªã„æ–‡å­—ãŒå«ã¾ã‚Œã¦ã„ã¾ã™ã€‚", vbExclamation
+        MsgBox "ƒV[ƒg–¼‚Ì•ÏX‚É¸”s‚µ‚Ü‚µ‚½B" & vbCrLf & "–¼‘OF" & newSheetName & vbCrLf & _
+               "Œ´ˆöF“¯–¼‚ÌƒV[ƒg‚ªc‚Á‚Ä‚¢‚é‚©A–¼‘O‚Ég—p‚Å‚«‚È‚¢•¶š‚ªŠÜ‚Ü‚ê‚Ä‚¢‚Ü‚·B", vbExclamation
         Err.Clear
     End If
     On Error GoTo 0
@@ -347,7 +363,7 @@ PostCopyProcess:
     targetWs.Range("A18").Select
 End Sub
 
-' â˜…ä¿®æ­£ï¼šã‚¨ãƒ©ãƒ¼è¨­å®šã«ä¾å­˜ã—ãªã„ã€ãƒ«ãƒ¼ãƒ—æ–¹å¼ã®å­˜åœ¨ãƒã‚§ãƒƒã‚¯
+' šC³FƒGƒ‰[İ’è‚ÉˆË‘¶‚µ‚È‚¢Aƒ‹[ƒv•û®‚Ì‘¶İƒ`ƒFƒbƒN
 Private Function SheetExists(sheetName As String) As Boolean
     Dim ws As Worksheet
     SheetExists = False
@@ -359,14 +375,14 @@ Private Function SheetExists(sheetName As String) As Boolean
     Next ws
 End Function
 
-Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific As String, Optional ByVal templateName As String = "è«‹æ±‚æ›¸")
-    ' ã€2026/5/20ã€‘ãƒ­ãƒ¼ã‚«ãƒ«çµŒç†ç”¨ãƒ–ãƒƒã‚¯ã¯ä¿è­·ãªã—é‹ç”¨
-    '   â€» ã‚‚ã—ãƒ†ãƒ³ãƒ—ãƒ¬ãŒä¿è­·ã•ã‚Œã¦ã„ã¦ã“ã“ã§ã‚¨ãƒ©ãƒ¼ã«ãªã‚‹å ´åˆã®ã¿ SafeUnprotect å†è¿½åŠ 
+Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific As String, Optional ByVal templateName As String = "¿‹‘")
+    ' y2026/5/20zƒ[ƒJƒ‹Œo——pƒuƒbƒN‚Í•ÛŒì‚È‚µ‰^—p
+    '   ¦ ‚à‚µƒeƒ“ƒvƒŒ‚ª•ÛŒì‚³‚ê‚Ä‚¢‚Ä‚±‚±‚ÅƒGƒ‰[‚É‚È‚éê‡‚Ì‚İ SafeUnprotect Ä’Ç‰Á
     
     wsDest.Range(DEST_KEIRI_NO).Value = wsSource.Range(SRC_KEIRI_NO).Value
     
     Dim dSub As Variant: dSub = wsSource.Range(SRC_DATE_SUBMISSION).Value
-    ' æå‡ºæ—¥ä»˜ãŒç©ºã‚„éæ—¥ä»˜ã®å ´åˆã¯ä»Šæ—¥ã®æ—¥ä»˜ã‚’ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯ã¨ã—ã¦ä½¿ç”¨
+    ' ’ño“ú•t‚ª‹ó‚â”ñ“ú•t‚Ìê‡‚Í¡“ú‚Ì“ú•t‚ğƒtƒH[ƒ‹ƒoƒbƒN‚Æ‚µ‚Äg—p
     Dim useDate As Date
     If IsDate(dSub) Then
         useDate = CDate(dSub)
@@ -385,21 +401,21 @@ Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific A
     Dim pName As String: pName = Trim(wsSource.Range(SRC_PROJECT_NAME).Value)
     
     Dim deptV: On Error Resume Next
-    deptV = Application.VLookup(Left(pNo, 2), ThisWorkbook.Sheets("éƒ¨ç½²ãƒã‚¹ã‚¿").Range("A:B"), 2, False)
+    deptV = Application.VLookup(Left(pNo, 2), ThisWorkbook.Sheets("•”ƒ}ƒXƒ^").Range("A:B"), 2, False)
     On Error GoTo 0
-    wsDest.Range(DEST_DEPT_NAME).Value = IIf(IsError(deptV) Or deptV = "", "å»ºç¯‰äº‹æ¥­éƒ¨", deptV)
+    wsDest.Range(DEST_DEPT_NAME).Value = IIf(IsError(deptV) Or deptV = "", "Œš’z–‹Æ•”", deptV)
     
     wsDest.Range(DEST_STAFF_NAME).Value = wsSource.Range(SRC_STAFF_NAME).Value
     wsDest.Range(DEST_PROJECT_NAME).Value = pName
-    wsDest.Range(DEST_SUBJECT).Value = "ä¸Šè¨˜å·¥äº‹ä»£"
+    wsDest.Range(DEST_SUBJECT).Value = "ã‹LH–‘ã"
     
     If IsNumeric(wsSource.Range(SRC_AMOUNT).Value) Then
-        ' æµ®å‹•å°æ•°ç‚¹èª¤å·®å¯¾ç­–ã§ Round ã«å¤‰æ›´ï¼ˆæ—§: Int ã ã¨ 33000000/1.1 ãŒ 29999999.99... ã«ãªã‚Šåˆ‡ã‚Šæ¨ã¦ã§ 29999999 ã«ãªã‚‹ï¼‰
+        ' •‚“®¬”“_Œë·‘Îô‚Å Round ‚É•ÏXi‹Œ: Int ‚¾‚Æ 33000000/1.1 ‚ª 29999999.99... ‚É‚È‚èØ‚èÌ‚Ä‚Å 29999999 ‚É‚È‚éj
         wsDest.Range(DEST_AMOUNT).Value = Application.WorksheetFunction.Round(wsSource.Range(SRC_AMOUNT).Value / 1.1, 0)
     End If
     wsDest.Range(DEST_PROJECT_NO).Value = pNo
     
-    '--- å·¥æœŸè»¢è¨˜ ---
+    '--- HŠú“]‹L ---
     Dim dStart As Variant: dStart = wsSource.Range(SRC_START_DATE).Value
     Dim dEnd As Variant: dEnd = wsSource.Range(SRC_END_DATE).Value
     
@@ -408,7 +424,7 @@ Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific A
         wsDest.Range(DEST_TERM_START_MONTH).Value = Month(dStart)
         wsDest.Range(DEST_TERM_START_DAY).Value = Day(dStart)
     End If
-    wsDest.Range(DEST_TERM_TILDE).Value = "ï½"
+    wsDest.Range(DEST_TERM_TILDE).Value = "`"
     If IsDate(dEnd) Then
         wsDest.Range(DEST_TERM_END_MONTH).Value = Month(dEnd)
         wsDest.Range(DEST_TERM_END_DAY).Value = Day(dEnd)
@@ -419,48 +435,49 @@ Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific A
         End If
     End If
     
-    ' --- â˜…å®›åã®æ–‡å­—ã‚µã‚¤ã‚ºãƒ»æŠ˜ã‚Šè¿”ã—è‡ªå‹•èª¿æ•´ ---
+    ' --- šˆ¶–¼‚Ì•¶šƒTƒCƒYEÜ‚è•Ô‚µ©“®’²® ---
     Dim dr As Range: Set dr = wsDest.Range(DEST_DESTINATION)
     Dim valLen As Long: valLen = Len(dr.Cells(1).Value)
     
-    dr.ShrinkToFit = False ' ä¸€æ—¦ãƒªã‚»ãƒƒãƒˆ
-    dr.WrapText = False    ' ä¸€æ—¦ãƒªã‚»ãƒƒãƒˆ
+    dr.ShrinkToFit = False ' ˆê’UƒŠƒZƒbƒg
+    dr.WrapText = False    ' ˆê’UƒŠƒZƒbƒg
     
     Select Case valLen
         Case Is <= 13
-            ' çŸ­ã„å ´åˆï¼šå¤§ããªæ–‡å­—ã§1è¡Œ
+            ' ’Z‚¢ê‡F‘å‚«‚È•¶š‚Å1s
             dr.Font.Size = 20
             dr.ShrinkToFit = True
             
         Case Is <= 25
-            ' å°‘ã—é•·ã„å ´åˆï¼šä¸­ãã‚‰ã„ã®æ–‡å­—ã§1è¡Œï¼ˆç¸®å°ã‚ã‚Šï¼‰
+            ' ­‚µ’·‚¢ê‡F’†‚­‚ç‚¢‚Ì•¶š‚Å1sik¬‚ ‚èj
             dr.Font.Size = 14
             dr.ShrinkToFit = True
             
         Case Else
-            ' ã‹ãªã‚Šé•·ã„å ´åˆï¼šèª­ã‚ã‚‹ã‚µã‚¤ã‚º(11pt)ã«ã—ã¦ã€2è¡Œã«æŠ˜ã‚Šè¿”ã™
+            ' ‚©‚È‚è’·‚¢ê‡F“Ç‚ß‚éƒTƒCƒY(11pt)‚É‚µ‚ÄA2s‚ÉÜ‚è•Ô‚·
             dr.Font.Size = 11
             dr.WrapText = True
     End Select
     ' ------------------------------------------
     
-    ' ã€å¤‰æ›´ 2026/5/20ã€‘ãƒ†ãƒ³ãƒ—ãƒ¬ç¨®é¡ã‚’ãƒ•ã‚¡ã‚¤ãƒ«åã«å«ã‚ã‚‹
-    '   æ—§: "1_è«‹æ±‚æ›¸_..." å›ºå®š â†’ ä½†é™½ä¿¡ç”¨é‡‘åº«ç­‰ã§åŒåè¡çªã—ã¦ã„ãŸ
-    '   æ–°: "1_<templateName>_..." â†’ ç¨®é¡ã”ã¨ã«åˆ¥ãƒ•ã‚¡ã‚¤ãƒ«å
+    ' y•ÏX 2026/5/20zƒeƒ“ƒvƒŒí—Ş‚ğƒtƒ@ƒCƒ‹–¼‚ÉŠÜ‚ß‚é
+    '   ‹Œ: "1_¿‹‘_..." ŒÅ’è ¨ ’A—zM—p‹àŒÉ“™‚Å“¯–¼Õ“Ë‚µ‚Ä‚¢‚½
+    '   V: "1_<templateName>_..." ¨ í—Ş‚²‚Æ‚É•Êƒtƒ@ƒCƒ‹–¼
     Dim fn As String: fn = wsSource.Range(SRC_KEIRI_NO).Value & "_" & templateName & "_" & dName & "_" & pName & "_" & pNo
     Dim invalid, c: invalid = Array("/", "\", ":", "*", "?", "<", ">", "|", "[", "]")
     For Each c In invalid: fn = Replace(fn, c, " "): Next
     wsDest.Range(DEST_FILENAME_CELL).Value = Trim(fn)
     
-    ' ã€2026/5/20 ä¿®æ­£ã€‘è«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆ(No_xx_è«‹æ±‚æ›¸)ã¯ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒå†…å®¹ç¢ºèªãƒ»
-    ' ç·¨é›†ã™ã‚‹ã‚·ãƒ¼ãƒˆãªã®ã§ã€å†ä¿è­·ã—ãªã„ã€‚
-    ' å†’é ­ã® SafeUnprotect ã¯ã€Œãƒ†ãƒ³ãƒ—ãƒ¬ã‹ã‚‰ã®ä¿è­·ç¶™æ‰¿ã€ã‚’è§£é™¤ã™ã‚‹ãŸã‚ã®ã‚‚ã®ã€‚
+    ' y2026/5/20 C³z¿‹‘ƒV[ƒg(No_xx_¿‹‘)‚Íƒ†[ƒU[‚ª“à—eŠm”FE
+    ' •ÒW‚·‚éƒV[ƒg‚È‚Ì‚ÅAÄ•ÛŒì‚µ‚È‚¢B
+    ' –`“ª‚Ì SafeUnprotect ‚Íuƒeƒ“ƒvƒŒ‚©‚ç‚Ì•ÛŒìŒp³v‚ğ‰ğœ‚·‚é‚½‚ß‚Ì‚à‚ÌB
 End Sub
 
 Private Function DetermineHonorific(ByVal t As String) As String
-    If MsgBox("å®›åï¼šã€Œ" & t & "ã€ã®æ•¬ç§°ã¯ã€æ§˜ã€ã§ã‚ˆã‚ã—ã„ã§ã™ã‹ï¼Ÿ", vbYesNo + vbQuestion) = vbNo Then
-        DetermineHonorific = "å¾¡ä¸­"
+    If MsgBox("ˆ¶–¼Fu" & t & "v‚ÌŒhÌ‚Íw—lx‚Å‚æ‚ë‚µ‚¢‚Å‚·‚©H", vbYesNo + vbQuestion) = vbNo Then
+        DetermineHonorific = "Œä’†"
     Else
-        DetermineHonorific = "æ§˜"
+        DetermineHonorific = "—l"
     End If
 End Function
+

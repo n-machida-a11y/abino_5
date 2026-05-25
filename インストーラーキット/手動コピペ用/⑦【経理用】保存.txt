@@ -1,68 +1,83 @@
 Option Explicit
 
 '================================================================================
-' ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«: ä¿å­˜ï¼ˆã€å…±æœ‰_çµŒç†ç”¨ã€‘è«‹æ±‚æ›¸ä½œæˆ.xlsm ç”¨ï¼‰
-'================================================================================
-' ã€å½¹å‰²ã€‘
-'   è«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆï¼ˆNo_xx_è«‹æ±‚æ›¸ ç­‰ï¼‰ã®ä¿å­˜å‡¦ç†ã€‚
-'   - ã‚·ãƒ¼ãƒˆã‚’ xlsx ã¨ã—ã¦ç‹¬ç«‹ãƒ•ã‚¡ã‚¤ãƒ«ã«ä¿å­˜
-'   - åŒæ™‚ã«ãƒžã‚¹ã‚¿ã®ä¾é ¼å±¥æ­´ã¸çµŒç†ç•ªå·ã‚’æ›¸ãæˆ»ã—
+' [•Û‘¶] •Û‘¶iu•Û‘¶vƒ{ƒ^ƒ“‚Ì–{‘Ì ¨ ¿‹‘‚ð•Ê .xlsx ‚Æ‚µ‚Ä‘‚«o‚µj
+'--------------------------------------------------------------------------------
+' y‰½‚Ìƒtƒ@ƒCƒ‹Hz
+'   ì¬Ï‚Ý¿‹‘ƒV[ƒg‚ðA•Êƒtƒ@ƒCƒ‹(.xlsx)‚Æ‚µ‚Ä
+'   uYYYY”NMŒŽ¿‹‘vƒtƒHƒ‹ƒ_”z‰º‚É‘‚«o‚·ˆ—B
 '
-' ã€ãƒœã‚¿ãƒ³ç™»éŒ²ã€‘
-'   å„ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆè«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆã®å³å´ï¼ˆAJåˆ—ä»¥é™ï¼‰ã«ã‚ã‚‹ã€Œä¿å­˜ã€ãƒœã‚¿ãƒ³ã«
-'   ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ã€‚ä¿å­˜å®Ÿè¡Œæ™‚ã¯ã€ãã®è«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆãŒ ActiveSheet ã«ãªã‚‹ã€‚
-'
-' ã€ä¿å­˜ãƒ‘ã‚¹æ§‹é€ ã€‘
-'   ä¾é ¼æ¤œç´¢!C1ï¼ˆãƒ™ãƒ¼ã‚¹ï¼‰\YYYYå¹´Mæœˆè«‹æ±‚æ›¸\<AK1ã®ãƒ•ã‚¡ã‚¤ãƒ«å>.xlsx
-'
-'   - ãƒ™ãƒ¼ã‚¹ãƒ•ã‚©ãƒ«ãƒ€: ä¾é ¼æ¤œç´¢!C1 ã‚»ãƒ«ã§æŒ‡å®šï¼ˆç©ºãªã‚‰Downloadsï¼‰
-'   - å¹´æœˆãƒ•ã‚©ãƒ«ãƒ€ : ActiveSheet ã® AB3(å¹´) + AE3(æœˆ) ã‹ã‚‰æ§‹ç¯‰
-'   - ãƒ•ã‚¡ã‚¤ãƒ«å   : ActiveSheet ã® AK1 ã‹ã‚‰å–å¾—
-'
-' ã€ä¾å­˜é–¢ä¿‚ã€‘
-'   - Config ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«: GetMasterPath(), SHEET_IRAI_RIREKI, SHEET_IRAI_SEARCH
-'
-' ã€é‡è¦ãªãƒã‚°ä¿®æ­£å±¥æ­´ã€‘
-'   - 2026/5/20: ã‚·ãƒ¼ãƒˆã‚³ãƒ”ãƒ¼ Beforeâ†’After ã«ä¿®æ­£ï¼ˆä¿å­˜xlsxãŒã¾ã£ã•ã‚‰ã«ãªã‚‹ãƒã‚°ï¼‰
-'   - 2026/5/20: AJåˆ—ä»¥é™ã®ã‚·ã‚§ã‚¤ãƒ—å‰Šé™¤ï¼ˆä¿å­˜ãƒœã‚¿ãƒ³ãŒ xlsx ã«æ®‹ã‚‹ãƒã‚°ï¼‰
-'   - 2026/5/18: æœˆå¹´ãƒ•ã‚©ãƒ«ãƒ€åã‚’ã€Œ2026å¹´4æœˆã€é †ã«ä¿®æ­£ï¼ˆæ—§: 4æœˆ2026 ã ã£ãŸï¼‰
-'   - 2026/5/18: ä¾é ¼æ¤œç´¢!C1 ã‹ã‚‰ä¿å­˜ãƒ‘ã‚¹å–å¾—ã«å¤‰æ›´ï¼ˆæ—§: ç’°å¢ƒå¤‰æ•°å›ºå®šã ã£ãŸï¼‰
-'
-' ã€ã‚»ãƒ«ä½ç½®å®šæ•°ã®è§£èª¬ã€‘
-'   AK1 = ä¿å­˜ãƒ•ã‚¡ã‚¤ãƒ«åï¼ˆè«‹æ±‚æ›¸ä½œæˆãƒžã‚¯ãƒ­ãŒæ›¸ãè¾¼ã‚€ã€‚ä¾‹: "1_è«‹æ±‚æ›¸_ãˆ±â—‹â—‹_å·¥äº‹å_03-2600001"ï¼‰
-'   AF1 = çµŒç†ç•ªå·ï¼ˆãƒžã‚¹ã‚¿ã¸æ›¸ãæˆ»ã™å¯¾è±¡ï¼‰
-'   AB3 = å¹´ï¼ˆè«‹æ±‚æ›¸æ—¥ä»˜ã®å¹´ã€‚æœˆå¹´ãƒ•ã‚©ãƒ«ãƒ€åã«ä½¿ã†ï¼‰
-'   AE3 = æœˆï¼ˆè«‹æ±‚æ›¸æ—¥ä»˜ã®æœˆã€‚æœˆå¹´ãƒ•ã‚©ãƒ«ãƒ€åã«ä½¿ã†ï¼‰
+' y‚µ‚­‚Ýz
+'   - ƒV[ƒg‚ð Copy After:= ‚Åƒeƒ“ƒvƒŒŒã‚ë‚É•¡»‚µ‚Ä‚©‚çVƒuƒbƒN‚Ö
+'     iCopy Before:= ‚¾‚Æ‘O’ñ‚ª•ö‚ê‚Ä‹óƒuƒbƒN‚É‚È‚éƒoƒO‚ÌC³Ï‚Ýj
+'   - AJ—ñˆÈ~‚Ìƒ{ƒ^ƒ“}Œ`‚ðíœiƒRƒs[‚µ‚½ƒV[ƒg‚ÉŽc‚ç‚È‚¢‚æ‚¤‚Éj
+'   - o—Íƒtƒ@ƒCƒ‹–¼‚Éƒeƒ“ƒvƒŒ–¼‚ð•t‚¯‚ÄÕ“Ë‰ñ”ð
 '================================================================================
 
 
-' --- ã‚»ãƒ«ä½ç½®å®šæ•°ï¼ˆè«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆä¸Šã®é‡è¦ã‚»ãƒ«ï¼‰ ---
-Private Const CELL_INVOICE_FILE_NAME As String = "AK1"   ' ä¿å­˜ãƒ•ã‚¡ã‚¤ãƒ«å
-Private Const CELL_ACCOUNTING_NO     As String = "AF1"   ' çµŒç†ç•ªå·
-Private Const CELL_MONTH_COL1        As String = "AE3"   ' æœˆ
-Private Const CELL_MONTH_COL2        As String = "AB3"   ' å¹´
-
-
 '================================================================================
-' ä¸»è¦å‡¦ç†ï¼šä¿å­˜ï¼†å°åˆ·ï¼ˆãƒœã‚¿ãƒ³ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ï¼‰
+' ƒ‚ƒWƒ…[ƒ‹: •Û‘¶iy‹¤—L_Œo——pz¿‹‘ì¬.xlsm —pj
 '================================================================================
-' ã€å‡¦ç†ãƒ•ãƒ­ãƒ¼ã€‘
-'   1. ãƒžã‚¹ã‚¿åŒæœŸ       : SyncInvoiceNoToMaster ã§çµŒç†No ã‚’ãƒžã‚¹ã‚¿ã«æ›¸ãè¾¼ã¿
-'   2. ãƒ•ã‚¡ã‚¤ãƒ«åå–å¾—   : ActiveSheet!AK1 ã‹ã‚‰å–å¾—
-'   3. å¹´æœˆå–å¾—         : ActiveSheet!AB3, AE3 ã‹ã‚‰ã€ŒYYYYå¹´Mæœˆã€ã‚’æ§‹ç¯‰
-'   4. ä¿å­˜å…ˆæ±ºå®š       : ä¾é ¼æ¤œç´¢!C1ï¼ˆç„¡ã‘ã‚Œã° Downloadsï¼‰+ å¹´æœˆãƒ•ã‚©ãƒ«ãƒ€
-'   5. ãƒ•ã‚©ãƒ«ãƒ€ä½œæˆ     : FileSystemObject ã§ç¢ºå®Ÿã«ä½œæˆ
-'   6. æ–°ãƒ–ãƒƒã‚¯ä½œæˆ     : ActiveSheet ã‚’æ–°ãƒ–ãƒƒã‚¯ã« After:= ã§ã‚³ãƒ”ãƒ¼
-'   7. ä¸è¦ã‚·ãƒ¼ãƒˆå‰Šé™¤   : å…ƒã®ç©º Sheet1 ã‚’å‰Šé™¤
-'   8. ãƒœã‚¿ãƒ³å‰Šé™¤       : AJåˆ—ä»¥é™ã®ã‚·ã‚§ã‚¤ãƒ—ã‚’å‰Šé™¤ï¼ˆä¿å­˜ãƒœã‚¿ãƒ³ç­‰ã‚’é™¤ãï¼‰
-'   9. xlsxä¿å­˜         : SaveAs â†’ Close
-'  10. å®Œäº†ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸   : ä¿å­˜ãƒ‘ã‚¹ã‚’ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«é€šçŸ¥
+' y–ðŠ„z
+'   ¿‹‘ƒV[ƒgiNo_xx_¿‹‘ “™j‚Ì•Û‘¶ˆ—B
+'   - ƒV[ƒg‚ð xlsx ‚Æ‚µ‚Ä“Æ—§ƒtƒ@ƒCƒ‹‚É•Û‘¶
+'   - “¯Žž‚Éƒ}ƒXƒ^‚ÌˆË—Š—š—ð‚ÖŒo—”Ô†‚ð‘‚«–ß‚µ
 '
-' ã€ã‚¨ãƒ©ãƒ¼æ™‚ã€‘
-'   On Error GoTo Cleanup ã§è¨ºæ–­æƒ…å ±ä»˜ããƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¡¨ç¤º
-'   ScreenUpdating ã¯å¿…ãšå…ƒã«æˆ»ã™
+' yƒ{ƒ^ƒ““o˜^z
+'   Šeƒeƒ“ƒvƒŒ[ƒg¿‹‘ƒV[ƒg‚Ì‰E‘¤iAJ—ñˆÈ~j‚É‚ ‚éu•Û‘¶vƒ{ƒ^ƒ“‚É
+'   “o˜^‚³‚ê‚Ä‚¢‚éB•Û‘¶ŽÀsŽž‚ÍA‚»‚Ì¿‹‘ƒV[ƒg‚ª ActiveSheet ‚É‚È‚éB
+'
+' y•Û‘¶ƒpƒX\‘¢z
+'   ˆË—ŠŒŸõ!C1iƒx[ƒXj\YYYY”NMŒŽ¿‹‘\<AK1‚Ìƒtƒ@ƒCƒ‹–¼>.xlsx
+'
+'   - ƒx[ƒXƒtƒHƒ‹ƒ_: ˆË—ŠŒŸõ!C1 ƒZƒ‹‚ÅŽw’èi‹ó‚È‚çDownloadsj
+'   - ”NŒŽƒtƒHƒ‹ƒ_ : ActiveSheet ‚Ì AB3(”N) + AE3(ŒŽ) ‚©‚ç\’z
+'   - ƒtƒ@ƒCƒ‹–¼   : ActiveSheet ‚Ì AK1 ‚©‚çŽæ“¾
+'
+' yˆË‘¶ŠÖŒWz
+'   - Config ƒ‚ƒWƒ…[ƒ‹: GetMasterPath(), SHEET_IRAI_RIREKI, SHEET_IRAI_SEARCH
+'
+' yd—v‚ÈƒoƒOC³—š—ðz
+'   - 2026/5/20: ƒV[ƒgƒRƒs[ Before¨After ‚ÉC³i•Û‘¶xlsx‚ª‚Ü‚Á‚³‚ç‚É‚È‚éƒoƒOj
+'   - 2026/5/20: AJ—ñˆÈ~‚ÌƒVƒFƒCƒvíœi•Û‘¶ƒ{ƒ^ƒ“‚ª xlsx ‚ÉŽc‚éƒoƒOj
+'   - 2026/5/18: ŒŽ”NƒtƒHƒ‹ƒ_–¼‚ðu2026”N4ŒŽv‡‚ÉC³i‹Œ: 4ŒŽ2026 ‚¾‚Á‚½j
+'   - 2026/5/18: ˆË—ŠŒŸõ!C1 ‚©‚ç•Û‘¶ƒpƒXŽæ“¾‚É•ÏXi‹Œ: ŠÂ‹«•Ï”ŒÅ’è‚¾‚Á‚½j
+'
+' yƒZƒ‹ˆÊ’u’è”‚Ì‰ðàz
+'   AK1 = •Û‘¶ƒtƒ@ƒCƒ‹–¼i¿‹‘ì¬ƒ}ƒNƒ‚ª‘‚«ž‚ÞB—á: "1_¿‹‘_‡Š››_HŽ––¼_03-2600001"j
+'   AF1 = Œo—”Ô†iƒ}ƒXƒ^‚Ö‘‚«–ß‚·‘ÎÛj
+'   AB3 = ”Ni¿‹‘“ú•t‚Ì”NBŒŽ”NƒtƒHƒ‹ƒ_–¼‚ÉŽg‚¤j
+'   AE3 = ŒŽi¿‹‘“ú•t‚ÌŒŽBŒŽ”NƒtƒHƒ‹ƒ_–¼‚ÉŽg‚¤j
 '================================================================================
-Public Sub ä¿å­˜_å°åˆ·ä½œæ¥­()
+
+
+' --- ƒZƒ‹ˆÊ’u’è”i¿‹‘ƒV[ƒgã‚Ìd—vƒZƒ‹j ---
+Private Const CELL_INVOICE_FILE_NAME As String = "AK1"   ' •Û‘¶ƒtƒ@ƒCƒ‹–¼
+Private Const CELL_ACCOUNTING_NO     As String = "AF1"   ' Œo—”Ô†
+Private Const CELL_MONTH_COL1        As String = "AE3"   ' ŒŽ
+Private Const CELL_MONTH_COL2        As String = "AB3"   ' ”N
+
+
+'================================================================================
+' Žå—vˆ—F•Û‘¶•ˆóüiƒ{ƒ^ƒ“‚©‚çŒÄ‚Ño‚³‚ê‚éj
+'================================================================================
+' yˆ—ƒtƒ[z
+'   1. ƒ}ƒXƒ^“¯Šú       : SyncInvoiceNoToMaster ‚ÅŒo—No ‚ðƒ}ƒXƒ^‚É‘‚«ž‚Ý
+'   2. ƒtƒ@ƒCƒ‹–¼Žæ“¾   : ActiveSheet!AK1 ‚©‚çŽæ“¾
+'   3. ”NŒŽŽæ“¾         : ActiveSheet!AB3, AE3 ‚©‚çuYYYY”NMŒŽv‚ð\’z
+'   4. •Û‘¶æŒˆ’è       : ˆË—ŠŒŸõ!C1i–³‚¯‚ê‚Î Downloadsj+ ”NŒŽƒtƒHƒ‹ƒ_
+'   5. ƒtƒHƒ‹ƒ_ì¬     : FileSystemObject ‚ÅŠmŽÀ‚Éì¬
+'   6. VƒuƒbƒNì¬     : ActiveSheet ‚ðVƒuƒbƒN‚É After:= ‚ÅƒRƒs[
+'   7. •s—vƒV[ƒgíœ   : Œ³‚Ì‹ó Sheet1 ‚ðíœ
+'   8. ƒ{ƒ^ƒ“íœ       : AJ—ñˆÈ~‚ÌƒVƒFƒCƒv‚ðíœi•Û‘¶ƒ{ƒ^ƒ““™‚ðœ‚­j
+'   9. xlsx•Û‘¶         : SaveAs ¨ Close
+'  10. Š®—¹ƒƒbƒZ[ƒW   : •Û‘¶ƒpƒX‚ðƒ†[ƒU[‚É’Ê’m
+'
+' yƒGƒ‰[Žžz
+'   On Error GoTo Cleanup ‚Åf’fî•ñ•t‚«ƒƒbƒZ[ƒW‚ð•\Ž¦
+'   ScreenUpdating ‚Í•K‚¸Œ³‚É–ß‚·
+'================================================================================
+Public Sub •Û‘¶_ˆóüì‹Æ()
     Dim activeSht As Worksheet
     Set activeSht = ActiveSheet
     Dim initialScreen As Boolean
@@ -71,58 +86,58 @@ Public Sub ä¿å­˜_å°åˆ·ä½œæ¥­()
     Application.ScreenUpdating = False
     On Error GoTo Cleanup
 
-    ' --- â‘  ãƒžã‚¹ã‚¿åŒæœŸï¼šçµŒç†ç•ªå·ã‚’ãƒžã‚¹ã‚¿ã®ä¾é ¼å±¥æ­´ã¸æ›¸ãè¾¼ã¿ ---
+    ' --- ‡@ ƒ}ƒXƒ^“¯ŠúFŒo—”Ô†‚ðƒ}ƒXƒ^‚ÌˆË—Š—š—ð‚Ö‘‚«ž‚Ý ---
     Call SyncInvoiceNoToMaster
 
     Dim baseFolder As String, invoiceFolder As String
     Dim fileName As String, monthYear As String
 
-    ' --- â‘¡ ãƒ•ã‚¡ã‚¤ãƒ«åå–å¾—ï¼ˆAK1ï¼‰---
+    ' --- ‡A ƒtƒ@ƒCƒ‹–¼Žæ“¾iAK1j---
     fileName = CStr(activeSht.Range(CELL_INVOICE_FILE_NAME).Value)
 
-    ' --- â‘¢ å¹´æœˆãƒ•ã‚©ãƒ«ãƒ€åã‚’ã€ŒYYYYå¹´Mæœˆã€å½¢å¼ã§æ§‹ç¯‰ ---
-    '   æ—§: æœˆ+å¹´ ã®ãŠã‹ã—ãªé †åºã ã£ãŸä¸å…·åˆã‚’ä¿®æ­£
-    Dim yearVal As String:  yearVal  = CStr(activeSht.Range(CELL_MONTH_COL2).Value)  ' AB3 = å¹´
-    Dim monthVal As String: monthVal = CStr(activeSht.Range(CELL_MONTH_COL1).Value)  ' AE3 = æœˆ
-    If yearVal = "" Then yearVal = CStr(Year(Date))    ' ç©ºæ¬„ãªã‚‰ä»Šæ—¥ã®å¹´ã§ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯
-    If monthVal = "" Then monthVal = CStr(Month(Date)) ' ç©ºæ¬„ãªã‚‰ä»Šæ—¥ã®æœˆã§ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯
-    monthYear = yearVal & "å¹´" & monthVal & "æœˆ"
+    ' --- ‡B ”NŒŽƒtƒHƒ‹ƒ_–¼‚ðuYYYY”NMŒŽvŒ`Ž®‚Å\’z ---
+    '   ‹Œ: ŒŽ+”N ‚Ì‚¨‚©‚µ‚È‡˜‚¾‚Á‚½•s‹ï‡‚ðC³
+    Dim yearVal As String:  yearVal  = CStr(activeSht.Range(CELL_MONTH_COL2).Value)  ' AB3 = ”N
+    Dim monthVal As String: monthVal = CStr(activeSht.Range(CELL_MONTH_COL1).Value)  ' AE3 = ŒŽ
+    If yearVal = "" Then yearVal = CStr(Year(Date))    ' ‹ó—“‚È‚ç¡“ú‚Ì”N‚ÅƒtƒH[ƒ‹ƒoƒbƒN
+    If monthVal = "" Then monthVal = CStr(Month(Date)) ' ‹ó—“‚È‚ç¡“ú‚ÌŒŽ‚ÅƒtƒH[ƒ‹ƒoƒbƒN
+    monthYear = yearVal & "”N" & monthVal & "ŒŽ"
 
-    ' --- â‘£ ãƒ•ã‚¡ã‚¤ãƒ«åã«ä½¿ãˆãªã„æ–‡å­—(\/:*?<>|)ã‚’é™¤åŽ» ---
+    ' --- ‡C ƒtƒ@ƒCƒ‹–¼‚ÉŽg‚¦‚È‚¢•¶Žš(\/:*?<>|)‚ðœ‹Ž ---
     fileName = SanitizeFileName(fileName)
     monthYear = SanitizeFileName(monthYear)
 
     If Trim(fileName) = "" Then
-        MsgBox "ãƒ•ã‚¡ã‚¤ãƒ«åãŒå–å¾—ã§ãã¾ã›ã‚“ã€‚" & vbCrLf & _
-               "è«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆã®AK1ã‚»ãƒ«ã«ãƒ•ã‚¡ã‚¤ãƒ«åãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ã‹ç¢ºèªã—ã¦ãã ã•ã„ã€‚", vbCritical
+        MsgBox "ƒtƒ@ƒCƒ‹–¼‚ªŽæ“¾‚Å‚«‚Ü‚¹‚ñB" & vbCrLf & _
+               "¿‹‘ƒV[ƒg‚ÌAK1ƒZƒ‹‚Éƒtƒ@ƒCƒ‹–¼‚ªÝ’è‚³‚ê‚Ä‚¢‚é‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢B", vbCritical
         Exit Sub
     End If
 
-    ' --- â‘¤ ä¿å­˜å…ˆãƒ™ãƒ¼ã‚¹ãƒ•ã‚©ãƒ«ãƒ€å–å¾— ---
-    '   ä¾é ¼æ¤œç´¢!C1 ã®å€¤ã‚’å„ªå…ˆä½¿ç”¨ã€ç©ºãªã‚‰ Downloads ãƒ•ã‚©ãƒ«ãƒ€ã«ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯
+    ' --- ‡D •Û‘¶æƒx[ƒXƒtƒHƒ‹ƒ_Žæ“¾ ---
+    '   ˆË—ŠŒŸõ!C1 ‚Ì’l‚ð—DæŽg—pA‹ó‚È‚ç Downloads ƒtƒHƒ‹ƒ_‚ÉƒtƒH[ƒ‹ƒoƒbƒN
     On Error Resume Next
-    baseFolder = Trim(CStr(ThisWorkbook.Sheets("ä¾é ¼æ¤œç´¢").Range("C1").Value))
+    baseFolder = Trim(CStr(ThisWorkbook.Sheets("ˆË—ŠŒŸõ").Range("C1").Value))
     On Error GoTo Cleanup
 
-    ' ä¸¡ç«¯ã®ãƒ€ãƒ–ãƒ«ã‚¯ã‚©ãƒ¼ãƒˆé™¤åŽ»ï¼ˆC1 ã« "..." ã§å…¥åŠ›ã•ã‚Œã¦ã„ã‚‹å ´åˆã®å¯¾ç­–ï¼‰
-    Do While Len(baseFolder) > 0 And (Left(baseFolder, 1) = Chr(34) Or Left(baseFolder, 1) = "â€œ" Or Left(baseFolder, 1) = "â€")
+    ' —¼’[‚Ìƒ_ƒuƒ‹ƒNƒH[ƒgœ‹ŽiC1 ‚É "..." ‚Å“ü—Í‚³‚ê‚Ä‚¢‚éê‡‚Ì‘Îôj
+    Do While Len(baseFolder) > 0 And (Left(baseFolder, 1) = Chr(34) Or Left(baseFolder, 1) = "g" Or Left(baseFolder, 1) = "h")
         baseFolder = Mid(baseFolder, 2)
     Loop
-    Do While Len(baseFolder) > 0 And (Right(baseFolder, 1) = Chr(34) Or Right(baseFolder, 1) = "â€œ" Or Right(baseFolder, 1) = "â€")
+    Do While Len(baseFolder) > 0 And (Right(baseFolder, 1) = Chr(34) Or Right(baseFolder, 1) = "g" Or Right(baseFolder, 1) = "h")
         baseFolder = Left(baseFolder, Len(baseFolder) - 1)
     Loop
     baseFolder = Trim(baseFolder)
 
-    ' C1 ãŒç©ºãªã‚‰ Downloads ã«ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯
+    ' C1 ‚ª‹ó‚È‚ç Downloads ‚ÉƒtƒH[ƒ‹ƒoƒbƒN
     If baseFolder = "" Then baseFolder = Environ("USERPROFILE") & "\Downloads"
 
-    ' æœ«å°¾ãŒ \ ãªã‚‰å‰Šé™¤ï¼ˆé€£çµæ™‚ã®äºŒé‡ \ é˜²æ­¢ï¼‰
+    ' ––”ö‚ª \ ‚È‚çíœi˜AŒ‹Žž‚Ì“ñd \ –hŽ~j
     If Right(baseFolder, 1) = "\" Then baseFolder = Left(baseFolder, Len(baseFolder) - 1)
 
-    invoiceFolder = baseFolder & "\" & monthYear & "è«‹æ±‚æ›¸"
+    invoiceFolder = baseFolder & "\" & monthYear & "¿‹‘"
 
-    ' --- â‘¥ FileSystemObject ã§ãƒ•ã‚©ãƒ«ãƒ€ç¢ºå®Ÿä½œæˆ ---
-    '   OneDriveç­‰ã® Known Folder Move ç’°å¢ƒã§ã¯ MkDir ãŒå¤±æ•—ã™ã‚‹ãŸã‚ FSO å¿…é ˆ
+    ' --- ‡E FileSystemObject ‚ÅƒtƒHƒ‹ƒ_ŠmŽÀì¬ ---
+    '   OneDrive“™‚Ì Known Folder Move ŠÂ‹«‚Å‚Í MkDir ‚ªŽ¸”s‚·‚é‚½‚ß FSO •K{
     Dim fso As Object
     Set fso = CreateObject("Scripting.FileSystemObject")
     If Not fso.FolderExists(baseFolder) Then
@@ -136,29 +151,29 @@ Public Sub ä¿å­˜_å°åˆ·ä½œæ¥­()
         On Error GoTo Cleanup
     End If
     If Not fso.FolderExists(invoiceFolder) Then
-        MsgBox "ä¿å­˜å…ˆãƒ•ã‚©ãƒ«ãƒ€ãŒä½œæˆã§ãã¾ã›ã‚“ã§ã—ãŸã€‚" & vbCrLf & _
-               "ãƒ‘ã‚¹: " & invoiceFolder & vbCrLf & vbCrLf & _
-               "Downloadsãƒ•ã‚©ãƒ«ãƒ€ã®çŠ¶æ…‹ã‚’ç¢ºèªã—ã¦ãã ã•ã„ã€‚", vbCritical
+        MsgBox "•Û‘¶æƒtƒHƒ‹ƒ_‚ªì¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B" & vbCrLf & _
+               "ƒpƒX: " & invoiceFolder & vbCrLf & vbCrLf & _
+               "DownloadsƒtƒHƒ‹ƒ_‚Ìó‘Ô‚ðŠm”F‚µ‚Ä‚­‚¾‚³‚¢B", vbCritical
         Exit Sub
     End If
 
-    ' --- â‘¦ æ–°ãƒ–ãƒƒã‚¯ä½œæˆï¼†ã‚·ãƒ¼ãƒˆã‚³ãƒ”ãƒ¼ ---
+    ' --- ‡F VƒuƒbƒNì¬•ƒV[ƒgƒRƒs[ ---
     Dim newWb As Workbook
     Set newWb = Workbooks.Add
-    ' ã€ãƒã‚°ä¿®æ­£ 2026/5/20ã€‘
-    '   æ—§: Copy Before:=Sheets(1) â†’ Sheets(1).Delete
-    '     ã“ã‚Œã ã¨ã‚³ãƒ”ãƒ¼ã—ãŸè«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆãŒ Sheets(1) ã«ãªã£ã¦ã—ã¾ã„ã€
-    '     Sheets(1).Delete ãŒã€Œã‚³ãƒ”ãƒ¼ã—ãŸè«‹æ±‚æ›¸ã€ã‚’å‰Šé™¤ã™ã‚‹è‡´å‘½çš„ãƒã‚°ã ã£ãŸã€‚
-    '   æ–°: Copy After:=Sheets(1) ã§æœ«å°¾ã«ã‚³ãƒ”ãƒ¼ â†’ å…ƒã®ç©ºSheet1(=Sheets(1))ã‚’å‰Šé™¤ã€‚
+    ' yƒoƒOC³ 2026/5/20z
+    '   ‹Œ: Copy Before:=Sheets(1) ¨ Sheets(1).Delete
+    '     ‚±‚ê‚¾‚ÆƒRƒs[‚µ‚½¿‹‘ƒV[ƒg‚ª Sheets(1) ‚É‚È‚Á‚Ä‚µ‚Ü‚¢A
+    '     Sheets(1).Delete ‚ªuƒRƒs[‚µ‚½¿‹‘v‚ðíœ‚·‚é’v–½“IƒoƒO‚¾‚Á‚½B
+    '   V: Copy After:=Sheets(1) ‚Å––”ö‚ÉƒRƒs[ ¨ Œ³‚Ì‹óSheet1(=Sheets(1))‚ðíœB
     activeSht.Copy After:=newWb.Sheets(1)
-    Application.DisplayAlerts = False  ' ã‚·ãƒ¼ãƒˆå‰Šé™¤ã®ç¢ºèªãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã‚’æŠ‘åˆ¶
-    newWb.Sheets(1).Delete  ' å…ƒã®Sheet1ï¼ˆç©ºï¼‰ã‚’å‰Šé™¤ã€‚ã‚³ãƒ”ãƒ¼ã—ãŸè«‹æ±‚æ›¸ã¯æ®‹ã‚‹ã€‚
+    Application.DisplayAlerts = False  ' ƒV[ƒgíœ‚ÌŠm”Fƒ_ƒCƒAƒƒO‚ð—}§
+    newWb.Sheets(1).Delete  ' Œ³‚ÌSheet1i‹ój‚ðíœBƒRƒs[‚µ‚½¿‹‘‚ÍŽc‚éB
     Application.DisplayAlerts = True
 
-    ' --- â‘§ AJåˆ—ä»¥é™ã®ãƒœã‚¿ãƒ³ãƒ»å›³å½¢ã‚’å‰Šé™¤ ---
-    '   ãƒ†ãƒ³ãƒ—ãƒ¬è«‹æ±‚æ›¸ã®å³å´ï¼ˆAJåˆ—ä»¥é™ï¼‰ã«ã¯ã€Œä¿å­˜ã€ãƒœã‚¿ãƒ³ç­‰ã®ãƒžã‚¯ãƒ­ç”¨
-    '   ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒé…ç½®ã•ã‚Œã¦ã„ã‚‹ã€‚ã“ã‚ŒãŒ xlsx ã«å«ã¾ã‚Œã¦ãŠå®¢æ§˜ã«æ¸¡ã‚‹ã¨
-    '   ä¸è¦ãªã®ã§ã€ä¿å­˜å‰ã«å‰Šé™¤ã™ã‚‹ã€‚
+    ' --- ‡G AJ—ñˆÈ~‚Ìƒ{ƒ^ƒ“E}Œ`‚ðíœ ---
+    '   ƒeƒ“ƒvƒŒ¿‹‘‚Ì‰E‘¤iAJ—ñˆÈ~j‚É‚Íu•Û‘¶vƒ{ƒ^ƒ““™‚Ìƒ}ƒNƒ—p
+    '   ƒIƒuƒWƒFƒNƒg‚ª”z’u‚³‚ê‚Ä‚¢‚éB‚±‚ê‚ª xlsx ‚ÉŠÜ‚Ü‚ê‚Ä‚¨‹q—l‚É“n‚é‚Æ
+    '   •s—v‚È‚Ì‚ÅA•Û‘¶‘O‚Éíœ‚·‚éB
     Dim copiedSht As Worksheet
     Set copiedSht = newWb.Sheets(1)
     Dim ajLeft As Double: ajLeft = copiedSht.Range("AJ1").Left
@@ -169,53 +184,53 @@ Public Sub ä¿å­˜_å°åˆ·ä½œæ¥­()
         On Error GoTo 0
     Next shp
 
-    ' --- â‘¨ xlsx ä¿å­˜ ---
+    ' --- ‡H xlsx •Û‘¶ ---
     Dim filePath As String
     filePath = invoiceFolder & "\" & fileName & ".xlsx"
     newWb.SaveAs filePath, FileFormat:=xlOpenXMLWorkbook
     newWb.Close SaveChanges:=False
 
-    ' --- â‘© å®Œäº† ---
-    '   â€» ä¿å­˜å¾Œã®è«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆï¼ˆNo_xx_è«‹æ±‚æ›¸ï¼‰ã¯ã“ã®ãƒ–ãƒƒã‚¯å†…ã«æ®‹ã™
-    '     ï¼ˆå°åˆ·ã—ç›´ã—ã‚„å†ç¢ºèªã®ãŸã‚ã€‚ä¸è¦ã«ãªã£ãŸã‚‰ãƒ¦ãƒ¼ã‚¶ãƒ¼å´ã§æ‰‹å‹•å‰Šé™¤ï¼‰
+    ' --- ‡I Š®—¹ ---
+    '   ¦ •Û‘¶Œã‚Ì¿‹‘ƒV[ƒgiNo_xx_¿‹‘j‚Í‚±‚ÌƒuƒbƒN“à‚ÉŽc‚·
+    '     iˆóü‚µ’¼‚µ‚âÄŠm”F‚Ì‚½‚ßB•s—v‚É‚È‚Á‚½‚çƒ†[ƒU[‘¤‚ÅŽè“®íœj
 
     Application.ScreenUpdating = initialScreen
-    MsgBox "ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä¿å­˜ã—ã¾ã—ãŸã€‚" & vbCrLf & "ä¿å­˜å…ˆï¼š" & filePath, vbInformation
+    MsgBox "ƒtƒ@ƒCƒ‹‚ð•Û‘¶‚µ‚Ü‚µ‚½B" & vbCrLf & "•Û‘¶æF" & filePath, vbInformation
     Exit Sub
 
 Cleanup:
     Application.ScreenUpdating = initialScreen
     Dim diag As String
-    diag = "ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚" & vbCrLf & vbCrLf & _
-           "ã€ã‚¨ãƒ©ãƒ¼è©³ç´°ã€‘" & vbCrLf & _
-           " ç•ªå·: " & Err.Number & vbCrLf & _
-           " å†…å®¹: " & Err.Description & vbCrLf & vbCrLf & _
-           "ã€å‡¦ç†ä¸­ã®å€¤ã€‘" & vbCrLf & _
-           " ãƒ•ã‚¡ã‚¤ãƒ«å(AK1): [" & fileName & "]" & vbCrLf & _
-           " æœˆå¹´(AE3&AB3): [" & monthYear & "]" & vbCrLf & _
-           " ä¿å­˜ãƒ•ã‚©ãƒ«ãƒ€: [" & invoiceFolder & "]" & vbCrLf & _
-           " ä¿å­˜ãƒ‘ã‚¹: [" & filePath & "]"
+    diag = "ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B" & vbCrLf & vbCrLf & _
+           "yƒGƒ‰[Ú×z" & vbCrLf & _
+           " ”Ô†: " & Err.Number & vbCrLf & _
+           " “à—e: " & Err.Description & vbCrLf & vbCrLf & _
+           "yˆ—’†‚Ì’lz" & vbCrLf & _
+           " ƒtƒ@ƒCƒ‹–¼(AK1): [" & fileName & "]" & vbCrLf & _
+           " ŒŽ”N(AE3&AB3): [" & monthYear & "]" & vbCrLf & _
+           " •Û‘¶ƒtƒHƒ‹ƒ_: [" & invoiceFolder & "]" & vbCrLf & _
+           " •Û‘¶ƒpƒX: [" & filePath & "]"
     MsgBox diag, vbCritical
 End Sub
 
 
 '================================================================================
-' SyncInvoiceNoToMaster: ãƒžã‚¹ã‚¿åŒæœŸå‡¦ç†
+' SyncInvoiceNoToMaster: ƒ}ƒXƒ^“¯Šúˆ—
 '================================================================================
-' ã€å½¹å‰²ã€‘
-'   ç¾åœ¨ã®è«‹æ±‚æ›¸ã‚·ãƒ¼ãƒˆï¼ˆActiveSheetï¼‰ã® AF1ï¼ˆçµŒç†ç•ªå·ï¼‰ã‚’ã€
-'   ãƒžã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã®ã€Œä¾é ¼å±¥æ­´ã€ã‚·ãƒ¼ãƒˆã®Båˆ—ã«æ›¸ãè¾¼ã‚€ã€‚
-'   æ¤œç´¢ã‚­ãƒ¼ã¯ã€Œä¾é ¼æ¤œç´¢!A2ã€ã®ä¾é ¼NOã€‚
+' y–ðŠ„z
+'   Œ»Ý‚Ì¿‹‘ƒV[ƒgiActiveSheetj‚Ì AF1iŒo—”Ô†j‚ðA
+'   ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÌuˆË—Š—š—ðvƒV[ƒg‚ÌB—ñ‚É‘‚«ž‚ÞB
+'   ŒŸõƒL[‚ÍuˆË—ŠŒŸõ!A2v‚ÌˆË—ŠNOB
 '
-' ã€å‰¯ä½œç”¨ã€‘
-'   - ãƒžã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ãï¼ˆæ›¸ãè¾¼ã¿æ¨©é™ï¼‰â†’ æ›¸ãè¾¼ã¿å¾Œã« Save â†’ Close
-'   - ã‚¨ãƒ©ãƒ¼æ™‚ã‚‚å¿…ãš Cleanup ãƒ©ãƒ™ãƒ«ã‚’é€šã£ã¦ wbMaster.Close ã‚’å®Ÿè¡Œ
+' y•›ì—pz
+'   - ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ðŠJ‚­i‘‚«ž‚ÝŒ ŒÀj¨ ‘‚«ž‚ÝŒã‚É Save ¨ Close
+'   - ƒGƒ‰[Žž‚à•K‚¸ Cleanup ƒ‰ƒxƒ‹‚ð’Ê‚Á‚Ä wbMaster.Close ‚ðŽÀs
 '
-' ã€ã‚¨ãƒ©ãƒ¼æ¡ä»¶ã€‘
-'   - ãƒžã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹ãŒç©º â†’ ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸è¡¨ç¤ºã—ã¦ã‚¹ã‚­ãƒƒãƒ—
-'   - ãƒžã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ãªã„ â†’ åŒä¸Š
-'   - ãƒžã‚¹ã‚¿ã«ãƒ­ãƒƒã‚¯ãŒã‹ã‹ã£ã¦ã„ã‚‹ â†’ Open ã§ä¾‹å¤–ã€Cleanup ã¸
-'   - ä¾é ¼NOãŒãƒžã‚¹ã‚¿ã«å­˜åœ¨ã—ãªã„ â†’ ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸è¡¨ç¤ºã—ã¦ã‚¹ã‚­ãƒƒãƒ—
+' yƒGƒ‰[ðŒz
+'   - ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÌƒpƒX‚ª‹ó ¨ ƒƒbƒZ[ƒW•\Ž¦‚µ‚ÄƒXƒLƒbƒv
+'   - ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ª‘¶Ý‚µ‚È‚¢ ¨ “¯ã
+'   - ƒ}ƒXƒ^‚ÉƒƒbƒN‚ª‚©‚©‚Á‚Ä‚¢‚é ¨ Open ‚Å—áŠOACleanup ‚Ö
+'   - ˆË—ŠNO‚ªƒ}ƒXƒ^‚É‘¶Ý‚µ‚È‚¢ ¨ ƒƒbƒZ[ƒW•\Ž¦‚µ‚ÄƒXƒLƒbƒv
 '================================================================================
 Private Sub SyncInvoiceNoToMaster()
     Dim mPath As String
@@ -229,15 +244,15 @@ Private Sub SyncInvoiceNoToMaster()
 
     Set wsSearch = ThisWorkbook.Sheets(SHEET_IRAI_SEARCH)
 
-    ' Config ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã‹ã‚‰ç›´æŽ¥ãƒžã‚¹ã‚¿ãƒ‘ã‚¹ã‚’å–å¾—ï¼ˆæ—§: Application.Run ã§ãƒ©ãƒƒãƒ—ã—ã¦ã„ãŸï¼‰
+    ' Config ƒ‚ƒWƒ…[ƒ‹‚©‚ç’¼Úƒ}ƒXƒ^ƒpƒX‚ðŽæ“¾i‹Œ: Application.Run ‚Åƒ‰ƒbƒv‚µ‚Ä‚¢‚½j
     mPath = GetMasterPath()
 
     On Error GoTo Cleanup
 
-    ' ç©ºãƒ‘ã‚¹å¯¾ç­–ï¼šDir("") ã¯ã‚¨ãƒ©ãƒ¼52(ãƒ•ã‚¡ã‚¤ãƒ«åãŒä¸æ­£)ã‚’æŠ•ã’ã‚‹ãŸã‚äº‹å‰ãƒã‚§ãƒƒã‚¯
+    ' ‹óƒpƒX‘ÎôFDir("") ‚ÍƒGƒ‰[52(ƒtƒ@ƒCƒ‹–¼‚ª•s³)‚ð“Š‚°‚é‚½‚ßŽ–‘Oƒ`ƒFƒbƒN
     If Trim(mPath) = "" Then
-        MsgBox "ãƒžã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚" & vbCrLf & _
-               "ä¾é ¼å±¥æ­´ã‚·ãƒ¼ãƒˆã®G1ã‚»ãƒ«ã«ãƒ‘ã‚¹ã‚’è¨­å®šã—ã¦ãã ã•ã„ã€‚", vbCritical
+        MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÌƒpƒX‚ªÝ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB" & vbCrLf & _
+               "ˆË—Š—š—ðƒV[ƒg‚ÌG1ƒZƒ‹‚ÉƒpƒX‚ðÝ’è‚µ‚Ä‚­‚¾‚³‚¢B", vbCritical
         GoTo Cleanup
     End If
     Dim dirChk As String
@@ -245,52 +260,52 @@ Private Sub SyncInvoiceNoToMaster()
     dirChk = Dir(mPath)
     On Error GoTo Cleanup
     If dirChk = "" Then
-        MsgBox "ãƒžã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚" & vbCrLf & "ãƒ‘ã‚¹: " & mPath, vbCritical
+        MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB" & vbCrLf & "ƒpƒX: " & mPath, vbCritical
         GoTo Cleanup
     End If
 
     Set wbMaster = Workbooks.Open(mPath)
     If wbMaster Is Nothing Then
-        MsgBox "ãƒžã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‘ã¾ã›ã‚“ã€‚", vbCritical
+        MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ðŠJ‚¯‚Ü‚¹‚ñB", vbCritical
         GoTo Cleanup
     End If
 
     iraiNo = Trim(wsSearch.Range("A2").Value)
     If iraiNo = "" Then
-        MsgBox "ä¾é ¼NOãŒæŒ‡å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚", vbCritical
+        MsgBox "ˆË—ŠNO‚ªŽw’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB", vbCritical
         GoTo Cleanup
     End If
 
     Set wsRireki = wbMaster.Sheets(SHEET_IRAI_RIREKI)
     Set found = wsRireki.Columns("A").Find(What:=iraiNo, LookAt:=xlWhole)
     If found Is Nothing Then
-        MsgBox "ãƒžã‚¹ã‚¿å†…ã«ä¾é ¼NO [" & iraiNo & "] ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚", vbCritical
+        MsgBox "ƒ}ƒXƒ^“à‚ÉˆË—ŠNO [" & iraiNo & "] ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB", vbCritical
         GoTo Cleanup
     End If
 
     targetRow = found.Row
     accountingNo = ActiveSheet.Range(CELL_ACCOUNTING_NO).Value
-    ' ã€ã‚·ãƒ¼ãƒˆä¿è­·å¯¾å¿œ 2026/5/20ã€‘ãƒžã‚¹ã‚¿ã®ä¾é ¼å±¥æ­´ãŒä¿è­·ã•ã‚Œã¦ã„ã‚‹å ´åˆã«å‚™ãˆã€è§£é™¤â†’æ›¸è¾¼â†’å†ä¿è­·
+    ' yƒV[ƒg•ÛŒì‘Î‰ž 2026/5/20zƒ}ƒXƒ^‚ÌˆË—Š—š—ð‚ª•ÛŒì‚³‚ê‚Ä‚¢‚éê‡‚É”õ‚¦A‰ðœ¨‘ž¨Ä•ÛŒì
     Call SafeUnprotect(wsRireki)
-    wsRireki.Cells(targetRow, 2).Value = accountingNo   ' Båˆ—ã«çµŒç†Noæ›¸ãè¾¼ã¿
+    wsRireki.Cells(targetRow, 2).Value = accountingNo   ' B—ñ‚ÉŒo—No‘‚«ž‚Ý
     Call SafeProtect(wsRireki)
 
     wbMaster.Save
 
 Cleanup:
-    ' æ­£å¸¸æ™‚ã‚‚ã‚¨ãƒ©ãƒ¼æ™‚ã‚‚å¿…ãšã“ã“ã‚’é€šã‚‹ï¼ˆãƒžã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ãŒæ®‹ã‚‰ãªã„ã‚ˆã†ã«ï¼‰
+    ' ³íŽž‚àƒGƒ‰[Žž‚à•K‚¸‚±‚±‚ð’Ê‚éiƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ªŽc‚ç‚È‚¢‚æ‚¤‚Éj
     If Not wbMaster Is Nothing Then wbMaster.Close False
     If Err.Number <> 0 Then
-        MsgBox "ãƒžã‚¹ã‚¿åŒæœŸä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚" & vbCrLf & Err.Description, vbCritical
+        MsgBox "ƒ}ƒXƒ^“¯Šú’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B" & vbCrLf & Err.Description, vbCritical
     End If
 End Sub
 
 
 '================================================================================
-' SanitizeFileName: ãƒ•ã‚¡ã‚¤ãƒ«åã«ä½¿ãˆãªã„æ–‡å­—ã‚’å®‰å…¨ãªè¨˜å·ã§ç½®æ›
+' SanitizeFileName: ƒtƒ@ƒCƒ‹–¼‚ÉŽg‚¦‚È‚¢•¶Žš‚ðˆÀ‘S‚È‹L†‚Å’uŠ·
 '================================================================================
-' Windowsã®ãƒ•ã‚¡ã‚¤ãƒ«åç¦æ­¢æ–‡å­— \/:*?"<>| ã‚’å…¨ã¦ "_" ã«ç½®æ›ã™ã‚‹ã€‚
-' å·¥äº‹åã«ã€Œãˆ±ã€ã‚„ã€Œï¼ˆï¼‰ã€ãŒå«ã¾ã‚Œã‚‹å ´åˆãŒã‚ã‚‹ã®ã§ã€ãã‚Œã‚‰ã¯ç¦æ­¢æ–‡å­—ã«è©²å½“ã—ãªã„ã®ã§æ®‹ã‚‹ã€‚
+' Windows‚Ìƒtƒ@ƒCƒ‹–¼‹ÖŽ~•¶Žš \/:*?"<>| ‚ð‘S‚Ä "_" ‚É’uŠ·‚·‚éB
+' HŽ––¼‚Éu‡Šv‚âuijv‚ªŠÜ‚Ü‚ê‚éê‡‚ª‚ ‚é‚Ì‚ÅA‚»‚ê‚ç‚Í‹ÖŽ~•¶Žš‚ÉŠY“–‚µ‚È‚¢‚Ì‚ÅŽc‚éB
 '================================================================================
 Private Function SanitizeFileName(ByVal name As String) As String
     Dim bad As String, i As Long, ch As String

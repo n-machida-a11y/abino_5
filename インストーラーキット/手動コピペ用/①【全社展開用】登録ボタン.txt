@@ -1,7 +1,37 @@
-ï»¿Option Explicit
-' IS_TEST_MODE / TEST_FILE_PATH / SHEET_* / CELL_* / PATH_CELL ã¯ Config ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä¸€å…ƒç®¡ç†ã€‚
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} “o˜^ƒ{ƒ^ƒ“ 
+   Caption         =   "“o˜^"
+   ClientHeight    =   9684
+   ClientLeft      =   48
+   ClientTop       =   168
+   ClientWidth     =   9012
+   OleObjectBlob   =   "“o˜^ƒ{ƒ^ƒ“.frx":0000
+   StartUpPosition =   1  'ƒI[ƒi[ ƒtƒH[ƒ€‚Ì’†‰›
+End
+Option Explicit
 
-'--- å®šæ•°ï¼ˆã“ã®ãƒ•ã‚©ãƒ¼ãƒ å›ºæœ‰ï¼‰ ---
+'================================================================================
+' [ƒtƒH[ƒ€] “o˜^ƒ{ƒ^ƒ“iuV‹K“o˜^vƒtƒH[ƒ€j
+'--------------------------------------------------------------------------------
+' y‰½‚Ìƒtƒ@ƒCƒ‹Hz
+'   V‚µ‚¢H–‚ğ“o˜^‚·‚éƒtƒH[ƒ€BH–”Ô†‚ÍÌ”Ôƒ‹[ƒ‹‚É]‚¢©“®¶¬B
+'
+' yÌ”Ôƒ‹[ƒ‹i2026/6/1`jz
+'   "03-26-000001"
+'    - 03  cc •”ƒR[ƒhiŒš’z=03, “y–Ø=05j
+'    - 26  cc ”N“x‰º2Œ…
+'    - 000001 cc 6Œ…’Ê‚µ”Ô†i•”~”N“x‚²‚Æ‚ÉÅ‘å’l+1j
+'
+'   ¦ ‹Œ‹Œ: 03-YYZZ-NNN (ZZ=’S“–Ò”Ô†)A‹Œ: 03-YY-NNNNNNB
+'
+' y‚µ‚­‚İz
+'   - ’S“–ÒƒŠƒXƒg‚Í’S“–Òƒ}ƒXƒ^‚©‚ç©•”ƒtƒBƒ‹ƒ^
+'   - ’S“–Òƒ}ƒXƒ^ A=’S“–Ò–¼AB=•””Ô†
+'================================================================================
+
+' IS_TEST_MODE / TEST_FILE_PATH / SHEET_* / CELL_* / PATH_CELL ‚Í Config ƒ‚ƒWƒ…[ƒ‹‚ÅˆêŒ³ŠÇ—B
+
+'--- ’è”i‚±‚ÌƒtƒH[ƒ€ŒÅ—Lj ---
 Private Const COL_YEAR As String = "A"
 Private Const COL_NO As String = "B"
 Private Const COL_STAFF As String = "C"
@@ -10,7 +40,7 @@ Private Const COL_KOUJI_NAME As String = "E"
 Private Const MASTER_COL_STAFF_NAME As String = "A"
 Private Const MASTER_COL_STAFF_NO As String = "B"
 
-'--- ã‚­ãƒ£ãƒƒã‚·ãƒ¥å¤‰æ•° ---
+'--- ƒLƒƒƒbƒVƒ…•Ï” ---
 Private m_CachedStaffList As Variant
 Private m_CachedTargetSheetName As String
 
@@ -18,11 +48,11 @@ Private Sub Label13_Click()
 End Sub
 
 '================================================================================
-' ãƒ•ã‚©ãƒ¼ãƒ åˆæœŸåŒ–
+' ƒtƒH[ƒ€‰Šú‰»
 '================================================================================
 
 Private Sub UserForm_Terminate()
-    ' ãƒ¡ãƒ¢ãƒªãƒªãƒ¼ã‚¯é˜²æ­¢ï¼šã‚­ãƒ£ãƒƒã‚·ãƒ¥å¤‰æ•°ã‚’æ˜ç¤ºçš„ã«è§£æ”¾
+    ' ƒƒ‚ƒŠƒŠ[ƒN–h~FƒLƒƒƒbƒVƒ…•Ï”‚ğ–¾¦“I‚É‰ğ•ú
     m_CachedStaffList = Empty
 End Sub
 
@@ -42,43 +72,40 @@ Private Sub UserForm_Initialize()
     On Error GoTo ErrorHandlerInit
 
     If Not IsEmpty(m_CachedStaffList) Then
-        Me.æ‹…å½“è€….List = m_CachedStaffList
+        Me.’S“–Ò.List = m_CachedStaffList
         GoTo FinalizeInitWithoutFileOpen
     End If
 
     targetFilePath = GetTargetFilePath()
 
     If Dir(targetFilePath) = "" Then
-        MsgBox "å¯¾è±¡ã®ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚" & vbCrLf & targetFilePath, vbCritical
+        MsgBox "‘ÎÛ‚Ìƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB" & vbCrLf & targetFilePath, vbCritical
         Unload Me
         GoTo FinalizeInit
     End If
 
     Set wbTarget_Init = Application.Workbooks.Open(fileName:=targetFilePath, ReadOnly:=True, UpdateLinks:=0)
 
-    If Not SheetExists(wbTarget_Init, SHEET_KANRI_MASTER) Then
-        MsgBox "å‚ç…§å…ˆã®ãƒ•ã‚¡ã‚¤ãƒ«ã«ã€Œ" & SHEET_KANRI_MASTER & "ã€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚", vbCritical, "ã‚·ãƒ¼ãƒˆã‚¨ãƒ©ãƒ¼"
-        GoTo FinalizeInit
-    End If
-    Set wsMaster_Init = wbTarget_Init.Sheets(SHEET_KANRI_MASTER)
-
-    m_CachedTargetSheetName = Trim(CStr(wsMaster_Init.Range(CELL_TARGET_SHEET).Value))
+    ' H–”Ô†ˆê——ƒV[ƒg–¼‚ğŠÇ—ƒ}ƒXƒ^A—ñuH–”Ô†ˆê——ƒV[ƒgv€–Ú‚©‚çæ“¾
+    m_CachedTargetSheetName = GetSheetNameFromMaster(wbTarget_Init, "H–”Ô†ˆê——ƒV[ƒg", SHEET_KOUJI_LIST)
     If m_CachedTargetSheetName = "" Then
-        MsgBox "ã€Œ" & SHEET_KANRI_MASTER & "ã€ã‚·ãƒ¼ãƒˆã®" & CELL_TARGET_SHEET & "ã‚»ãƒ«ã«å¯¾è±¡ã‚·ãƒ¼ãƒˆåãŒæŒ‡å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚", vbCritical, "è¨­å®šã‚¨ãƒ©ãƒ¼"
+        MsgBox "uŠÇ—ƒ}ƒXƒ^vƒV[ƒg‚ÌuH–”Ô†ˆê——ƒV[ƒgv€–Ú‚É’l‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB", vbCritical, "İ’èƒGƒ‰["
         GoTo FinalizeInit
     End If
 
     If Not SheetExists(wbTarget_Init, m_CachedTargetSheetName) Then
-        MsgBox "å‚ç…§å…ˆã®ãƒ•ã‚¡ã‚¤ãƒ«ã«ã€Œ" & m_CachedTargetSheetName & "ã€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚", vbCritical, "ã‚·ãƒ¼ãƒˆã‚¨ãƒ©ãƒ¼"
+        MsgBox "QÆæ‚Ìƒtƒ@ƒCƒ‹‚Éu" & m_CachedTargetSheetName & "v‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB", vbCritical, "ƒV[ƒgƒGƒ‰["
         GoTo FinalizeInit
     End If
 
-    Me.æ‹…å½“è€….Clear
-    m_CachedStaffList = wsMaster_Init.Range( _
-        wsMaster_Init.Cells(2, MASTER_COL_STAFF_NAME), _
-        wsMaster_Init.Cells(wsMaster_Init.Rows.count, MASTER_COL_STAFF_NAME).End(xlUp) _
-    ).Value
-    Me.æ‹…å½“è€….List = m_CachedStaffList
+    Me.’S“–Ò.Clear
+    ' ’S“–ÒƒŠƒXƒg = ’S“–Òƒ}ƒXƒ^A—ñ‚©‚ç©•”–åƒR[ƒh(B—ñ)‚ÅƒtƒBƒ‹ƒ^
+    m_CachedStaffList = GetStaffListFiltered(wbTarget_Init, GetMyDeptCode())
+    If IsEmpty(m_CachedStaffList) Then
+        MsgBox "’S“–Òƒ}ƒXƒ^‚É©•”–å(" & GetMyDeptCode() & ")‚Ì’S“–Ò‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB", vbExclamation
+        GoTo FinalizeInit
+    End If
+    Me.’S“–Ò.List = m_CachedStaffList
 
 FinalizeInit:
     If Not wsMaster_Init Is Nothing Then Set wsMaster_Init = Nothing
@@ -91,20 +118,20 @@ FinalizeInitWithoutFileOpen:
     Exit Sub
 
 ErrorHandlerInit:
-    MsgBox "åˆæœŸåŒ–ä¸­ã«äºˆæœŸã›ã¬ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚" & vbCrLf & Err.Description, vbCritical
+    MsgBox "‰Šú‰»’†‚É—\Šú‚¹‚ÊƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B" & vbCrLf & Err.Description, vbCritical
     Resume FinalizeInit
 End Sub
 
 '================================================================================
-' å…¥åŠ›ãƒã‚§ãƒƒã‚¯ãƒ»è‡ªå‹•å‡¦ç†
+' “ü—Íƒ`ƒFƒbƒNE©“®ˆ—
 '================================================================================
-Private Sub ç€æ‰‹_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.ç€æ‰‹, "ç€æ‰‹æ—¥", Cancel): End Sub
-Private Sub å®Œæˆ_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.å®Œæˆ, "å®Œæˆæ—¥", Cancel): End Sub
-Private Sub å¥‘ç´„æ—¥_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.å¥‘ç´„æ—¥, "å¥‘ç´„æ—¥", Cancel): End Sub
+Private Sub ’…è_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.’…è, "’…è“ú", Cancel): End Sub
+Private Sub Š®¬_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.Š®¬, "Š®¬“ú", Cancel): End Sub
+Private Sub Œ_–ñ“ú_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.Œ_–ñ“ú, "Œ_–ñ“ú", Cancel): End Sub
 
-Private Sub é‡‘é¡_Exit(ByVal Cancel As MSForms.ReturnBoolean)
-    If IsNumeric(Me.é‡‘é¡.Value) Then
-        If Val(Me.é‡‘é¡.Value) >= 10000000 Then Me.ã‚¢ãƒ³ã‚±ãƒ¼ãƒˆ.Value = True
+Private Sub ‹àŠz_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    If IsNumeric(Me.‹àŠz.Value) Then
+        If Val(Me.‹àŠz.Value) >= 10000000 Then Me.ƒAƒ“ƒP[ƒg.Value = True
     End If
 End Sub
 
@@ -115,15 +142,15 @@ Private Sub ValidateDate(ByVal DateField As MSForms.TextBox, ByVal FieldName As 
     If IsDate(inputText) Then
         DateField.Value = Format(CDate(inputText), "yyyy/mm/dd")
     Else
-        MsgBox FieldName & " ã¯ã€ŒYYYY/MM/DDã€å½¢å¼ã§å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚" & vbCrLf & "(ä¾‹: " & Format(Date, "yyyy/mm/dd") & ")", vbExclamation, "å…¥åŠ›ã‚¨ãƒ©ãƒ¼"
+        MsgBox FieldName & " ‚ÍuYYYY/MM/DDvŒ`®‚Å“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B" & vbCrLf & "(—á: " & Format(Date, "yyyy/mm/dd") & ")", vbExclamation, "“ü—ÍƒGƒ‰["
         Cancel = True
     End If
 End Sub
 
 '================================================================================
-' ã€Œç™»éŒ²ã€ãƒœã‚¿ãƒ³
+' u“o˜^vƒ{ƒ^ƒ“
 '================================================================================
-Private Sub ç™»éŒ²_Click()
+Private Sub “o˜^_Click()
     Dim wbTarget_Reg As Workbook
     Dim wsTarget_Reg As Worksheet, wsMaster_Reg As Worksheet
     Dim targetRow As Long
@@ -143,14 +170,14 @@ Private Sub ç™»éŒ²_Click()
     On Error GoTo ErrorHandlerReg
 
     If m_CachedTargetSheetName = "" Then
-        MsgBox "å¯¾è±¡ã‚·ãƒ¼ãƒˆåãŒã‚­ãƒ£ãƒƒã‚·ãƒ¥ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚ãƒ•ã‚©ãƒ¼ãƒ ã‚’ä¸€åº¦é–‰ã˜ã¦å†åº¦é–‹ã„ã¦ãã ã•ã„ã€‚", vbCritical
+        MsgBox "‘ÎÛƒV[ƒg–¼‚ªƒLƒƒƒbƒVƒ…‚³‚ê‚Ä‚¢‚Ü‚¹‚ñBƒtƒH[ƒ€‚ğˆê“x•Â‚¶‚ÄÄ“xŠJ‚¢‚Ä‚­‚¾‚³‚¢B", vbCritical
         GoTo TheEndReg
     End If
 
     targetFilePath = GetTargetFilePath()
 
     If Dir(targetFilePath) = "" Then
-        MsgBox "å¯¾è±¡ã®ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹ãŒç„¡åŠ¹ã§ã™ã€‚" & vbCrLf & targetFilePath, vbCritical, "è¨­å®šã‚¨ãƒ©ãƒ¼"
+        MsgBox "‘ÎÛ‚Ìƒtƒ@ƒCƒ‹ƒpƒX‚ª–³Œø‚Å‚·B" & vbCrLf & targetFilePath, vbCritical, "İ’èƒGƒ‰["
         GoTo TheEndReg
     End If
 
@@ -159,7 +186,7 @@ Private Sub ç™»éŒ²_Click()
     Dim openedWbMain As Workbook
     For Each openedWbMain In Application.Workbooks
         If openedWbMain.FullName = targetFilePath Then
-            MsgBox "å¯¾è±¡ã®Excelãƒ•ã‚¡ã‚¤ãƒ«ãŒæ—¢ã«é–‹ã‹ã‚Œã¦ã„ã¾ã™ã€‚é–‰ã˜ã¦ã‹ã‚‰å†åº¦å®Ÿè¡Œã—ã¦ãã ã•ã„ã€‚", vbCritical
+            MsgBox "‘ÎÛ‚ÌExcelƒtƒ@ƒCƒ‹‚ªŠù‚ÉŠJ‚©‚ê‚Ä‚¢‚Ü‚·B•Â‚¶‚Ä‚©‚çÄ“xÀs‚µ‚Ä‚­‚¾‚³‚¢B", vbCritical
             GoTo TheEndReg
         End If
     Next openedWbMain
@@ -169,30 +196,32 @@ Private Sub ç™»éŒ²_Click()
     On Error GoTo ErrorHandlerReg
 
     If wbTarget_Reg Is Nothing Then
-        MsgBox "å¯¾è±¡ã®Excelãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‘ã¾ã›ã‚“ã§ã—ãŸã€‚ä»–ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒæ›¸ãè¾¼ã¿ãƒ­ãƒƒã‚¯ã—ã¦ã„ã‚‹å¯èƒ½æ€§ãŒã‚ã‚Šã¾ã™ã€‚", vbCritical
+        MsgBox "‘ÎÛ‚ÌExcelƒtƒ@ƒCƒ‹‚ğŠJ‚¯‚Ü‚¹‚ñ‚Å‚µ‚½B‘¼‚Ìƒ†[ƒU[‚ª‘‚«‚İƒƒbƒN‚µ‚Ä‚¢‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B", vbCritical
         GoTo TheEndReg
     End If
 
     If wbTarget_Reg.ReadOnly Then
-        MsgBox "å¯¾è±¡ã®Excelãƒ•ã‚¡ã‚¤ãƒ«ã¯èª­ã¿å–ã‚Šå°‚ç”¨ã§é–‹ã‹ã‚Œã¾ã—ãŸã€‚ä»–ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒä½¿ç”¨ä¸­ã‹ç¢ºèªã—ã¦ãã ã•ã„ã€‚", vbExclamation
+        MsgBox "‘ÎÛ‚ÌExcelƒtƒ@ƒCƒ‹‚Í“Ç‚İæ‚èê—p‚ÅŠJ‚©‚ê‚Ü‚µ‚½B‘¼‚Ìƒ†[ƒU[‚ªg—p’†‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢B", vbExclamation
         GoTo TheEndReg
     End If
 
-    If Not SheetExists(wbTarget_Reg, SHEET_KANRI_MASTER) Then
-        MsgBox "ç™»éŒ²å…ˆExcelã«ã€Œ" & SHEET_KANRI_MASTER & "ã€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚", vbCritical
+    Dim staffSheetName_Reg As String
+    staffSheetName_Reg = GetSheetNameFromMaster(wbTarget_Reg, "’S“–Òƒ}ƒXƒ^ƒV[ƒg", SHEET_STAFF_MASTER)
+    If Not SheetExists(wbTarget_Reg, staffSheetName_Reg) Then
+        MsgBox "“o˜^æExcel‚Éu" & staffSheetName_Reg & "v‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB", vbCritical
         GoTo TheEndReg
     End If
-    Set wsMaster_Reg = wbTarget_Reg.Sheets(SHEET_KANRI_MASTER)
+    Set wsMaster_Reg = wbTarget_Reg.Sheets(staffSheetName_Reg)
 
     If Not SheetExists(wbTarget_Reg, m_CachedTargetSheetName) Then
-        MsgBox "ç™»éŒ²å…ˆExcelã«ã€Œ" & m_CachedTargetSheetName & "ã€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚", vbCritical
+        MsgBox "“o˜^æExcel‚Éu" & m_CachedTargetSheetName & "v‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB", vbCritical
         GoTo TheEndReg
     End If
     Set wsTarget_Reg = wbTarget_Reg.Sheets(m_CachedTargetSheetName)
 
     targetRow = FindNextAvailableRow(wsTarget_Reg)
     If targetRow = 0 Then
-        MsgBox "è»¢è¨˜å…ˆã®ç©ºç™½è¡ŒãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚", vbExclamation
+        MsgBox "“]‹Læ‚Ì‹ó”’s‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B", vbExclamation
         GoTo TheEndReg
     End If
 
@@ -216,29 +245,29 @@ TheEndReg:
     Application.DisplayAlerts = originalDisplayAlerts
     Application.EnableEvents = originalEnableEvents
     If isSuccess Then
-        MsgBox "ç™»éŒ²ãŒå®Œäº†ã—ã¾ã—ãŸã€‚", vbInformation
+        MsgBox "“o˜^‚ªŠ®—¹‚µ‚Ü‚µ‚½B", vbInformation
         Unload Me
     End If
     Exit Sub
 
 ErrorHandlerReg:
-    MsgBox "äºˆæœŸã›ã¬ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚" & vbCrLf & vbCrLf & _
-           "ã‚¨ãƒ©ãƒ¼ç•ªå·: " & Err.Number & vbCrLf & _
-           "ã‚¨ãƒ©ãƒ¼å†…å®¹: " & Err.Description, vbCritical, "VBAå®Ÿè¡Œã‚¨ãƒ©ãƒ¼"
+    MsgBox "—\Šú‚¹‚ÊƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B" & vbCrLf & vbCrLf & _
+           "ƒGƒ‰[”Ô†: " & Err.Number & vbCrLf & _
+           "ƒGƒ‰[“à—e: " & Err.Description, vbCritical, "VBAÀsƒGƒ‰["
     Resume TheEndReg
 End Sub
 
 '================================================================================
-' è£œåŠ©é–¢æ•°
+' •â•ŠÖ”
 '================================================================================
 Private Function ValidateInputs() As Boolean
     Dim errorMessage As String
     errorMessage = ""
-    If Me.æ‹…å½“è€….ListIndex = -1 Then errorMessage = errorMessage & "ãƒ»æ‹…å½“è€…åã‚’é¸æŠã—ã¦ãã ã•ã„ã€‚" & vbCrLf
-    If Trim(Me.å·¥äº‹åç§°.Value) = "" Then errorMessage = errorMessage & "ãƒ»å·¥äº‹åç§°ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚" & vbCrLf
-    If Trim(Me.ç™ºæ³¨è€…å…¥åŠ›.Value) = "" Then errorMessage = errorMessage & "ãƒ»ç™ºæ³¨è€…ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚" & vbCrLf
+    If Me.’S“–Ò.ListIndex = -1 Then errorMessage = errorMessage & "E’S“–Ò–¼‚ğ‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢B" & vbCrLf
+    If Trim(Me.H––¼Ì.Value) = "" Then errorMessage = errorMessage & "EH––¼Ì‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B" & vbCrLf
+    If Trim(Me.”­’Ò“ü—Í.Value) = "" Then errorMessage = errorMessage & "E”­’Ò‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B" & vbCrLf
     If errorMessage <> "" Then
-        MsgBox "ä»¥ä¸‹ã®é …ç›®ã‚’ç¢ºèªã—ã¦ãã ã•ã„ã€‚" & vbCrLf & vbCrLf & errorMessage, vbExclamation, "å…¥åŠ›ã‚¨ãƒ©ãƒ¼"
+        MsgBox "ˆÈ‰º‚Ì€–Ú‚ğŠm”F‚µ‚Ä‚­‚¾‚³‚¢B" & vbCrLf & vbCrLf & errorMessage, vbExclamation, "“ü—ÍƒGƒ‰["
         ValidateInputs = False
     Else
         ValidateInputs = True
@@ -262,17 +291,17 @@ Private Function GenerateAndConfirmKoujiBangou(ByVal wsTarget As Worksheet, ByVa
 
     autoKoujiBangou = CreateNewKoujiBangou(wsTarget, wsMaster)
     If autoKoujiBangou = "ERROR" Then
-        MsgBox "æ‹…å½“è€…ãŒãƒã‚¹ã‚¿ã«è¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚", vbCritical
+        MsgBox "’S“–Ò‚ªƒ}ƒXƒ^‚ÉŒ©‚Â‚©‚è‚Ü‚¹‚ñB", vbCritical
         GenerateAndConfirmKoujiBangou = ""
         Exit Function
     End If
 
-    userModifiedKoujiBangou = InputBox("å·¥äº‹ç•ªå·ã‚’ä¸‹è¨˜ã§è‡ªå‹•ç”Ÿæˆã—ã¾ã™ã€‚å¿…è¦ã«å¿œã˜ã¦ä¿®æ­£ã—ã¦ãã ã•ã„ã€‚", "å·¥äº‹ç•ªå·ã®ç¢ºèª", autoKoujiBangou)
+    userModifiedKoujiBangou = InputBox("H–”Ô†‚ğ‰º‹L‚Å©“®¶¬‚µ‚Ü‚·B•K—v‚É‰‚¶‚ÄC³‚µ‚Ä‚­‚¾‚³‚¢B", "H–”Ô†‚ÌŠm”F", autoKoujiBangou)
 
     If StrPtr(userModifiedKoujiBangou) = 0 Then
         GenerateAndConfirmKoujiBangou = ""
     ElseIf userModifiedKoujiBangou = "" Then
-        MsgBox "å·¥äº‹ç•ªå·ãŒç©ºæ¬„ã§ã™ã€‚ç™»éŒ²ã‚’ä¸­æ­¢ã—ã¾ã™ã€‚", vbExclamation
+        MsgBox "H–”Ô†‚ª‹ó—“‚Å‚·B“o˜^‚ğ’†~‚µ‚Ü‚·B", vbExclamation
         GenerateAndConfirmKoujiBangou = ""
     Else
         GenerateAndConfirmKoujiBangou = userModifiedKoujiBangou
@@ -290,30 +319,31 @@ Private Function CreateNewKoujiBangou(ByVal wsTarget As Worksheet, ByVal wsMaste
     Dim r As Long
     Dim koujiBangou As String
 
-    If IsDate(Me.å¥‘ç´„æ—¥.Value) Then decisionDate = CDate(Me.å¥‘ç´„æ—¥.Value) Else decisionDate = Date
+    If IsDate(Me.Œ_–ñ“ú.Value) Then decisionDate = CDate(Me.Œ_–ñ“ú.Value) Else decisionDate = Date
     If Month(decisionDate) >= 6 Then inputYearShort = Year(decisionDate) Else inputYearShort = Year(decisionDate) - 1
 
-    selectedStaff = Me.æ‹…å½“è€….Value
+    selectedStaff = Me.’S“–Ò.Value
+    ' wsMaster ‚Í“o˜^_Click ‚©‚çu’S“–Òƒ}ƒXƒ^vƒV[ƒg‚ª“n‚³‚ê‚éi2026/5/24 ‰üCj
     matchRow = Application.Match(selectedStaff, wsMaster.Columns(MASTER_COL_STAFF_NAME), 0)
     If IsError(matchRow) Then
         CreateNewKoujiBangou = "ERROR"
         Exit Function
     End If
-    staffNumberValue = wsMaster.Cells(matchRow, MASTER_COL_STAFF_NO).Value  ' è¡Œãƒ‡ãƒ¼ã‚¿ç”¨ã«å–å¾—ï¼ˆå·¥äº‹ç•ªå·ã«ã¯ä½¿ã‚ãªã„ï¼‰
+    staffNumberValue = wsMaster.Cells(matchRow, MASTER_COL_STAFF_NO).Value  ' sƒf[ƒ^—p‚Éæ“¾iH–”Ô†‚É‚Íg‚í‚È‚¢j
 
-    ' æ‹…å½“è€…ç•ªå·ã¯å·¥äº‹ç•ªå·ã«å«ã‚ãªã„ï¼ˆ2026/6/1ï½ã®æ–°ãƒ«ãƒ¼ãƒ«ï¼‰
-    '   æ—§æ—§: "03-YYZZ-NNN" (YY=å¹´åº¦, ZZ=æ‹…å½“è€…ç•ªå·, NNN=3æ¡é€šã—ç•ªå·)
-    '   æ—§:   "03-YY-NNNNNN" (YY=å¹´åº¦, NNNNNN=6æ¡é€šã—ç•ªå·)
-    '   æ–°:   "03-YYNNNNN" (YY=å¹´åº¦, NNNNN=5æ¡é€šã—ç•ªå·ã€ãƒã‚¤ãƒ•ãƒ³ã¯éƒ¨é–€ã®å¾Œã ã‘)
-    Dim deptCode As String: deptCode = GetMyDeptCode()  ' è‡ªéƒ¨é–€ã‚³ãƒ¼ãƒ‰ï¼ˆA37ã‚»ãƒ«ï¼‰
-    prefix = deptCode & "-" & Right(CStr(inputYearShort), 2)  ' ä¾‹: "03-26"
+    ' ’S“–Ò”Ô†‚ÍH–”Ô†‚ÉŠÜ‚ß‚È‚¢i2026/6/1`‚ÌVƒ‹[ƒ‹j
+    '   ‹Œ‹Œ: "03-YYZZ-NNN" (YY=”N“x, ZZ=’S“–Ò”Ô†, NNN=3Œ…’Ê‚µ”Ô†)
+    '   ‹Œ:   "03-YY-NNNNNN" (YY=”N“x, NNNNNN=6Œ…’Ê‚µ”Ô†)
+    '   V:   "03-YYNNNNN" (YY=”N“x, NNNNN=5Œ…’Ê‚µ”Ô†AƒnƒCƒtƒ“‚Í•”–å‚ÌŒã‚¾‚¯)
+    Dim deptCode As String: deptCode = GetMyDeptCode()  ' ©•”–åƒR[ƒhiA37ƒZƒ‹j
+    prefix = deptCode & "-" & Right(CStr(inputYearShort), 2)  ' —á: "03-26"
 
     maxZZZ = 0
     For r = 1 To wsTarget.Cells(wsTarget.Rows.count, COL_KOUJI_BANGO).End(xlUp).Row
         koujiBangou = CStr(wsTarget.Cells(r, COL_KOUJI_BANGO).Value)
         If Left(koujiBangou, Len(prefix)) = prefix Then
             Dim existingZZZ As String
-            ' ãƒ—ãƒ¬ãƒ•ã‚£ãƒƒã‚¯ã‚¹ã‚ˆã‚Šå¾Œã‚ã®éƒ¨åˆ†ï¼ˆ5æ¡é€šã—ç•ªå·ï¼‰ã‚’å–å¾—
+            ' ƒvƒŒƒtƒBƒbƒNƒX‚æ‚èŒã‚ë‚Ì•”•ªi5Œ…’Ê‚µ”Ô†j‚ğæ“¾
             existingZZZ = Mid(koujiBangou, Len(prefix) + 1)
             If IsNumeric(existingZZZ) Then
                 If CLng(existingZZZ) > maxZZZ Then maxZZZ = CLng(existingZZZ)
@@ -321,7 +351,7 @@ Private Function CreateNewKoujiBangou(ByVal wsTarget As Worksheet, ByVal wsMaste
         End If
     Next r
 
-    CreateNewKoujiBangou = prefix & Format(maxZZZ + 1, "00000")  ' 5æ¡é€šã—ç•ªå·
+    CreateNewKoujiBangou = prefix & Format(maxZZZ + 1, "00000")  ' 5Œ…’Ê‚µ”Ô†
 End Function
 
 Private Sub TransferDataToSheet(ByVal wsTarget As Worksheet, ByVal targetRow As Long, ByVal newKoujiBangou As String)
@@ -341,34 +371,34 @@ Private Sub TransferDataToSheet(ByVal wsTarget As Worksheet, ByVal targetRow As 
     With wsTarget
         .Cells(targetRow, COL_YEAR).Value = inputYearFull
         .Cells(targetRow, COL_NO).Value = Application.WorksheetFunction.Max(.Columns(COL_NO)) + 1
-        .Cells(targetRow, COL_STAFF).Value = Me.æ‹…å½“è€….Value
+        .Cells(targetRow, COL_STAFF).Value = Me.’S“–Ò.Value
         .Cells(targetRow, COL_KOUJI_BANGO).Value = newKoujiBangou
-        .Cells(targetRow, COL_KOUJI_NAME).Value = Me.å·¥äº‹åç§°.Value
-        .Cells(targetRow, "F").Value = Me.ç™ºæ³¨è€…å…¥åŠ›.Value
-        If IsDate(Me.ç€æ‰‹.Value) Then .Cells(targetRow, "G").Value = CDate(Me.ç€æ‰‹.Value)
-        If IsDate(Me.å®Œæˆ.Value) Then .Cells(targetRow, "H").Value = CDate(Me.å®Œæˆ.Value)
-        If Me.æœ‰ã‚Š.Value = True Then
-            .Cells(targetRow, "I").Value = "â—¯"
-        ElseIf Me.ç„¡ã—.Value = True Then
-            .Cells(targetRow, "I").Value = "ãƒ¼"
+        .Cells(targetRow, COL_KOUJI_NAME).Value = Me.H––¼Ì.Value
+        .Cells(targetRow, "F").Value = Me.”­’Ò“ü—Í.Value
+        If IsDate(Me.’…è.Value) Then .Cells(targetRow, "G").Value = CDate(Me.’…è.Value)
+        If IsDate(Me.Š®¬.Value) Then .Cells(targetRow, "H").Value = CDate(Me.Š®¬.Value)
+        If Me.—L‚è.Value = True Then
+            .Cells(targetRow, "I").Value = "ü"
+        ElseIf Me.–³‚µ.Value = True Then
+            .Cells(targetRow, "I").Value = "["
         End If
-        If IsDate(Me.å¥‘ç´„æ—¥.Value) Then .Cells(targetRow, "J").Value = CDate(Me.å¥‘ç´„æ—¥.Value)
-        .Cells(targetRow, "K").Value = Me.é‡‘é¡.Value
-        If Val(Me.é‡‘é¡.Value) >= 10000000 Then
-            .Cells(targetRow, "L").Value = "â—¯"
-        ElseIf Me.ã‚¢ãƒ³ã‚±ãƒ¼ãƒˆ.Value = True Then
-            .Cells(targetRow, "L").Value = "â—¯"
+        If IsDate(Me.Œ_–ñ“ú.Value) Then .Cells(targetRow, "J").Value = CDate(Me.Œ_–ñ“ú.Value)
+        .Cells(targetRow, "K").Value = Me.‹àŠz.Value
+        If Val(Me.‹àŠz.Value) >= 10000000 Then
+            .Cells(targetRow, "L").Value = "ü"
+        ElseIf Me.ƒAƒ“ƒP[ƒg.Value = True Then
+            .Cells(targetRow, "L").Value = "ü"
         Else
-            .Cells(targetRow, "L").Value = "ãƒ¼"
+            .Cells(targetRow, "L").Value = "["
         End If
-        .Cells(targetRow, "M").Value = Me.ã‚³ãƒ¡ãƒ³ãƒˆ.Value
+        .Cells(targetRow, "M").Value = Me.ƒRƒƒ“ƒg.Value
     End With
     Call SafeProtectData(wsTarget)
     Exit Sub
 
 ErrorHandlerTransfer:
     Call SafeProtectData(wsTarget)
-    MsgBox "å·¥äº‹ç•ªå·ä¸€è¦§ã¸ã®ãƒ‡ãƒ¼ã‚¿è»¢è¨˜ä¸­ã«ã‚¨ãƒ©ãƒ¼: " & Err.Description, vbCritical
+    MsgBox "H–”Ô†ˆê——‚Ö‚Ìƒf[ƒ^“]‹L’†‚ÉƒGƒ‰[: " & Err.Description, vbCritical
 End Sub
 
 Private Function UpdateLocalListSheet(ByVal wsSource As Worksheet, ByVal wsMaster As Worksheet) As Boolean
@@ -379,9 +409,9 @@ Private Function UpdateLocalListSheet(ByVal wsSource As Worksheet, ByVal wsMaste
 
     UpdateLocalListSheet = False
 
-    destSheetName = Trim(CStr(wsMaster.Range(CELL_LOCAL_COPY_SHEET).Value))
+    destSheetName = GetSheetNameFromMaster(ThisWorkbook, "H–”Ô†ˆê——ƒV[ƒg", SHEET_KOUJI_LIST)
     If destSheetName = "" Then
-        MsgBox "ã€Œ" & SHEET_KANRI_MASTER & "ã€ã‚·ãƒ¼ãƒˆã®" & CELL_LOCAL_COPY_SHEET & "ã‚»ãƒ«ã«ã‚³ãƒ”ãƒ¼å…ˆã‚·ãƒ¼ãƒˆåãŒæŒ‡å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚", vbExclamation
+        MsgBox "uŠÇ—ƒ}ƒXƒ^vƒV[ƒg‚ÌuH–”Ô†ˆê——ƒV[ƒgv€–Ú‚É’l‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB", vbExclamation
         Exit Function
     End If
 
@@ -389,7 +419,7 @@ Private Function UpdateLocalListSheet(ByVal wsSource As Worksheet, ByVal wsMaste
     Set wsDest = ThisWorkbook.Sheets(destSheetName)
     On Error GoTo 0
     If wsDest Is Nothing Then
-        MsgBox "ã“ã®ãƒ•ã‚¡ã‚¤ãƒ«ã«ã€Œ" & destSheetName & "ã€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚", vbExclamation
+        MsgBox "‚±‚Ìƒtƒ@ƒCƒ‹‚Éu" & destSheetName & "v‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B", vbExclamation
         Exit Function
     End If
 
@@ -410,6 +440,8 @@ Private Function UpdateLocalListSheet(ByVal wsSource As Worksheet, ByVal wsMaste
 
 ErrorHandlerUpdateLocalReg:
     Call SafeProtectData(wsDest)
-    MsgBox "ãƒ­ãƒ¼ã‚«ãƒ«ä¸€è¦§æ›´æ–°ä¸­ã«ã‚¨ãƒ©ãƒ¼: " & Err.Description, vbCritical
+    MsgBox "ƒ[ƒJƒ‹ˆê——XV’†‚ÉƒGƒ‰[: " & Err.Description, vbCritical
     UpdateLocalListSheet = False
 End Function
+
+

@@ -1,105 +1,269 @@
 Option Explicit
 
 '================================================================================
-' å…±é€šè¨­å®šãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ï¼ˆå·¥äº‹ç•ªå·å…¥åŠ›ç®¡ç†è¡¨.xlsm ç”¨ï¼‰
+' [Ý’è] Ý’è—pƒR[ƒhiŒ»ê—pxlsm ‚ÌÝ’è’lj
+'--------------------------------------------------------------------------------
+' y‰½‚Ìƒtƒ@ƒCƒ‹Hz
+'   Œ»ê—pxlsmi‘SŽÐ“WŠJ—pj‚ÌuŠÂ‹«ˆË‘¶‚ÌÝ’è’lv‚ð‚Ð‚Æ‚Ü‚Æ‚ß‚É‚µ‚½êŠB
+'   ƒeƒXƒgÌ–{”Ô‚ÌØ‘ÖAƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÌƒpƒXA•”ƒR[ƒh“™B
 '
-' ã€VBEã§ã®è¨­å®šæ–¹æ³•ã€‘
-'   ã“ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚¤ãƒ³ãƒãƒ¼ãƒˆå¾Œã€ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã§
-'   ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«åã‚’ã€ŒConfigã€ã«å¤‰æ›´ã™ã‚‹ã“ã¨ã€‚
+' y‚¨‹q—lŠÂ‹«ƒZƒbƒgƒAƒbƒvŽž‚Éƒ`ƒFƒbƒN‚·‚é‰ÓŠz
+'   1. IS_TEST_MODE          c –{”Ô‚È‚ç•K‚¸ False
+'   2. u“ü—ÍƒtƒH[ƒ€vA36  c –{”Ô‚Ìƒ}ƒXƒ^xlsm ‚Ìƒtƒ‹ƒpƒX
+'   3. u“ü—ÍƒtƒH[ƒ€vA37  c Ž©•”‚Ì2Œ…ƒR[ƒhiŒš’z=03/“y–Ø=05j
 '
-' ã€ä½¿ã„æ–¹ã€‘
-'   æœ¬ç•ªãƒªãƒªãƒ¼ã‚¹æ™‚ã¯ IS_TEST_MODE ã‚’ False ã«ã™ã‚‹ã ã‘ã§ã‚ˆã„ã€‚
-'   ã‚·ãƒ¼ãƒˆåã‚„ä¿å­˜å…ˆã‚»ãƒ«ãŒå¤‰ã‚ã£ãŸå ´åˆã‚‚ã“ã“ã ã‘ä¿®æ­£ã™ã‚Œã°å…¨ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã«åæ˜ ã•ã‚Œã‚‹ã€‚
+' yG‚ç‚È‚­‚Ä‚¢‚¢‰ÓŠz
+'   - ƒV[ƒg–¼‚â—ñ”Ô’n‚Ì’è”i•Ï‚¦‚é‚ÆƒR[ƒh‘S‘Ì‚É‰e‹¿j
+'   - SHEET_PASSWORDi•ÛŒìƒpƒXƒ[ƒhj
+'   - ŠeŽí FunctioniƒpƒXŽæ“¾E•”ƒR[ƒhŽæ“¾E’S“–ŽÒƒŠƒXƒgŽæ“¾‚È‚Çj
 '================================================================================
 
-' ===== ãƒ†ã‚¹ãƒˆè¨­å®š =====
-' True: é–‹ç™ºãƒ»ãƒ†ã‚¹ãƒˆç”¨ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‚ç…§ã™ã‚‹ï¼ˆTEST_FILE_PATH ãŒä½¿ã‚ã‚Œã‚‹ï¼‰
-' False: ã€Œå…¥åŠ›ãƒ•ã‚©ãƒ¼ãƒ ã€ã‚·ãƒ¼ãƒˆã® PATH_CELL ã‹ã‚‰ãƒ‘ã‚¹ã‚’èª­ã¿å–ã‚‹ï¼ˆæœ¬ç•ªå‹•ä½œï¼‰
-' â˜… ãƒªãƒªãƒ¼ã‚¹æ™‚ã¯å¿…ãš False ã«ã™ã‚‹ã“ã¨ â˜…
-Public Const IS_TEST_MODE As Boolean = False
-Public Const TEST_FILE_PATH As String = "Z:\Users\n-machida\Desktop\å·¥äº‹ç•ªå·ç®¡ç†è¡¨.xlsm"
 
-' ===== å¤–éƒ¨ãƒžã‚¹ã‚¿ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«ã®å‚ç…§å…ˆ =====
-' ã€Œå…¥åŠ›ãƒ•ã‚©ãƒ¼ãƒ ã€ã‚·ãƒ¼ãƒˆä¸Šã®ã€å¤–éƒ¨ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹ãŒè¨˜è¼‰ã•ã‚Œã¦ã„ã‚‹ã‚»ãƒ«ç•ªåœ°
+'================================================================================
+' ‹¤’ÊÝ’èƒ‚ƒWƒ…[ƒ‹iHŽ–”Ô†“ü—ÍŠÇ—•\.xlsm —pj
+'
+' yVBE‚Å‚ÌÝ’è•û–@z
+'   ‚±‚Ìƒtƒ@ƒCƒ‹‚ðƒCƒ“ƒ|[ƒgŒãAƒvƒƒpƒeƒBƒEƒBƒ“ƒhƒE‚Å
+'   ƒ‚ƒWƒ…[ƒ‹–¼‚ðuConfigv‚É•ÏX‚·‚é‚±‚ÆB
+'
+' yŽg‚¢•ûz
+'   –{”ÔƒŠƒŠ[ƒXŽž‚Í IS_TEST_MODE ‚ð False ‚É‚·‚é‚¾‚¯‚Å‚æ‚¢B
+'   ƒV[ƒg–¼‚â•Û‘¶æƒZƒ‹‚ª•Ï‚í‚Á‚½ê‡‚à‚±‚±‚¾‚¯C³‚·‚ê‚Î‘Sƒ‚ƒWƒ…[ƒ‹‚É”½‰f‚³‚ê‚éB
+'================================================================================
+
+' ===== ƒeƒXƒgÝ’è =====
+' True: ŠJ”­EƒeƒXƒg—pƒtƒ@ƒCƒ‹‚ðŽQÆ‚·‚éiTEST_FILE_PATH ‚ªŽg‚í‚ê‚éj
+' False: u“ü—ÍƒtƒH[ƒ€vƒV[ƒg‚Ì PATH_CELL ‚©‚çƒpƒX‚ð“Ç‚ÝŽæ‚éi–{”Ô“®ìj
+' š ƒŠƒŠ[ƒXŽž‚Í•K‚¸ False ‚É‚·‚é‚±‚Æ š
+Public Const IS_TEST_MODE As Boolean = False
+Public Const TEST_FILE_PATH As String = "Z:\Users\n-machida\Desktop\HŽ–”Ô†ŠÇ—•\.xlsm"
+
+' ===== ŠO•”ƒ}ƒXƒ^[ƒtƒ@ƒCƒ‹‚ÌŽQÆæ =====
+' u“ü—ÍƒtƒH[ƒ€vƒV[ƒgã‚ÌAŠO•”ƒtƒ@ƒCƒ‹ƒpƒX‚ª‹LÚ‚³‚ê‚Ä‚¢‚éƒZƒ‹”Ô’n
 Public Const PATH_CELL As String = "A36"
 
-' ===== ã‚·ãƒ¼ãƒˆå =====
-Public Const SHEET_KOUJI_LIST As String = "å·¥äº‹ç•ªå·ä¸€è¦§"   ' ãƒ‡ãƒ¼ã‚¿æœ¬ä½“
-Public Const SHEET_KANRI_MASTER As String = "ç®¡ç†ãƒžã‚¹ã‚¿"    ' æ‹…å½“è€…ãƒªã‚¹ãƒˆãƒ»è¨­å®šå€¤
-Public Const SHEET_OTHER_MASTER As String = "ãã®ä»–ãƒžã‚¹ã‚¿"  ' æå‡ºå…ˆãƒ»åŒå°ç‰©ãƒªã‚¹ãƒˆ
-Public Const SHEET_IRAI_RIREKI As String = "ä¾é ¼å±¥æ­´"       ' ä¾é ¼å±¥æ­´
-Public Const SHEET_IRAISHO As String = "è«‹æ±‚æ›¸æå‡ºä¾é ¼æ›¸"
-Public Const SHEET_CELL_SETTING As String = "ä¾é ¼æ›¸ã‚»ãƒ«è¨­å®š"  ' è«‹æ±‚æ›¸æå‡ºä¾é ¼æ›¸ã®ã‚»ãƒ«ä½ç½®è¨­å®šã‚·ãƒ¼ãƒˆ  ' ä¾é ¼æ›¸ï¼ˆãƒžã‚¯ãƒ­å°‚ç”¨ã‚·ãƒ¼ãƒˆï¼‰
-
-' ===== ç®¡ç†ãƒžã‚¹ã‚¿ä¸Šã®ã‚»ãƒ«ç•ªåœ° =====
-' G3: å¤–éƒ¨ãƒ•ã‚¡ã‚¤ãƒ«ä¸Šã®ã€Œå¯¾è±¡ãƒ‡ãƒ¼ã‚¿ã‚·ãƒ¼ãƒˆåã€ï¼ˆå†ç™»éŒ²ãƒ»åç§°é¸æŠžãƒ»ç™»éŒ²ãƒ•ã‚©ãƒ¼ãƒ ãŒå‚ç…§ï¼‰
-Public Const CELL_TARGET_SHEET As String = "G3"
-' G5: ã“ã®ãƒ„ãƒ¼ãƒ«å†…ã®ã€Œãƒ­ãƒ¼ã‚«ãƒ«ã‚³ãƒ”ãƒ¼å…ˆã‚·ãƒ¼ãƒˆåã€ï¼ˆUpdateLocalListSheet ãŒå‚ç…§ï¼‰
-Public Const CELL_LOCAL_COPY_SHEET As String = "G5"
-
-' ===== ã‚·ãƒ¼ãƒˆä¿è­·ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ =====
-' ç¾åœ¨ã¯æœªä½¿ç”¨ï¼ˆç©ºæ¬„ï¼‰ã€‚å°†æ¥çš„ã«ä¿è­·ã‚’è¨­å®šã™ã‚‹å ´åˆã¯ã“ã“ã§ä¸€æ‹¬ç®¡ç†ã™ã‚‹ã€‚
-Public Const SHEET_PASSWORD As String = "3555"
-
-' ===== éƒ¨é–€ã‚³ãƒ¼ãƒ‰ï¼ˆè‡ªéƒ¨é–€è­˜åˆ¥ç”¨ï¼‰ =====
-' å„ç®¡ç†Excelã§ã€Œè‡ªåˆ†ãŒã©ã®éƒ¨é–€ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã€ã‚’è¡¨ã™2æ¡ã‚³ãƒ¼ãƒ‰ã€‚
-' å·¥äº‹ç•ªå·ã®æŽ¡ç•ªãƒ—ãƒ¬ãƒ•ã‚£ãƒƒã‚¯ã‚¹ï¼ˆ"03-..." ç­‰ï¼‰ã‚„ã€å·¥äº‹ç•ªå·ä¸€è¦§ã®è¡¨ç¤ºãƒ•ã‚£ãƒ«ã‚¿ã«ä½¿ã†ã€‚
-' ã€Œå…¥åŠ›ãƒ•ã‚©ãƒ¼ãƒ ã€ã‚·ãƒ¼ãƒˆã® DEPT_CODE_CELL ã‚»ãƒ«ï¼ˆæ—¢å®š: A37ï¼‰ã«å…¥åŠ›ã™ã‚‹ã€‚
-'   å»ºç¯‰äº‹æ¥­éƒ¨ â†’ "03"
-'   åœŸæœ¨äº‹æ¥­éƒ¨ â†’ "05"ï¼ˆä»®ï¼‰
-' ç©ºã®å ´åˆã¯ "03"ï¼ˆå»ºç¯‰äº‹æ¥­éƒ¨ï¼‰ã«ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯ã€‚
-Public Const DEPT_CODE_CELL As String = "A37"
-
-' ===== æå‡ºä¾é ¼è€…ã®æ‰€å±žéƒ¨ç½² =====
-' å„ç®¡ç†Excelã”ã¨ã«å›ºæœ‰ã®å€¤ã‚’è¨­å®šã™ã‚‹ï¼ˆä¾‹: "å»ºç¯‰äº‹æ¥­éƒ¨", "åœŸæœ¨äº‹æ¥­éƒ¨" ç­‰ï¼‰
-' ç©ºæ–‡å­—ã®å ´åˆã¯æ›¸ãè¾¼ã¿ã‚’ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹
-Public Const SUBMITTER_DEPARTMENT As String = "å»ºç¯‰äº‹æ¥­éƒ¨"
+' ===== ƒV[ƒg–¼ =====
+Public Const SHEET_KOUJI_LIST As String = "HŽ–”Ô†ˆê——"   ' ƒf[ƒ^–{‘Ì
+Public Const SHEET_KANRI_MASTER As String = "ŠÇ—ƒ}ƒXƒ^"    ' ’S“–ŽÒƒŠƒXƒgEÝ’è’l
+Public Const SHEET_OTHER_MASTER As String = "‚»‚Ì‘¼ƒ}ƒXƒ^"  ' ’ñoæE“¯•••¨ƒŠƒXƒg
 
 '================================================================================
-' ãƒžã‚¹ã‚¿ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹ã‚’è¿”ã™å…±é€šé–¢æ•°
-' IS_TEST_MODE ãŒ True ã®å ´åˆã¯ãƒ†ã‚¹ãƒˆç”¨ãƒ‘ã‚¹ã€False ã®å ´åˆã¯ã€Œå…¥åŠ›ãƒ•ã‚©ãƒ¼ãƒ ã€ã‚·ãƒ¼ãƒˆã®
-' PATH_CELL ã«è¨˜è¼‰ã•ã‚ŒãŸãƒ‘ã‚¹ã‚’è¿”ã™ã€‚
+' [Ý’è] Ý’è—pƒR[ƒhiŒ»ê—pxlsm ‚ÌÝ’è’lj
+'--------------------------------------------------------------------------------
+' y‰½‚Ìƒtƒ@ƒCƒ‹Hz
+'   Œ»ê—pxlsmi‘SŽÐ“WŠJ—pj‚ÌuŠÂ‹«ˆË‘¶‚ÌÝ’è’lv‚ð‚Ð‚Æ‚Ü‚Æ‚ß‚É‚µ‚½êŠB
+'   ƒeƒXƒgÌ–{”Ô‚ÌØ‘ÖAƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÌƒpƒXA•”ƒR[ƒh“™B
+'
+' y‚¨‹q—lŠÂ‹«ƒZƒbƒgƒAƒbƒvŽž‚Éƒ`ƒFƒbƒN‚·‚é‰ÓŠz
+'   1. IS_TEST_MODE          c –{”Ô‚È‚ç•K‚¸ False
+'   2. u“ü—ÍƒtƒH[ƒ€vA36  c –{”Ô‚Ìƒ}ƒXƒ^xlsm ‚Ìƒtƒ‹ƒpƒX
+'   3. u“ü—ÍƒtƒH[ƒ€vA37  c Ž©•”‚Ì2Œ…ƒR[ƒhiŒš’z=03/“y–Ø=05j
+'
+' yG‚ç‚È‚­‚Ä‚¢‚¢‰ÓŠz
+'   - ƒV[ƒg–¼‚â—ñ”Ô’n‚Ì’è”i•Ï‚¦‚é‚ÆƒR[ƒh‘S‘Ì‚É‰e‹¿j
+'   - SHEET_PASSWORDi•ÛŒìƒpƒXƒ[ƒhj
+'   - ŠeŽí FunctioniƒpƒXŽæ“¾E•”ƒR[ƒhŽæ“¾E’S“–ŽÒƒŠƒXƒgŽæ“¾‚È‚Çj
+'================================================================================
+
+Public Const SHEET_STAFF_MASTER As String = "’S“–ŽÒƒ}ƒXƒ^"  ' ’S“–ŽÒƒŠƒXƒgi•”ƒtƒBƒ‹ƒ^‚ ‚èj
+Public Const SHEET_IRAI_RIREKI As String = "ˆË—Š—š—ð"       ' ˆË—Š—š—ð
+Public Const SHEET_IRAISHO As String = "¿‹‘’ñoˆË—Š‘"
+Public Const SHEET_CELL_SETTING As String = "ˆË—Š‘ƒZƒ‹Ý’è"  ' ¿‹‘’ñoˆË—Š‘‚ÌƒZƒ‹ˆÊ’uÝ’èƒV[ƒg  ' ˆË—Š‘iƒ}ƒNƒê—pƒV[ƒgj
+
+' ===== ŠÇ—ƒ}ƒXƒ^ã‚ÌƒZƒ‹”Ô’n =====
+' G3: ŠO•”ƒtƒ@ƒCƒ‹ã‚Ìu‘ÎÛƒf[ƒ^ƒV[ƒg–¼viÄ“o˜^E–¼Ì‘I‘ðE“o˜^ƒtƒH[ƒ€‚ªŽQÆj
+Public Const CELL_TARGET_SHEET As String = "G3"
+' G5: ‚±‚Ìƒc[ƒ‹“à‚Ìuƒ[ƒJƒ‹ƒRƒs[æƒV[ƒg–¼viUpdateLocalListSheet ‚ªŽQÆj
+Public Const CELL_LOCAL_COPY_SHEET As String = "G5"
+
+' ===== ƒV[ƒg•ÛŒìƒpƒXƒ[ƒh =====
+' Œ»Ý‚Í–¢Žg—pi‹ó—“jB«—ˆ“I‚É•ÛŒì‚ðÝ’è‚·‚éê‡‚Í‚±‚±‚ÅˆêŠ‡ŠÇ—‚·‚éB
+Public Const SHEET_PASSWORD As String = "3555"
+
+' ===== •”–åƒR[ƒhiŽ©•”–åŽ¯•Ê—pj =====
+' ŠeŠÇ—Excel‚ÅuŽ©•ª‚ª‚Ç‚Ì•”–å‚Ìƒtƒ@ƒCƒ‹‚©v‚ð•\‚·2Œ…ƒR[ƒhB
+' HŽ–”Ô†‚ÌÌ”ÔƒvƒŒƒtƒBƒbƒNƒXi"03-..." “™j‚âAHŽ–”Ô†ˆê——‚Ì•\Ž¦ƒtƒBƒ‹ƒ^‚ÉŽg‚¤B
+' u“ü—ÍƒtƒH[ƒ€vƒV[ƒg‚Ì DEPT_CODE_CELL ƒZƒ‹iŠù’è: A37j‚É“ü—Í‚·‚éB
+'   Œš’zŽ–‹Æ•” ¨ "03"
+'   “y–ØŽ–‹Æ•” ¨ "05"i‰¼j
+' ‹ó‚Ìê‡‚Í "03"iŒš’zŽ–‹Æ•”j‚ÉƒtƒH[ƒ‹ƒoƒbƒNB
+Public Const DEPT_CODE_CELL As String = "A37"
+
+' ===== ’ñoˆË—ŠŽÒ‚ÌŠ‘®•” =====
+' ŠeŠÇ—Excel‚²‚Æ‚ÉŒÅ—L‚Ì’l‚ðÝ’è‚·‚éi—á: "Œš’zŽ–‹Æ•”", "“y–ØŽ–‹Æ•”" “™j
+' ‹ó•¶Žš‚Ìê‡‚Í‘‚«ž‚Ý‚ðƒXƒLƒbƒv‚·‚é
+Public Const SUBMITTER_DEPARTMENT As String = "Œš’zŽ–‹Æ•”"
+
+'================================================================================
+' ƒ}ƒXƒ^[ƒtƒ@ƒCƒ‹‚ÌƒpƒX‚ð•Ô‚·‹¤’ÊŠÖ”
+' IS_TEST_MODE ‚ª True ‚Ìê‡‚ÍƒeƒXƒg—pƒpƒXAFalse ‚Ìê‡‚Íu“ü—ÍƒtƒH[ƒ€vƒV[ƒg‚Ì
+' PATH_CELL ‚É‹LÚ‚³‚ê‚½ƒpƒX‚ð•Ô‚·B
 '================================================================================
 Public Function GetMasterPath() As String
     If IS_TEST_MODE Then
         GetMasterPath = TEST_FILE_PATH
     Else
-        GetMasterPath = Trim(CStr(ThisWorkbook.Sheets("å…¥åŠ›ãƒ•ã‚©ãƒ¼ãƒ ").Range(PATH_CELL).Value))
+        GetMasterPath = Trim(CStr(ThisWorkbook.Sheets("“ü—ÍƒtƒH[ƒ€").Range(PATH_CELL).Value))
     End If
 End Function
 
 '================================================================================
-' è‡ªéƒ¨é–€ã‚³ãƒ¼ãƒ‰ã‚’è¿”ã™
-'   ã€Œå…¥åŠ›ãƒ•ã‚©ãƒ¼ãƒ ã€ã‚·ãƒ¼ãƒˆ DEPT_CODE_CELLï¼ˆA37ï¼‰ã®å€¤ã‚’èª­ã‚€ã€‚
-'   ç©º or å–å¾—å¤±æ•—æ™‚ã¯ "03"ï¼ˆå»ºç¯‰äº‹æ¥­éƒ¨ï¼‰ã«ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯ã€‚
+' Ž©•”–åƒR[ƒh‚ð•Ô‚·
+'   u“ü—ÍƒtƒH[ƒ€vƒV[ƒg DEPT_CODE_CELLiA37j‚Ì’l‚ð“Ç‚ÞB
+'   ‹ó or Žæ“¾Ž¸”sŽž‚Í "03"iŒš’zŽ–‹Æ•”j‚ÉƒtƒH[ƒ‹ƒoƒbƒNB
 '================================================================================
 Public Function GetMyDeptCode() As String
     Dim v As String
     On Error Resume Next
-    v = Trim(CStr(ThisWorkbook.Sheets("å…¥åŠ›ãƒ•ã‚©ãƒ¼ãƒ ").Range(DEPT_CODE_CELL).Value))
+    v = Trim(CStr(ThisWorkbook.Sheets("“ü—ÍƒtƒH[ƒ€").Range(DEPT_CODE_CELL).Value))
     On Error GoTo 0
     If v = "" Then v = "03"
     GetMyDeptCode = v
 End Function
 
 '================================================================================
-' GetMyDepartmentName: è‡ªéƒ¨é–€ã®åç§°ã‚’è¿”ã™ï¼ˆä¾é ¼æ›¸ã®ã€Œæå‡ºä¾é ¼è€…æ‰€å±žéƒ¨ç½²ã€æ¬„ç”¨ï¼‰
+' GetMyDepartmentName: Ž©•”–å‚Ì–¼Ì‚ð•Ô‚·iˆË—Š‘‚Ìu’ñoˆË—ŠŽÒŠ‘®•”v—“—pj
 '================================================================================
-' éƒ¨é–€ã‚³ãƒ¼ãƒ‰(A37)ã‚’å…ƒã«ã€éƒ¨é–€åã‚’è‡ªå‹•åˆ¤å®šã™ã‚‹ã€‚
-'   "03" â†’ "å»ºç¯‰äº‹æ¥­éƒ¨"
-'   "05" â†’ "åœŸæœ¨äº‹æ¥­éƒ¨"
-'   ãã®ä»– â†’ "å»ºç¯‰äº‹æ¥­éƒ¨" ã«ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯ï¼ˆ=æ—¢å®šï¼‰
+' •”–åƒR[ƒh(A37)‚ðŒ³‚ÉA•”–å–¼‚ðŽ©“®”»’è‚·‚éB
+'   "03" ¨ "Œš’zŽ–‹Æ•”"
+'   "05" ¨ "“y–ØŽ–‹Æ•”"
+'   ‚»‚Ì‘¼ ¨ "Œš’zŽ–‹Æ•”" ‚ÉƒtƒH[ƒ‹ƒoƒbƒNi=Šù’èj
 '
-' ã€è¿½åŠ  2026/5/22ã€‘
-' æ—§ SUBMITTER_DEPARTMENT å®šæ•°ã«ã‚ˆã‚‹ãƒãƒ¼ãƒ‰ã‚³ãƒ¼ãƒ‰ã‚’å»ƒæ­¢ã—ã€
-' A37ã‚»ãƒ«ã®éƒ¨é–€ã‚³ãƒ¼ãƒ‰ã‹ã‚‰è‡ªå‹•åˆ¤å®šã™ã‚‹ã‚ˆã†ã«å¤‰æ›´ã€‚
-' å„éƒ¨ç½²ç”¨xlsmé…å¸ƒæ™‚ã®è¨­å®šæ¼ã‚Œã‚’é˜²ãã€‚
+' y’Ç‰Á 2026/5/22z
+' ‹Œ SUBMITTER_DEPARTMENT ’è”‚É‚æ‚éƒn[ƒhƒR[ƒh‚ð”pŽ~‚µA
+' A37ƒZƒ‹‚Ì•”–åƒR[ƒh‚©‚çŽ©“®”»’è‚·‚é‚æ‚¤‚É•ÏXB
+' Še•”—pxlsm”z•zŽž‚ÌÝ’è˜R‚ê‚ð–h‚®B
 '================================================================================
 Public Function GetMyDepartmentName() As String
     Dim code As String: code = GetMyDeptCode()
     Select Case code
-        Case "03": GetMyDepartmentName = "å»ºç¯‰äº‹æ¥­éƒ¨"
-        Case "05": GetMyDepartmentName = "åœŸæœ¨äº‹æ¥­éƒ¨"
-        Case Else: GetMyDepartmentName = "å»ºç¯‰äº‹æ¥­éƒ¨"  ' æ—¢å®šï¼ˆãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯ï¼‰
+        Case "03": GetMyDepartmentName = "Œš’zŽ–‹Æ•”"
+        Case "05": GetMyDepartmentName = "“y–ØŽ–‹Æ•”"
+        Case Else: GetMyDepartmentName = "Œš’zŽ–‹Æ•”"  ' Šù’èiƒtƒH[ƒ‹ƒoƒbƒNj
     End Select
 End Function
+
+'================================================================================
+' GetSheetNameFromMaster: uŠÇ—ƒ}ƒXƒ^vƒV[ƒg‚Ìkey/value•\‚©‚çƒV[ƒg–¼‚ðŽæ“¾
+'   wb       : ŒŸõ‘ÎÛ‚Ìƒ[ƒNƒuƒbƒNiƒ}ƒXƒ^Excelj
+'   itemName : A—ñ‚Ì€–Ú–¼i—á: "HŽ–”Ô†ˆê——ƒV[ƒg"j
+'   defaultVal : Œ©‚Â‚©‚ç‚È‚¢/‹ó‚Ìê‡‚ÌƒtƒH[ƒ‹ƒoƒbƒN’l
+' y2026/5/24 V‹Kz
+'   ‹Œ G3/G5 ƒZƒ‹ŒÅ’è•ûŽ®‚©‚çAA—ñ€–Ú–¼ƒL[‚Ì key/value •ûŽ®‚ÉˆÚsB
+'   ŠÇ—ƒ}ƒXƒ^ A—ñ‚É€–Ú–¼i“ú–{ŒêjAB—ñ‚ÉƒV[ƒg–¼‚ð‹L“ü‚·‚é‰^—pB
+'================================================================================
+Public Function GetSheetNameFromMaster(ByVal wb As Workbook, ByVal itemName As String, _
+                                        Optional ByVal defaultVal As String = "") As String
+    Dim ws As Worksheet
+    On Error Resume Next
+    Set ws = wb.Sheets("ŠÇ—ƒ}ƒXƒ^")
+    On Error GoTo 0
+    If ws Is Nothing Then
+        GetSheetNameFromMaster = defaultVal
+        Exit Function
+    End If
+
+    Dim lastRow As Long, r As Long
+    lastRow = ws.Cells(ws.Rows.count, "A").End(xlUp).Row
+    For r = 2 To lastRow
+        If Trim(CStr(ws.Cells(r, "A").Value)) = itemName Then
+            Dim v As String
+            v = Trim(CStr(ws.Cells(r, "B").Value))
+            If v <> "" Then
+                GetSheetNameFromMaster = v
+                Exit Function
+            End If
+        End If
+    Next r
+    GetSheetNameFromMaster = defaultVal
+End Function
+
+'================================================================================
+' GetStaffListFiltered: ’S“–ŽÒƒ}ƒXƒ^‚©‚çŽ©•”–å‚Ì’S“–ŽÒƒŠƒXƒg‚ðŽæ“¾
+'   wb       : ŒŸõ‘ÎÛ‚Ìƒ[ƒNƒuƒbƒNiƒ}ƒXƒ^Excelj
+'   deptCode : •”–åƒR[ƒhi"03" / "05" “™j
+' –ß‚è’l    : Variant”z—ñi’S“–ŽÒ–¼‚Ì1ŽŸŒ³”z—ñA‹ó‚È‚ç Emptyj
+' y2026/5/24 V‹Kz
+'   ’S“–ŽÒƒŠƒXƒg‚ðuŠÇ—ƒ}ƒXƒ^A—ñv¨u’S“–ŽÒƒ}ƒXƒ^A—ñv‚ÉˆÚsB
+'   ’S“–ŽÒƒ}ƒXƒ^B—ñ‚Ì•””Ô†‚ÅŽ©•”–å‚Ì‚ÝƒtƒBƒ‹ƒ^‚·‚éB
+'================================================================================
+Public Function GetStaffListFiltered(ByVal wb As Workbook, ByVal deptCode As String) As Variant
+    Dim staffSheetName As String
+    staffSheetName = GetSheetNameFromMaster(wb, "’S“–ŽÒƒ}ƒXƒ^ƒV[ƒg", "’S“–ŽÒƒ}ƒXƒ^")
+
+    Dim wsStaff As Worksheet
+    On Error Resume Next
+    Set wsStaff = wb.Sheets(staffSheetName)
+    On Error GoTo 0
+    If wsStaff Is Nothing Then
+        GetStaffListFiltered = Empty
+        Exit Function
+    End If
+
+    Dim lastRow As Long
+    lastRow = wsStaff.Cells(wsStaff.Rows.count, "A").End(xlUp).Row
+    If lastRow < 2 Then
+        GetStaffListFiltered = Empty
+        Exit Function
+    End If
+
+    Dim arr As Variant
+    arr = wsStaff.Range("A2:B" & lastRow).Value
+
+    Dim filtered() As String
+    ReDim filtered(0 To UBound(arr, 1) - 1)
+    Dim cnt As Long: cnt = 0
+    Dim i As Long
+    Dim dept As String, name As String
+    Dim myDept As String
+    myDept = Trim(deptCode)
+    If Len(myDept) = 1 Then myDept = "0" & myDept
+
+    For i = 1 To UBound(arr, 1)
+        name = Trim(CStr(arr(i, 1)))
+        dept = Trim(CStr(arr(i, 2)))
+        If Len(dept) = 1 Then dept = "0" & dept  ' "3" ¨ "03" ‚É³‹K‰»
+        If name <> "" And dept = myDept Then
+            filtered(cnt) = name
+            cnt = cnt + 1
+        End If
+    Next i
+
+    If cnt = 0 Then
+        GetStaffListFiltered = Empty
+    Else
+        ReDim Preserve filtered(0 To cnt - 1)
+        GetStaffListFiltered = filtered
+    End If
+End Function
+
+'================================================================================
+' GetStaffNumber: ’S“–ŽÒƒ}ƒXƒ^‚©‚ç“Á’è‚Ì’S“–ŽÒ‚Ì•””Ô†‚ðŽæ“¾
+'   wb       : ŒŸõ‘ÎÛ‚Ìƒ[ƒNƒuƒbƒNiƒ}ƒXƒ^Excelj
+'   staffName: ’S“–ŽÒ–¼
+' –ß‚è’l    : B—ñ‚Ì’li•””Ô†jAŒ©‚Â‚©‚ç‚È‚¯‚ê‚Î ""
+' y2026/5/24 V‹Kz
+'   ‹Œ ŠÇ—ƒ}ƒXƒ^A—ñ‚Å Match ¨ B—ñ’lŽæ“¾ ‚ð’S“–ŽÒƒ}ƒXƒ^‚ÉˆÚsB
+'================================================================================
+Public Function GetStaffNumber(ByVal wb As Workbook, ByVal staffName As String) As String
+    Dim staffSheetName As String
+    staffSheetName = GetSheetNameFromMaster(wb, "’S“–ŽÒƒ}ƒXƒ^ƒV[ƒg", "’S“–ŽÒƒ}ƒXƒ^")
+
+    Dim wsStaff As Worksheet
+    On Error Resume Next
+    Set wsStaff = wb.Sheets(staffSheetName)
+    On Error GoTo 0
+    If wsStaff Is Nothing Then
+        GetStaffNumber = ""
+        Exit Function
+    End If
+
+    Dim matchRow As Variant
+    matchRow = Application.Match(staffName, wsStaff.Columns("A"), 0)
+    If IsError(matchRow) Then
+        GetStaffNumber = ""
+        Exit Function
+    End If
+    GetStaffNumber = Trim(CStr(wsStaff.Cells(matchRow, "B").Value))
+End Function
+

@@ -1,29 +1,50 @@
 Option Explicit
 
 '================================================================================
-' ç®¡ç†è€…ç”¨ ãƒ¡ã‚¤ãƒ³æ“ä½œãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ï¼ˆå·®åˆ†ãƒãƒ¼ã‚¸ç‰ˆï¼‰
+' [S‘Ÿ•”] ŠÇ—Ò‘€ìiŠÇ—Ò“ü—Í—pxlsm ‚Ìå—vƒ}ƒNƒj
+'--------------------------------------------------------------------------------
+' y‰½‚Ìƒtƒ@ƒCƒ‹Hz
+'   ŠÇ—Ò‚ªƒ{ƒ^ƒ“‚©‚ç“®‚©‚·2‚Â‚Ìå—vƒ}ƒNƒ‚ª“ü‚Á‚Ä‚¢‚éF
 '
-' â–  å‹•ä½œ
-'   ãƒ»æœ€æ–°å–å¾—æ™‚: ãƒã‚¹ã‚¿å†…å®¹ã‚’ã“ã®ãƒ–ãƒƒã‚¯ã«è»¢å†™ã—ã€åŒæ™‚ã«éš ã—ã‚¹ãƒŠãƒƒãƒ—ã‚·ãƒ§ãƒƒãƒˆã‚‚ä½œæˆ
-'   ãƒ»åæ˜ æ™‚    : 3è€…æ¯”è¼ƒï¼ˆãƒ­ãƒ¼ã‚«ãƒ«ï¼ãƒã‚¹ã‚¿ï¼ã‚¹ãƒŠãƒƒãƒ—ã‚·ãƒ§ãƒƒãƒˆï¼‰ã§å·®åˆ†ãƒãƒ¼ã‚¸
-'                 â†’ ç®¡ç†è€…ã®ç·¨é›†ãƒ»è¿½åŠ ãƒ»å‰Šé™¤ã‚’åæ˜ ã—ã¤ã¤ã€ä»–è€…ãŒè¿½åŠ ã—ãŸè¡Œã¯ä¿æŒ
+'   Eƒ}ƒNƒ_ÅVæ“¾   cc ƒ}ƒXƒ^‚©‚çŠeƒV[ƒg‚ğæ‚è‚Şi©•”‚Ì‚İj
+'   Eƒ}ƒNƒ_ƒ}ƒXƒ^‚Ö”½‰f cc •ÒW“à—e‚ğƒ}ƒXƒ^‚É‘‚«–ß‚·i©•”‚Ì‚İj
+'
+' y“®‚«•û‚Ì‚µ‚­‚İi‚´‚Á‚­‚èjz
+'   E©•”‚ÌƒŒƒR[ƒh‚¾‚¯ƒtƒBƒ‹ƒ^‚µ‚Ä‚â‚èæ‚è‚·‚é
+'   Eæ“¾“_‚Ìó‘Ô‚ğu_snap_üüv‚Æ‚¢‚¤‰B‚µƒV[ƒg‚É•Û‘¶‚µ‚Ä‚¨‚«A
+'     ”½‰f‚É snapshot/local/master ‚ÌOÒ‚ğ”äŠr‚µ‚Äƒ}[ƒW‚·‚é
+'     ¨ ‘¼•”‚ª•ÒW‚µ‚½s‚ğ‰ó‚³‚¸A©•”‚Ì•ÒW‚¾‚¯ƒ}ƒXƒ^‚Ö”½‰f‚Å‚«‚é
+'   Eƒ}ƒXƒ^‚ª‘¼ƒ†[ƒU[‚ÉŠJ‚©‚ê‚Ä‚¢‚½‚çÅ‘å3‰ñ~5•b‚ÅÄs
+'
+' y‚³‚í‚é‚Æ‚«z
+'   ’Êí‚ÍG‚ç‚È‚¢B“®ì•s‹ï‡‚Ì’²¸‚ÉƒfƒoƒbƒOƒƒO‚ğ‘«‚·’ö“xB
 '================================================================================
 
 
 '================================================================================
-' ã€ãƒœã‚¿ãƒ³1ã€‘ãƒã‚¹ã‚¿ã‹ã‚‰æœ€æ–°å–å¾—
+' ŠÇ—Ò—p ƒƒCƒ“‘€ìƒ‚ƒWƒ…[ƒ‹i·•ªƒ}[ƒW”Åj
+'
+' ¡ “®ì
+'   EÅVæ“¾: ƒ}ƒXƒ^“à—e‚ğ‚±‚ÌƒuƒbƒN‚É“]Ê‚µA“¯‚É‰B‚µƒXƒiƒbƒvƒVƒ‡ƒbƒg‚àì¬
+'   E”½‰f    : 3Ò”äŠriƒ[ƒJƒ‹^ƒ}ƒXƒ^^ƒXƒiƒbƒvƒVƒ‡ƒbƒgj‚Å·•ªƒ}[ƒW
+'                 ¨ ŠÇ—Ò‚Ì•ÒWE’Ç‰ÁEíœ‚ğ”½‰f‚µ‚Â‚ÂA‘¼Ò‚ª’Ç‰Á‚µ‚½s‚Í•Û
 '================================================================================
-Public Sub ãƒã‚¯ãƒ­_æœ€æ–°å–å¾—()
+
+
+'================================================================================
+' yƒ{ƒ^ƒ“1zƒ}ƒXƒ^‚©‚çÅVæ“¾
+'================================================================================
+Public Sub ƒ}ƒNƒ_ÅVæ“¾()
     Dim masterPath As String: masterPath = GetMasterPath()
     If Dir(masterPath) = "" Then
-        MsgBox "ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã«ã‚¢ã‚¯ã‚»ã‚¹ã§ãã¾ã›ã‚“ã€‚" & vbCrLf & _
-               "ãƒ‘ã‚¹: " & masterPath, vbCritical, "æœ€æ–°å–å¾—ã‚¨ãƒ©ãƒ¼"
+        MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÉƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñB" & vbCrLf & _
+               "ƒpƒX: " & masterPath, vbCritical, "ÅVæ“¾ƒGƒ‰["
         Exit Sub
     End If
 
-    If MsgBox("ãƒã‚¹ã‚¿ã‹ã‚‰æœ€æ–°ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã—ã¾ã™ã€‚" & vbCrLf & _
-              "ã“ã®ãƒ–ãƒƒã‚¯ã®å¯¾è±¡ã‚·ãƒ¼ãƒˆã¨ã‚¹ãƒŠãƒƒãƒ—ã‚·ãƒ§ãƒƒãƒˆã¯ä¸Šæ›¸ãã•ã‚Œã¾ã™ã€‚" & vbCrLf & vbCrLf & _
-              "ã‚ˆã‚ã—ã„ã§ã™ã‹ï¼Ÿ", vbYesNo + vbQuestion, "æœ€æ–°å–å¾—") = vbNo Then Exit Sub
+    If MsgBox("ƒ}ƒXƒ^‚©‚çÅVƒf[ƒ^‚ğæ“¾‚µ‚Ü‚·B" & vbCrLf & _
+              "‚±‚ÌƒuƒbƒN‚Ì‘ÎÛƒV[ƒg‚ÆƒXƒiƒbƒvƒVƒ‡ƒbƒg‚Íã‘‚«‚³‚ê‚Ü‚·B" & vbCrLf & vbCrLf & _
+              "‚æ‚ë‚µ‚¢‚Å‚·‚©H", vbYesNo + vbQuestion, "ÅVæ“¾") = vbNo Then Exit Sub
 
     Dim wbMaster As Workbook
     Dim configs As Variant, cfg As Variant
@@ -43,24 +64,24 @@ Public Sub ãƒã‚¯ãƒ­_æœ€æ–°å–å¾—()
         Dim sheetName As String: sheetName = CStr(cfg(0))
 
         If Not SheetExistsIn(wbMaster, sheetName) Then
-            logText = logText & " - " & sheetName & " (ãƒã‚¹ã‚¿ã«ç„¡ã—ã€ã‚¹ã‚­ãƒƒãƒ—)" & vbCrLf
+            logText = logText & " - " & sheetName & " (ƒ}ƒXƒ^‚É–³‚µAƒXƒLƒbƒv)" & vbCrLf
             skipCount = skipCount + 1
             GoTo NextSheet
         End If
         If Not SheetExistsIn(ThisWorkbook, sheetName) Then
-            logText = logText & " - " & sheetName & " (ãƒ­ãƒ¼ã‚«ãƒ«ã«ç„¡ã—ã€ã‚¹ã‚­ãƒƒãƒ—)" & vbCrLf
+            logText = logText & " - " & sheetName & " (ƒ[ƒJƒ‹‚É–³‚µAƒXƒLƒbƒv)" & vbCrLf
             skipCount = skipCount + 1
             GoTo NextSheet
         End If
 
-        ' ä¾é ¼æ›¸ã‚»ãƒ«è¨­å®šã¯æœ€æ–°å–å¾—ã‹ã‚‰é™¤å¤–
-        '   â†’ ç®¡ç†è€…ãŒãƒ­ãƒ¼ã‚«ãƒ«ã§ç·¨é›†ä¸­ã®é …ç›®ï¼ˆä½†é™½ä¿¡é‡‘å£åº§æŒ‡å®š ç­‰ï¼‰ãŒ
-        '     ãƒã‚¹ã‚¿ã®å€¤ã§ä¸Šæ›¸ãã•ã‚Œã¦æ¶ˆãˆã¦ã—ã¾ã†äº‹æ•…ã‚’é˜²ãã€‚
-        '   â†’ åŒæœŸã¯ã€Œãƒã‚¹ã‚¿ã¸åæ˜ ã€ãƒã‚¯ãƒ­å´ã§å·®åˆ†ãƒãƒ¼ã‚¸ã«ã¦è¡Œã†è¨­è¨ˆã€‚
-        '   â€» ã‚¹ãƒŠãƒƒãƒ—ã‚·ãƒ§ãƒƒãƒˆã¯æ›´æ–°ã™ã‚‹ï¼ˆãƒã‚¹ã‚¿ã¸åæ˜ æ™‚ã®3è€…æ¯”è¼ƒã®ãŸã‚ï¼‰
-        If sheetName = "ä¾é ¼æ›¸ã‚»ãƒ«è¨­å®š" Then
+        ' ˆË—Š‘ƒZƒ‹İ’è‚ÍÅVæ“¾‚©‚çœŠO
+        '   ¨ ŠÇ—Ò‚ªƒ[ƒJƒ‹‚Å•ÒW’†‚Ì€–Úi’A—zM‹àŒûÀw’è “™j‚ª
+        '     ƒ}ƒXƒ^‚Ì’l‚Åã‘‚«‚³‚ê‚ÄÁ‚¦‚Ä‚µ‚Ü‚¤–ŒÌ‚ğ–h‚®B
+        '   ¨ “¯Šú‚Íuƒ}ƒXƒ^‚Ö”½‰fvƒ}ƒNƒ‘¤‚Å·•ªƒ}[ƒW‚É‚Äs‚¤İŒvB
+        '   ¦ ƒXƒiƒbƒvƒVƒ‡ƒbƒg‚ÍXV‚·‚éiƒ}ƒXƒ^‚Ö”½‰f‚Ì3Ò”äŠr‚Ì‚½‚ßj
+        If sheetName = "ˆË—Š‘ƒZƒ‹İ’è" Then
             Call WriteSnapshotFromSheetFiltered(wbMaster.Sheets(sheetName), sheetName, CLng(cfg(2)), "", "")
-            logText = logText & " - " & sheetName & " (æœ€æ–°å–å¾—ã‹ã‚‰é™¤å¤–ã€‚ãƒ­ãƒ¼ã‚«ãƒ«ç·¨é›†ã‚’ä¿æŒ)" & vbCrLf
+            logText = logText & " - " & sheetName & " (ÅVæ“¾‚©‚çœŠOBƒ[ƒJƒ‹•ÒW‚ğ•Û)" & vbCrLf
             skipCount = skipCount + 1
             GoTo NextSheet
         End If
@@ -72,33 +93,33 @@ Public Sub ãƒã‚¯ãƒ­_æœ€æ–°å–å¾—()
         Call SafeUnprotect(dstSh)
         Call ClearAllFilters(dstSh)
 
-        ' éƒ¨é–€ãƒ•ã‚£ãƒ«ã‚¿åˆ—ã‚’å–å¾—
+        ' •”–åƒtƒBƒ‹ƒ^—ñ‚ğæ“¾
         Dim deptFCol_get As String: deptFCol_get = ""
         If UBound(cfg) >= 4 Then deptFCol_get = CStr(cfg(4))
 
-        ' ãƒ­ãƒ¼ã‚«ãƒ«å¯è¦–ã‚·ãƒ¼ãƒˆã¸ã‚³ãƒ”ãƒ¼ï¼ˆéƒ¨é–€ãƒ•ã‚£ãƒ«ã‚¿é©ç”¨ï¼‰
-        '   â€» å€¤ã®ã¿ã‚¯ãƒªã‚¢ï¼ˆæ›¸å¼ã¯ä¿æŒï¼‰ï¼šä»¥å‰ã¯ .Cells.Clear ã§æ›¸å¼ã¾ã§æ¶ˆã—ã¦ã„ãŸãŒã€
-        '     å·¥äº‹ç•ªå·ä¸€è¦§ã®ç½«ç·šãƒ»å¡—ã‚Šã¤ã¶ã—ãƒ»åˆ—å¹…ãªã©ãŒæ¯å›ãƒªã‚»ãƒƒãƒˆã•ã‚Œã‚‹å•é¡ŒãŒã‚ã£ãŸãŸã‚ã€
-        '     .Cells.ClearContents ã§å€¤ã ã‘ã‚¯ãƒªã‚¢ã™ã‚‹ã‚ˆã†ã«å¤‰æ›´ã€‚
+        ' ƒ[ƒJƒ‹‰Â‹ƒV[ƒg‚ÖƒRƒs[i•”–åƒtƒBƒ‹ƒ^“K—pj
+        '   ¦ ’l‚Ì‚İƒNƒŠƒAi‘®‚Í•ÛjFˆÈ‘O‚Í .Cells.Clear ‚Å‘®‚Ü‚ÅÁ‚µ‚Ä‚¢‚½‚ªA
+        '     H–”Ô†ˆê——‚ÌŒrüE“h‚è‚Â‚Ô‚µE—ñ•‚È‚Ç‚ª–ˆ‰ñƒŠƒZƒbƒg‚³‚ê‚é–â‘è‚ª‚ ‚Á‚½‚½‚ßA
+        '     .Cells.ClearContents ‚Å’l‚¾‚¯ƒNƒŠƒA‚·‚é‚æ‚¤‚É•ÏXB
         dstSh.Cells.ClearContents
         If srcSh.UsedRange.Cells.CountLarge > 0 Then
             Call CopyFilteredByDept(srcSh, dstSh, CLng(cfg(2)), deptFCol_get, GetMyDeptCode())
         End If
         Application.CutCopyMode = False
 
-        ' ã‚¹ãƒŠãƒƒãƒ—ã‚·ãƒ§ãƒƒãƒˆã‚·ãƒ¼ãƒˆã¸ã‚‚ã‚³ãƒ”ãƒ¼ï¼ˆéƒ¨é–€ãƒ•ã‚£ãƒ«ã‚¿é©ç”¨ã€åæ˜ æ™‚ã®3è€…æ¯”è¼ƒç”¨ï¼‰
+        ' ƒXƒiƒbƒvƒVƒ‡ƒbƒgƒV[ƒg‚Ö‚àƒRƒs[i•”–åƒtƒBƒ‹ƒ^“K—pA”½‰f‚Ì3Ò”äŠr—pj
         Call WriteSnapshotFromSheetFiltered(srcSh, sheetName, CLng(cfg(2)), deptFCol_get, GetMyDeptCode())
 
-        ' å·¥äº‹ç•ªå·ä¸€è¦§ã‚·ãƒ¼ãƒˆã®Båˆ—ã€ŒNOã€(é€£ç•ª) ã‚’éè¡¨ç¤ºã«ã™ã‚‹
-        '   2026/6/1ï½ å·¥äº‹ç•ªå·ã ã‘ã§ç®¡ç†ã™ã‚‹ä»•æ§˜å¤‰æ›´ã«ã‚ˆã‚Šã€Båˆ—ã®é€£ç•ªè¡¨ç¤ºã¯ä¸è¦
-        If sheetName = "å·¥äº‹ç•ªå·ä¸€è¦§" Then
+        ' H–”Ô†ˆê——ƒV[ƒg‚ÌB—ñuNOv(˜A”Ô) ‚ğ”ñ•\¦‚É‚·‚é
+        '   2026/6/1` H–”Ô†‚¾‚¯‚ÅŠÇ—‚·‚éd—l•ÏX‚É‚æ‚èAB—ñ‚Ì˜A”Ô•\¦‚Í•s—v
+        If sheetName = "H–”Ô†ˆê——" Then
             On Error Resume Next
             dstSh.Columns("B").Hidden = True
             On Error GoTo 0
         End If
 
         successCount = successCount + 1
-        logText = logText & " - " & sheetName & " (å–å¾—æˆåŠŸ)" & vbCrLf
+        logText = logText & " - " & sheetName & " (æ“¾¬Œ÷)" & vbCrLf
 NextSheet:
     Next i
 
@@ -107,32 +128,32 @@ NextSheet:
     Application.ScreenUpdating = True
     Application.DisplayAlerts = True
 
-    MsgBox "æœ€æ–°å–å¾—ãŒå®Œäº†ã—ã¾ã—ãŸã€‚" & vbCrLf & vbCrLf & _
-           "æˆåŠŸ: " & successCount & " ã‚·ãƒ¼ãƒˆ" & vbCrLf & _
-           "ã‚¹ã‚­ãƒƒãƒ—: " & skipCount & " ã‚·ãƒ¼ãƒˆ" & vbCrLf & vbCrLf & _
-           "è©³ç´°:" & vbCrLf & logText, vbInformation, "æœ€æ–°å–å¾—å®Œäº†"
+    MsgBox "ÅVæ“¾‚ªŠ®—¹‚µ‚Ü‚µ‚½B" & vbCrLf & vbCrLf & _
+           "¬Œ÷: " & successCount & " ƒV[ƒg" & vbCrLf & _
+           "ƒXƒLƒbƒv: " & skipCount & " ƒV[ƒg" & vbCrLf & vbCrLf & _
+           "Ú×:" & vbCrLf & logText, vbInformation, "ÅVæ“¾Š®—¹"
     Exit Sub
 
 Cleanup:
     If Not wbMaster Is Nothing Then wbMaster.Close SaveChanges:=False
     Application.ScreenUpdating = True
     Application.DisplayAlerts = True
-    MsgBox "æœ€æ–°å–å¾—ä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: " & vbCrLf & Err.Description, vbCritical
+    MsgBox "ÅVæ“¾’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: " & vbCrLf & Err.Description, vbCritical
 End Sub
 
 
 '================================================================================
-' ã€ãƒœã‚¿ãƒ³2ã€‘ãƒã‚¹ã‚¿ã¸åæ˜ ï¼ˆå·®åˆ†ãƒãƒ¼ã‚¸ï¼‰
+' yƒ{ƒ^ƒ“2zƒ}ƒXƒ^‚Ö”½‰fi·•ªƒ}[ƒWj
 '================================================================================
-Public Sub ãƒã‚¯ãƒ­_ãƒã‚¹ã‚¿ã¸åæ˜ ()
+Public Sub ƒ}ƒNƒ_ƒ}ƒXƒ^‚Ö”½‰f()
     Dim masterPath As String: masterPath = GetMasterPath()
     If Dir(masterPath) = "" Then
-        MsgBox "ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã«ã‚¢ã‚¯ã‚»ã‚¹ã§ãã¾ã›ã‚“ã€‚" & vbCrLf & _
-               "ãƒ‘ã‚¹: " & masterPath, vbCritical, "åæ˜ ã‚¨ãƒ©ãƒ¼"
+        MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÉƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñB" & vbCrLf & _
+               "ƒpƒX: " & masterPath, vbCritical, "”½‰fƒGƒ‰["
         Exit Sub
     End If
 
-    ' ã‚¹ãƒŠãƒƒãƒ—ã‚·ãƒ§ãƒƒãƒˆå­˜åœ¨ç¢ºèª
+    ' ƒXƒiƒbƒvƒVƒ‡ƒbƒg‘¶İŠm”F
     Dim configs As Variant: configs = GetSheetSyncConfig()
     Dim i As Long, missingSnapshots As String
     For i = LBound(configs) To UBound(configs)
@@ -144,24 +165,24 @@ Public Sub ãƒã‚¯ãƒ­_ãƒã‚¹ã‚¿ã¸åæ˜ ()
         End If
     Next i
     If missingSnapshots <> "" Then
-        If MsgBox("ä»¥ä¸‹ã®ã‚·ãƒ¼ãƒˆã§ã‚¹ãƒŠãƒƒãƒ—ã‚·ãƒ§ãƒƒãƒˆãŒæœªä½œæˆã§ã™:" & vbCrLf & missingSnapshots & vbCrLf & _
-                  "å·®åˆ†ãƒãƒ¼ã‚¸ãŒã§ããªã„ãŸã‚ã€ä»–è€…ã®è¿½åŠ ãŒå¤±ã‚ã‚Œã‚‹å¯èƒ½æ€§ãŒã‚ã‚Šã¾ã™ã€‚" & vbCrLf & vbCrLf & _
-                  "å…ˆã«ã€Œæœ€æ–°å–å¾—ã€ã‚’å®Ÿè¡Œã™ã‚‹ã“ã¨ã‚’å¼·ãæ¨å¥¨ã—ã¾ã™ã€‚" & vbCrLf & vbCrLf & _
-                  "ã“ã®ã¾ã¾é€²ã‚ã¾ã™ã‹ï¼Ÿï¼ˆå…¨ä¸Šæ›¸ããƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯ï¼‰", _
-                  vbYesNo + vbExclamation + vbDefaultButton2, "è­¦å‘Š") = vbNo Then Exit Sub
+        If MsgBox("ˆÈ‰º‚ÌƒV[ƒg‚ÅƒXƒiƒbƒvƒVƒ‡ƒbƒg‚ª–¢ì¬‚Å‚·:" & vbCrLf & missingSnapshots & vbCrLf & _
+                  "·•ªƒ}[ƒW‚ª‚Å‚«‚È‚¢‚½‚ßA‘¼Ò‚Ì’Ç‰Á‚ª¸‚í‚ê‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B" & vbCrLf & vbCrLf & _
+                  "æ‚ÉuÅVæ“¾v‚ğÀs‚·‚é‚±‚Æ‚ğ‹­‚­„§‚µ‚Ü‚·B" & vbCrLf & vbCrLf & _
+                  "‚±‚Ì‚Ü‚Üi‚ß‚Ü‚·‚©Hi‘Sã‘‚«ƒtƒH[ƒ‹ƒoƒbƒNj", _
+                  vbYesNo + vbExclamation + vbDefaultButton2, "Œx") = vbNo Then Exit Sub
     End If
 
-    If MsgBox("ãƒ­ãƒ¼ã‚«ãƒ«ã®å¤‰æ›´ã‚’ãƒã‚¹ã‚¿ã¸åæ˜ ã—ã¾ã™ã€‚" & vbCrLf & vbCrLf & _
-              "å·®åˆ†ãƒãƒ¼ã‚¸æ–¹å¼:" & vbCrLf & _
-              " ãƒ»ç®¡ç†è€…ã®ç·¨é›†ãƒ»è¿½åŠ ãƒ»å‰Šé™¤ã‚’åæ˜ " & vbCrLf & _
-              " ãƒ»å–å¾—å¾Œã«ä»–è€…ãŒè¿½åŠ ã—ãŸè¡Œã¯ä¿æŒ" & vbCrLf & vbCrLf & _
-              "ç¶šè¡Œã—ã¾ã™ã‹ï¼Ÿ", vbYesNo + vbQuestion, "ãƒã‚¹ã‚¿ã¸åæ˜ ") = vbNo Then Exit Sub
+    If MsgBox("ƒ[ƒJƒ‹‚Ì•ÏX‚ğƒ}ƒXƒ^‚Ö”½‰f‚µ‚Ü‚·B" & vbCrLf & vbCrLf & _
+              "·•ªƒ}[ƒW•û®:" & vbCrLf & _
+              " EŠÇ—Ò‚Ì•ÒWE’Ç‰ÁEíœ‚ğ”½‰f" & vbCrLf & _
+              " Eæ“¾Œã‚É‘¼Ò‚ª’Ç‰Á‚µ‚½s‚Í•Û" & vbCrLf & vbCrLf & _
+              "‘±s‚µ‚Ü‚·‚©H", vbYesNo + vbQuestion, "ƒ}ƒXƒ^‚Ö”½‰f") = vbNo Then Exit Sub
 
-    ' ä»–Excelã§é–‹ã‹ã‚Œã¦ã„ãªã„ã‹ãƒã‚§ãƒƒã‚¯
+    ' ‘¼Excel‚ÅŠJ‚©‚ê‚Ä‚¢‚È‚¢‚©ƒ`ƒFƒbƒN
     Dim wb As Workbook
     For Each wb In Application.Workbooks
         If LCase(wb.FullName) = LCase(masterPath) Then
-            MsgBox "ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ãŒåˆ¥ã®Excelã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã§é–‹ã‹ã‚Œã¦ã„ã¾ã™ã€‚é–‰ã˜ã¦ã‹ã‚‰å†å®Ÿè¡Œã—ã¦ãã ã•ã„ã€‚", vbCritical
+            MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ª•Ê‚ÌExcelƒEƒBƒ“ƒhƒE‚ÅŠJ‚©‚ê‚Ä‚¢‚Ü‚·B•Â‚¶‚Ä‚©‚çÄÀs‚µ‚Ä‚­‚¾‚³‚¢B", vbCritical
             Exit Sub
         End If
     Next wb
@@ -174,15 +195,15 @@ Public Sub ãƒã‚¯ãƒ­_ãƒã‚¹ã‚¿ã¸åæ˜ ()
     Application.DisplayAlerts = False
     On Error GoTo Cleanup
 
-    ' ã€ãƒã‚¹ã‚¿ãƒ­ãƒƒã‚¯æ™‚ã®è‡ªå‹•ãƒªãƒˆãƒ©ã‚¤ 2026/5/22ã€‘
-    '   ä»–éƒ¨ç½²ã®ç®¡ç†è€…ãŒãƒã‚¹ã‚¿ã‚’ç·¨é›†ä¸­ã ã¨ ReadOnly fallback ã•ã‚Œã‚‹ã€‚
-    '   æœ€å¤§3å›ã¾ã§5ç§’é–“éš”ã§ãƒªãƒˆãƒ©ã‚¤ã—ã€ãã‚Œã§ã‚‚æ›¸è¾¼å¯ã§é–‹ã‘ãªã„å ´åˆã¯ä¸­æ–­ã€‚
+    ' yƒ}ƒXƒ^ƒƒbƒN‚Ì©“®ƒŠƒgƒ‰ƒC 2026/5/22z
+    '   ‘¼•”‚ÌŠÇ—Ò‚ªƒ}ƒXƒ^‚ğ•ÒW’†‚¾‚Æ ReadOnly fallback ‚³‚ê‚éB
+    '   Å‘å3‰ñ‚Ü‚Å5•bŠÔŠu‚ÅƒŠƒgƒ‰ƒC‚µA‚»‚ê‚Å‚à‘‰Â‚ÅŠJ‚¯‚È‚¢ê‡‚Í’†’fB
     Set wbMaster = OpenMasterWithRetry(masterPath, retryCount:=3, retryWaitSec:=5)
     If wbMaster Is Nothing Then
-        MsgBox "ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ›¸ãè¾¼ã¿å¯èƒ½ã§é–‹ã‘ã¾ã›ã‚“ã§ã—ãŸã€‚" & vbCrLf & _
-               "ä»–éƒ¨ç½²ã®ç®¡ç†è€…ãŒãƒã‚¹ã‚¿ã‚’ç·¨é›†ä¸­ã®å¯èƒ½æ€§ãŒã‚ã‚Šã¾ã™ã€‚" & vbCrLf & _
-               "ï¼ˆ3å›ãƒªãƒˆãƒ©ã‚¤ã—ã¾ã—ãŸãŒå…¨ã¦å¤±æ•—ï¼‰" & vbCrLf & vbCrLf & _
-               "ã—ã°ã‚‰ãæ™‚é–“ã‚’ãŠã„ã¦ã‹ã‚‰å†åº¦ãŠè©¦ã—ãã ã•ã„ã€‚", vbCritical
+        MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ğ‘‚«‚İ‰Â”\‚ÅŠJ‚¯‚Ü‚¹‚ñ‚Å‚µ‚½B" & vbCrLf & _
+               "‘¼•”‚ÌŠÇ—Ò‚ªƒ}ƒXƒ^‚ğ•ÒW’†‚Ì‰Â”\«‚ª‚ ‚è‚Ü‚·B" & vbCrLf & _
+               "i3‰ñƒŠƒgƒ‰ƒC‚µ‚Ü‚µ‚½‚ª‘S‚Ä¸”sj" & vbCrLf & vbCrLf & _
+               "‚µ‚Î‚ç‚­ŠÔ‚ğ‚¨‚¢‚Ä‚©‚çÄ“x‚¨‚µ‚­‚¾‚³‚¢B", vbCritical
         GoTo Cleanup
     End If
 
@@ -194,12 +215,12 @@ Public Sub ãƒã‚¯ãƒ­_ãƒã‚¹ã‚¿ã¸åæ˜ ()
         Dim mode As String: mode = CStr(cfg(3))
 
         If Not SheetExistsIn(wbMaster, sheetName) Then
-            logText = logText & " - " & sheetName & " (ãƒã‚¹ã‚¿ã«ç„¡ã—ã€ã‚¹ã‚­ãƒƒãƒ—)" & vbCrLf
+            logText = logText & " - " & sheetName & " (ƒ}ƒXƒ^‚É–³‚µAƒXƒLƒbƒv)" & vbCrLf
             skipCount = skipCount + 1
             GoTo NextSheet
         End If
         If Not SheetExistsIn(ThisWorkbook, sheetName) Then
-            logText = logText & " - " & sheetName & " (ãƒ­ãƒ¼ã‚«ãƒ«ã«ç„¡ã—ã€ã‚¹ã‚­ãƒƒãƒ—)" & vbCrLf
+            logText = logText & " - " & sheetName & " (ƒ[ƒJƒ‹‚É–³‚µAƒXƒLƒbƒv)" & vbCrLf
             skipCount = skipCount + 1
             GoTo NextSheet
         End If
@@ -232,28 +253,28 @@ NextSheet:
     wbMaster.Close SaveChanges:=False
     Set wbMaster = Nothing
 
-    ' åæ˜ æˆåŠŸã—ãŸã‚‰ã‚¹ãƒŠãƒƒãƒ—ã‚·ãƒ§ãƒƒãƒˆã‚‚æ–°ã—ã„ãƒã‚¹ã‚¿çŠ¶æ…‹ã§æ›´æ–°ã—ã¦ãŠã
+    ' ”½‰f¬Œ÷‚µ‚½‚çƒXƒiƒbƒvƒVƒ‡ƒbƒg‚àV‚µ‚¢ƒ}ƒXƒ^ó‘Ô‚ÅXV‚µ‚Ä‚¨‚­
     Call SilentRefreshSnapshots
 
     Application.ScreenUpdating = True
     Application.DisplayAlerts = True
 
-    MsgBox "ãƒã‚¹ã‚¿ã¸ã®åæ˜ ãŒå®Œäº†ã—ã¾ã—ãŸã€‚" & vbCrLf & vbCrLf & _
-           "æˆåŠŸ: " & successCount & " ã‚·ãƒ¼ãƒˆ" & vbCrLf & _
-           "ã‚¹ã‚­ãƒƒãƒ—: " & skipCount & " ã‚·ãƒ¼ãƒˆ" & vbCrLf & vbCrLf & _
-           "è©³ç´°:" & vbCrLf & logText, vbInformation, "åæ˜ å®Œäº†"
+    MsgBox "ƒ}ƒXƒ^‚Ö‚Ì”½‰f‚ªŠ®—¹‚µ‚Ü‚µ‚½B" & vbCrLf & vbCrLf & _
+           "¬Œ÷: " & successCount & " ƒV[ƒg" & vbCrLf & _
+           "ƒXƒLƒbƒv: " & skipCount & " ƒV[ƒg" & vbCrLf & vbCrLf & _
+           "Ú×:" & vbCrLf & logText, vbInformation, "”½‰fŠ®—¹"
     Exit Sub
 
 Cleanup:
     If Not wbMaster Is Nothing Then wbMaster.Close SaveChanges:=False
     Application.ScreenUpdating = True
     Application.DisplayAlerts = True
-    MsgBox "åæ˜ ä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: " & vbCrLf & Err.Description, vbCritical
+    MsgBox "”½‰f’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: " & vbCrLf & Err.Description, vbCritical
 End Sub
 
 
 '================================================================================
-' ã‚·ãƒ¼ãƒˆå˜ä½: å…¨ä¸Šæ›¸ããƒ¢ãƒ¼ãƒ‰
+' ƒV[ƒg’PˆÊ: ‘Sã‘‚«ƒ‚[ƒh
 '================================================================================
 Public Function SyncSheetOverwrite(ByVal src As Worksheet, ByVal dst As Worksheet) As String
     Call SafeUnprotect(dst)
@@ -265,28 +286,28 @@ Public Function SyncSheetOverwrite(ByVal src As Worksheet, ByVal dst As Workshee
         dst.Range(src.UsedRange.Address).PasteSpecial Paste:=xlPasteColumnWidths
     End If
     Application.CutCopyMode = False
-    SyncSheetOverwrite = "å…¨ä¸Šæ›¸ãå®Œäº†"
+    SyncSheetOverwrite = "‘Sã‘‚«Š®—¹"
 End Function
 
 
 '================================================================================
-' ã‚·ãƒ¼ãƒˆå˜ä½: å·®åˆ†ãƒãƒ¼ã‚¸ãƒ¢ãƒ¼ãƒ‰ï¼ˆã‚­ãƒ¼ãƒ™ãƒ¼ã‚¹3è€…æ¯”è¼ƒï¼‰
-'   local   : ç®¡ç†è€…ã®ãƒ­ãƒ¼ã‚«ãƒ«ã‚·ãƒ¼ãƒˆï¼ˆç·¨é›†æ¸ˆã¿ï¼‰
-'   master  : ãƒã‚¹ã‚¿ã‚·ãƒ¼ãƒˆï¼ˆç¾åœ¨ã®æœ¬ç‰©ï¼‰
-'   snap    : ã‚¹ãƒŠãƒƒãƒ—ã‚·ãƒ§ãƒƒãƒˆï¼ˆæœ€æ–°å–å¾—æ™‚ç‚¹ã®ãƒã‚¹ã‚¿ï¼‰
-'   keyCol  : ã‚­ãƒ¼åˆ—æ–‡å­— (ä¾‹: "D")
-'   dataRow : ãƒ‡ãƒ¼ã‚¿é–‹å§‹è¡Œ
+' ƒV[ƒg’PˆÊ: ·•ªƒ}[ƒWƒ‚[ƒhiƒL[ƒx[ƒX3Ò”äŠrj
+'   local   : ŠÇ—Ò‚Ìƒ[ƒJƒ‹ƒV[ƒgi•ÒWÏ‚İj
+'   master  : ƒ}ƒXƒ^ƒV[ƒgiŒ»İ‚Ì–{•¨j
+'   snap    : ƒXƒiƒbƒvƒVƒ‡ƒbƒgiÅVæ“¾“_‚Ìƒ}ƒXƒ^j
+'   keyCol  : ƒL[—ñ•¶š (—á: "D")
+'   dataRow : ƒf[ƒ^ŠJns
 '================================================================================
 Public Function SyncSheetMerge(ByVal localSh As Worksheet, ByVal masterSh As Worksheet, ByVal snapSh As Worksheet, ByVal keyCol As String, ByVal dataRow As Long, Optional ByVal deptFilterCol As String = "") As String
 
-    ' å„ã‚­ãƒ¼â†’è¡Œç•ªå· ã®ãƒãƒƒãƒ—ã‚’ä½œã‚‹
+    ' ŠeƒL[¨s”Ô† ‚Ìƒ}ƒbƒv‚ğì‚é
     Dim dictLocal As Object, dictMaster As Object, dictSnap As Object
     Dim myDept As String: myDept = GetMyDeptCode()
     Set dictLocal = BuildKeyMap(localSh, keyCol, dataRow)
-    ' master ã¨ snap ã¯éƒ¨é–€ãƒ•ã‚£ãƒ«ã‚¿é©ç”¨ï¼ˆä»–éƒ¨ç½²ã®ãƒ¬ã‚³ãƒ¼ãƒ‰ã«è§¦ã‚Œãªã„ãŸã‚ï¼‰
+    ' master ‚Æ snap ‚Í•”–åƒtƒBƒ‹ƒ^“K—pi‘¼•”‚ÌƒŒƒR[ƒh‚ÉG‚ê‚È‚¢‚½‚ßj
     Set dictMaster = BuildKeyMap(masterSh, keyCol, dataRow, deptFilterCol, myDept)
     If snapSh Is Nothing Then
-        Set dictSnap = CreateObject("Scripting.Dictionary")  ' ç©ºï¼ˆä»–è€…è¿½åŠ ã¨åŒºåˆ¥ä¸å¯ï¼‰
+        Set dictSnap = CreateObject("Scripting.Dictionary")  ' ‹ói‘¼Ò’Ç‰Á‚Æ‹æ•Ê•s‰Âj
     Else
         Set dictSnap = BuildKeyMap(snapSh, keyCol, dataRow, deptFilterCol, myDept)
     End If
@@ -304,16 +325,16 @@ Public Function SyncSheetMerge(ByVal localSh As Worksheet, ByVal masterSh As Wor
     Dim updated As Long, added As Long, deleted As Long, preserved As Long
     Dim k As Variant
 
-    ' 1. localSh ã«ã‚ã‚‹ = ç·¨é›†ã‹è¿½åŠ 
+    ' 1. localSh ‚É‚ ‚é = •ÒW‚©’Ç‰Á
     For Each k In dictLocal.Keys
         Dim srcRow As Long: srcRow = dictLocal(k)
         If dictMaster.Exists(k) Then
-            ' ç·¨é›†: masterã®è©²å½“è¡Œã‚’localã§ä¸Šæ›¸ã
+            ' •ÒW: master‚ÌŠY“–s‚ğlocal‚Åã‘‚«
             Dim dstRow1 As Long: dstRow1 = dictMaster(k)
             Call CopyRow(localSh, srcRow, masterSh, dstRow1, lastCol)
             updated = updated + 1
         Else
-            ' è¿½åŠ : masterã«æ–°è¦è¡Œã¨ã—ã¦è¿½è¨˜
+            ' ’Ç‰Á: master‚ÉV‹Ks‚Æ‚µ‚Ä’Ç‹L
             Dim newRow As Long
             newRow = GetLastDataRow(masterSh, keyCol) + 1
             If newRow < dataRow Then newRow = dataRow
@@ -322,22 +343,22 @@ Public Function SyncSheetMerge(ByVal localSh As Worksheet, ByVal masterSh As Wor
         End If
     Next k
 
-    ' 2. masterSh ã«ã‚ã‚‹ãŒ localSh ã«ç„¡ã„ = å‰Šé™¤ or ä»–è€…è¿½åŠ 
+    ' 2. masterSh ‚É‚ ‚é‚ª localSh ‚É–³‚¢ = íœ or ‘¼Ò’Ç‰Á
     Dim rowsToDelete As Collection: Set rowsToDelete = New Collection
     For Each k In dictMaster.Keys
         If Not dictLocal.Exists(k) Then
             If dictSnap.Exists(k) Then
-                ' å–å¾—æ™‚ç‚¹ã«ã‚‚ã‚ã£ãŸ â†’ ç®¡ç†è€…ãŒå‰Šé™¤ã—ãŸ
+                ' æ“¾“_‚É‚à‚ ‚Á‚½ ¨ ŠÇ—Ò‚ªíœ‚µ‚½
                 rowsToDelete.Add dictMaster(k)
                 deleted = deleted + 1
             Else
-                ' å–å¾—æ™‚ç‚¹ã«ã¯ç„¡ã‹ã£ãŸ â†’ ä»–è€…ãŒè¿½åŠ ã—ãŸã®ã§ä¿æŒ
+                ' æ“¾“_‚É‚Í–³‚©‚Á‚½ ¨ ‘¼Ò‚ª’Ç‰Á‚µ‚½‚Ì‚Å•Û
                 preserved = preserved + 1
             End If
         End If
     Next k
 
-    ' å‰Šé™¤ã¯å¾Œã‚ã‹ã‚‰è¡Œã†ï¼ˆè¡Œç•ªå·ãŒã‚ºãƒ¬ãªã„ã‚ˆã†ã«ï¼‰
+    ' íœ‚ÍŒã‚ë‚©‚çs‚¤is”Ô†‚ªƒYƒŒ‚È‚¢‚æ‚¤‚Éj
     Dim toDelete() As Long, n As Long: n = rowsToDelete.Count
     If n > 0 Then
         ReDim toDelete(1 To n)
@@ -352,18 +373,18 @@ Public Function SyncSheetMerge(ByVal localSh As Worksheet, ByVal masterSh As Wor
     End If
 
     Application.CutCopyMode = False
-    SyncSheetMerge = "ç·¨é›†:" & updated & " / è¿½åŠ :" & added & _
-                     " / å‰Šé™¤:" & deleted & " / ä»–è€…è¿½åŠ ä¿æŒ:" & preserved
+    SyncSheetMerge = "•ÒW:" & updated & " / ’Ç‰Á:" & added & _
+                     " / íœ:" & deleted & " / ‘¼Ò’Ç‰Á•Û:" & preserved
 End Function
 
 
 '================================================================================
-' ãƒ˜ãƒ«ãƒ‘ãƒ¼: ã‚­ãƒ¼å€¤ â†’ è¡Œç•ªå· ã®è¾æ›¸ã‚’ä½œã‚‹
+' ƒwƒ‹ƒp[: ƒL[’l ¨ s”Ô† ‚Ì«‘‚ğì‚é
 '================================================================================
 Public Function BuildKeyMap(ByVal ws As Worksheet, ByVal keyCol As String, ByVal dataRow As Long, _
                             Optional ByVal deptFilterCol As String = "", _
                             Optional ByVal deptCode As String = "") As Object
-    ' deptFilterCol ãŒæŒ‡å®šã•ã‚Œã¦ã„ã‚‹æ™‚ã€ãã®åˆ—ã®å€¤ãŒ "deptCode-*" ã§å§‹ã¾ã‚‹è¡Œã®ã¿å«ã‚ã‚‹
+    ' deptFilterCol ‚ªw’è‚³‚ê‚Ä‚¢‚éA‚»‚Ì—ñ‚Ì’l‚ª "deptCode-*" ‚Ån‚Ü‚és‚Ì‚İŠÜ‚ß‚é
     Dim d As Object: Set d = CreateObject("Scripting.Dictionary")
     If ws Is Nothing Then Set BuildKeyMap = d: Exit Function
 
@@ -378,11 +399,11 @@ Public Function BuildKeyMap(ByVal ws As Worksheet, ByVal keyCol As String, ByVal
     For r = dataRow To lastRow
         v = Trim(CStr(ws.Cells(r, keyCol).Value))
         If v <> "" Then
-            ' éƒ¨é–€ãƒ•ã‚£ãƒ«ã‚¿ãƒã‚§ãƒƒã‚¯
+            ' •”–åƒtƒBƒ‹ƒ^ƒ`ƒFƒbƒN
             If filterPrefix <> "" Then
                 filterVal = CStr(ws.Cells(r, deptFilterCol).Value)
                 If Left(filterVal, Len(filterPrefix)) <> filterPrefix Then
-                    GoTo NextRow  ' ãƒ•ã‚£ãƒ«ã‚¿å¤–
+                    GoTo NextRow  ' ƒtƒBƒ‹ƒ^ŠO
                 End If
             End If
             If Not d.Exists(v) Then d.Add v, r
@@ -394,7 +415,7 @@ End Function
 
 
 '================================================================================
-' ãƒ˜ãƒ«ãƒ‘ãƒ¼: è¡Œã‚³ãƒ”ãƒ¼ï¼ˆå€¤ã¨æ›¸å¼ï¼‰
+' ƒwƒ‹ƒp[: sƒRƒs[i’l‚Æ‘®j
 '================================================================================
 Public Sub CopyRow(ByVal src As Worksheet, ByVal srcRow As Long, ByVal dst As Worksheet, ByVal dstRow As Long, ByVal lastCol As Long)
     If lastCol < 1 Then lastCol = 1
@@ -404,7 +425,7 @@ End Sub
 
 
 '================================================================================
-' ãƒ˜ãƒ«ãƒ‘ãƒ¼: å¯¾è±¡ã‚·ãƒ¼ãƒˆã®ã‚­ãƒ¼åˆ—ã§æœ€çµ‚ãƒ‡ãƒ¼ã‚¿è¡Œã‚’å¾—ã‚‹
+' ƒwƒ‹ƒp[: ‘ÎÛƒV[ƒg‚ÌƒL[—ñ‚ÅÅIƒf[ƒ^s‚ğ“¾‚é
 '================================================================================
 Public Function GetLastDataRow(ByVal ws As Worksheet, ByVal keyCol As String) As Long
     GetLastDataRow = ws.Cells(ws.Rows.Count, keyCol).End(xlUp).Row
@@ -412,7 +433,7 @@ End Function
 
 
 '================================================================================
-' ãƒ˜ãƒ«ãƒ‘ãƒ¼: Longé…åˆ—ã‚’é™é †ã‚½ãƒ¼ãƒˆ
+' ƒwƒ‹ƒp[: Long”z—ñ‚ğ~‡ƒ\[ƒg
 '================================================================================
 Public Sub SortDescending(arr() As Long)
     Dim i As Long, j As Long, tmp As Long
@@ -427,14 +448,14 @@ End Sub
 
 
 '================================================================================
-' ãƒ˜ãƒ«ãƒ‘ãƒ¼: srcã‚·ãƒ¼ãƒˆã®å…¨å†…å®¹ã‚’ã‚¹ãƒŠãƒƒãƒ—ã‚·ãƒ§ãƒƒãƒˆã‚·ãƒ¼ãƒˆã«æ›¸ã
+' ƒwƒ‹ƒp[: srcƒV[ƒg‚Ì‘S“à—e‚ğƒXƒiƒbƒvƒVƒ‡ƒbƒgƒV[ƒg‚É‘‚­
 '================================================================================
 Public Sub WriteSnapshotFromSheet(ByVal src As Worksheet, ByVal baseName As String)
-    ' å…¨è¡Œç‰ˆï¼ˆæ—¢å­˜å‘¼ã³å‡ºã—äº’æ›ç”¨ï¼‰
+    ' ‘Ss”ÅiŠù‘¶ŒÄ‚Ño‚µŒİŠ·—pj
     Call WriteSnapshotFromSheetFiltered(src, baseName, 1, "", "")
 End Sub
 
-' éƒ¨é–€ãƒ•ã‚£ãƒ«ã‚¿å¯¾å¿œç‰ˆ
+' •”–åƒtƒBƒ‹ƒ^‘Î‰”Å
 Public Sub WriteSnapshotFromSheetFiltered(ByVal src As Worksheet, ByVal baseName As String, _
                                           ByVal dataStartRow As Long, _
                                           ByVal deptFilterCol As String, _
@@ -455,10 +476,10 @@ Public Sub WriteSnapshotFromSheetFiltered(ByVal src As Worksheet, ByVal baseName
 
     If src.UsedRange.Cells.CountLarge > 0 Then
         If deptFilterCol = "" Or deptCode = "" Then
-            ' ãƒ•ã‚£ãƒ«ã‚¿ãªã—: å…¨ä½“ã‚³ãƒ”ãƒ¼
+            ' ƒtƒBƒ‹ƒ^‚È‚µ: ‘S‘ÌƒRƒs[
             src.UsedRange.Copy snapSh.Range("A1")
         Else
-            ' ãƒ•ã‚£ãƒ«ã‚¿ã‚ã‚Š: è¡Œã”ã¨ã«åˆ¤å®šã—ã¦ã‚³ãƒ”ãƒ¼
+            ' ƒtƒBƒ‹ƒ^‚ ‚è: s‚²‚Æ‚É”»’è‚µ‚ÄƒRƒs[
             Call CopyFilteredByDept(src, snapSh, dataStartRow, deptFilterCol, deptCode)
         End If
     End If
@@ -466,16 +487,16 @@ Public Sub WriteSnapshotFromSheetFiltered(ByVal src As Worksheet, ByVal baseName
     On Error GoTo 0
 End Sub
 
-' éƒ¨é–€ãƒ•ã‚£ãƒ«ã‚¿ã‚’é©ç”¨ã—ã¤ã¤ã‚·ãƒ¼ãƒˆé–“ã‚’ã‚³ãƒ”ãƒ¼
-'   dataStartRow ã‚ˆã‚Šå‰ã¯ãƒ˜ãƒƒãƒ€è¡Œã¨ã—ã¦ç„¡æ¡ä»¶ã‚³ãƒ”ãƒ¼
-'   dataStartRow ä»¥é™ã¯ deptFilterCol ã®å€¤ãŒ "deptCode-*" ã§å§‹ã¾ã‚‹è¡Œã®ã¿ã‚³ãƒ”ãƒ¼
+' •”–åƒtƒBƒ‹ƒ^‚ğ“K—p‚µ‚Â‚ÂƒV[ƒgŠÔ‚ğƒRƒs[
+'   dataStartRow ‚æ‚è‘O‚Íƒwƒbƒ_s‚Æ‚µ‚Ä–³ğŒƒRƒs[
+'   dataStartRow ˆÈ~‚Í deptFilterCol ‚Ì’l‚ª "deptCode-*" ‚Ån‚Ü‚és‚Ì‚İƒRƒs[
 '
-' ã€v2ã€‘2026/5/19 ãƒªãƒ•ã‚¡ã‚¯ã‚¿:
-'   - UsedRange ã®çµ¶å¯¾åº§æ¨™ã‹ã‚‰ lastCol/lastRow ã‚’ç®—å‡ºï¼ˆèµ·ç‚¹ãŒ A1 ã§ãªãã¦ã‚‚å®‰å…¨ï¼‰
-'   - å‡ºåŠ›é…åˆ—ã®ã‚µã‚¤ã‚ºã‚’ã€Œå®Ÿéš›ã«ã‚³ãƒ”ãƒ¼ã™ã‚‹è¡Œæ•°ã€ã§æ­£ç¢ºã«ç¢ºä¿ï¼ˆæ›¸ãè¾¼ã¿æ™‚ã®
-'     ã‚µã‚¤ã‚ºä¸ä¸€è‡´ã«ã‚ˆã‚‹æ›¸ãè¾¼ã¿å¤±æ•—ã‚’æ’é™¤ï¼‰
-'   - ã‚¨ãƒ©ãƒ¼æ¡ã‚Šã¤ã¶ã—ã‚’æ­¢ã‚ã€Debug.Print ã§å‹•ä½œãƒ­ã‚°ã‚’å‡ºåŠ›
-'     ï¼ˆã‚¤ãƒŸãƒ‡ã‚£ã‚¨ã‚¤ãƒˆã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ Ctrl+G ã§ç¢ºèªå¯èƒ½ï¼‰
+' yv2z2026/5/19 ƒŠƒtƒ@ƒNƒ^:
+'   - UsedRange ‚Ìâ‘ÎÀ•W‚©‚ç lastCol/lastRow ‚ğZoi‹N“_‚ª A1 ‚Å‚È‚­‚Ä‚àˆÀ‘Sj
+'   - o—Í”z—ñ‚ÌƒTƒCƒY‚ğuÀÛ‚ÉƒRƒs[‚·‚és”v‚Å³Šm‚ÉŠm•Ûi‘‚«‚İ‚Ì
+'     ƒTƒCƒY•sˆê’v‚É‚æ‚é‘‚«‚İ¸”s‚ğ”rœj
+'   - ƒGƒ‰[ˆ¬‚è‚Â‚Ô‚µ‚ğ~‚ßADebug.Print ‚Å“®ìƒƒO‚ğo—Í
+'     iƒCƒ~ƒfƒBƒGƒCƒgƒEƒBƒ“ƒhƒE Ctrl+G ‚ÅŠm”F‰Â”\j
 Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
                               ByVal dataStartRow As Long, _
                               ByVal deptFilterCol As String, _
@@ -496,7 +517,7 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
         Exit Sub
     End If
 
-    ' UsedRange ã®çµ¶å¯¾åº§æ¨™ã‹ã‚‰å³ä¸‹ç«¯ã‚’ç®—å‡º
+    ' UsedRange ‚Ìâ‘ÎÀ•W‚©‚ç‰E‰º’[‚ğZo
     Dim lastCol As Long
     Dim lastRow As Long
     lastCol = usedRng.Column + usedRng.Columns.Count - 1
@@ -510,7 +531,7 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
                 " dataStartRow=" & dataStartRow & _
                 " deptFilterCol=" & deptFilterCol & " deptCode=" & deptCode
 
-    ' A1ï½(lastRow, lastCol) ã‚’ä¸€æ‹¬èª­ã¿è¾¼ã¿
+    ' A1`(lastRow, lastCol) ‚ğˆêŠ‡“Ç‚İ‚İ
     Dim readRange As Range
     Set readRange = src.Range(src.Cells(1, 1), src.Cells(lastRow, lastCol))
     Dim arr As Variant
@@ -521,7 +542,7 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
         arr = readRange.Value
     End If
 
-    ' ãƒ•ã‚£ãƒ«ã‚¿åˆ—ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+    ' ƒtƒBƒ‹ƒ^—ñƒCƒ“ƒfƒbƒNƒX
     Dim filterColIdx As Long: filterColIdx = 0
     If deptFilterCol <> "" And deptCode <> "" Then
         On Error Resume Next
@@ -532,18 +553,18 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
     Dim filterPrefix As String
     If filterColIdx > 0 Then filterPrefix = deptCode & "-"
 
-    ' ãƒ•ã‚£ãƒ«ã‚¿å¾Œã®å¯¾è±¡è¡Œã‚’ãƒªã‚¹ãƒˆã«æºœã‚ã‚‹
+    ' ƒtƒBƒ‹ƒ^Œã‚Ì‘ÎÛs‚ğƒŠƒXƒg‚É—­‚ß‚é
     Dim resultRows As Collection
     Set resultRows = New Collection
     Dim r As Long
 
-    ' ãƒ˜ãƒƒãƒ€éƒ¨ï¼ˆç„¡æ¡ä»¶ï¼‰
+    ' ƒwƒbƒ_•”i–³ğŒj
     For r = 1 To dataStartRow - 1
         If r > lastRow Then Exit For
         resultRows.Add r
     Next r
 
-    ' ãƒ‡ãƒ¼ã‚¿éƒ¨ï¼ˆãƒ•ã‚£ãƒ«ã‚¿åˆ¤å®šï¼‰
+    ' ƒf[ƒ^•”iƒtƒBƒ‹ƒ^”»’èj
     Dim filteredOutCount As Long: filteredOutCount = 0
     For r = dataStartRow To lastRow
         Dim include As Boolean: include = True
@@ -566,7 +587,7 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
         Exit Sub
     End If
 
-    ' çµæœé…åˆ—ã‚’æ­£ç¢ºãªã‚µã‚¤ã‚ºã§æ§‹ç¯‰ï¼ˆæ›¸ãè¾¼ã¿æ™‚ã®ã‚µã‚¤ã‚ºä¸ä¸€è‡´ã‚’é˜²ãï¼‰
+    ' Œ‹‰Ê”z—ñ‚ğ³Šm‚ÈƒTƒCƒY‚Å\’zi‘‚«‚İ‚ÌƒTƒCƒY•sˆê’v‚ğ–h‚®j
     Dim outArr() As Variant
     ReDim outArr(1 To resultRows.Count, 1 To lastCol)
     Dim outR As Long, c As Long
@@ -577,10 +598,10 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
         Next c
     Next outR
 
-    ' ä¸€æ‹¬æ›¸ãè¾¼ã¿
+    ' ˆêŠ‡‘‚«‚İ
     dst.Range(dst.Cells(1, 1), dst.Cells(resultRows.Count, lastCol)).Value = outArr
 
-    Debug.Print "[CopyFilteredByDept] WROTE " & resultRows.Count & " rows Ã— " & _
+    Debug.Print "[CopyFilteredByDept] WROTE " & resultRows.Count & " rows ~ " & _
                 lastCol & " cols to " & dst.Name
 
     Application.CutCopyMode = False
@@ -588,7 +609,7 @@ End Sub
 
 
 '================================================================================
-' åæ˜ ç›´å¾Œã«é™ã‹ã«æœ€æ–°å–å¾—ï¼ˆãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ç„¡ã—ã€ã‚¹ãƒŠãƒƒãƒ—ã‚·ãƒ§ãƒƒãƒˆå†ä½œæˆãŒç›®çš„ï¼‰
+' ”½‰f’¼Œã‚ÉÃ‚©‚ÉÅVæ“¾iƒƒbƒZ[ƒW–³‚µAƒXƒiƒbƒvƒVƒ‡ƒbƒgÄì¬‚ª–Ú“Ij
 '================================================================================
 Public Sub SilentRefreshSnapshots()
     Dim masterPath As String: masterPath = GetMasterPath()
@@ -616,13 +637,13 @@ End Sub
 
 
 '================================================================================
-' OpenMasterWithRetry: ãƒã‚¹ã‚¿ã‚’æ›¸è¾¼å¯èƒ½ã§é–‹ãï¼ˆãƒ­ãƒƒã‚¯æ™‚è‡ªå‹•ãƒªãƒˆãƒ©ã‚¤ï¼‰
+' OpenMasterWithRetry: ƒ}ƒXƒ^‚ğ‘‰Â”\‚ÅŠJ‚­iƒƒbƒN©“®ƒŠƒgƒ‰ƒCj
 '================================================================================
-' ä»–éƒ¨ç½²ã®ç®¡ç†è€…ãŒåŒæ™‚ã«ãƒã‚¹ã‚¿ã‚’ç·¨é›†ä¸­ã ã¨ã€Excel ãŒ ReadOnly fallback ã™ã‚‹ã€‚
-' æœ€å¤§ retryCount å›ã€retryWaitSec ç§’é–“éš”ã§ãƒªãƒˆãƒ©ã‚¤ã€‚
-' ã™ã¹ã¦å¤±æ•—ã—ãŸã‚‰ Nothing ã‚’è¿”ã™ï¼ˆå‘¼ã³å‡ºã—å´ã§ã‚¨ãƒ©ãƒ¼å‡¦ç†ï¼‰ã€‚
+' ‘¼•”‚ÌŠÇ—Ò‚ª“¯‚Éƒ}ƒXƒ^‚ğ•ÒW’†‚¾‚ÆAExcel ‚ª ReadOnly fallback ‚·‚éB
+' Å‘å retryCount ‰ñAretryWaitSec •bŠÔŠu‚ÅƒŠƒgƒ‰ƒCB
+' ‚·‚×‚Ä¸”s‚µ‚½‚ç Nothing ‚ğ•Ô‚·iŒÄ‚Ño‚µ‘¤‚ÅƒGƒ‰[ˆ—jB
 '
-' ã€è¿½åŠ  2026/5/22ã€‘éƒ¨é–€é–“åŒæ™‚æ“ä½œæ™‚ã® UX æ”¹å–„ã€‚
+' y’Ç‰Á 2026/5/22z•”–åŠÔ“¯‘€ì‚Ì UX ‰ü‘PB
 '================================================================================
 Public Function OpenMasterWithRetry(ByVal masterPath As String, _
                                      Optional ByVal retryCount As Long = 3, _
@@ -636,17 +657,17 @@ Public Function OpenMasterWithRetry(ByVal masterPath As String, _
         Set wb = Workbooks.Open(fileName:=masterPath, ReadOnly:=False, UpdateLinks:=0)
         On Error GoTo 0
 
-        ' æ›¸è¾¼å¯ã§é–‹ã‘ãŸå ´åˆ
+        ' ‘‰Â‚ÅŠJ‚¯‚½ê‡
         If Not wb Is Nothing Then
             If Not wb.ReadOnly Then
                 Set OpenMasterWithRetry = wb
                 Exit Function
             End If
-            ' ReadOnly ã§é–‹ã‹ã‚ŒãŸ â†’ é–‰ã˜ã¦ãƒªãƒˆãƒ©ã‚¤
+            ' ReadOnly ‚ÅŠJ‚©‚ê‚½ ¨ •Â‚¶‚ÄƒŠƒgƒ‰ƒC
             wb.Close False
         End If
 
-        ' æœ€çµ‚ãƒªãƒˆãƒ©ã‚¤ã§ãªã‘ã‚Œã°å¾…æ©Ÿ
+        ' ÅIƒŠƒgƒ‰ƒC‚Å‚È‚¯‚ê‚Î‘Ò‹@
         If attempt < retryCount Then
             Application.Wait Now + TimeValue("0:00:" & Format(retryWaitSec, "00"))
         End If
