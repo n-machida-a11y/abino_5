@@ -1,0 +1,678 @@
+Attribute VB_Name = "管理者操作"
+Option Explicit
+
+'================================================================================
+' [心臓部] 管理者操作（管理者入力用xlsm の主要マクロ）
+'--------------------------------------------------------------------------------
+' 【何のファイル？】
+'   管理者がボタンから動かす2つの主要マクロが入っている：
+'
+'   ・マクロ_最新取得   …… マスタから各シートを取り込む（自部署のみ）
+'   ・マクロ_マスタへ反映 …… 編集内容をマスタに書き戻す（自部署のみ）
+'
+' 【動き方のしくみ（ざっくり）】
+'   ・自部署のレコードだけフィルタしてやり取りする
+'   ・取得時点の状態を「_snap_◯◯」という隠しシートに保存しておき、
+'     反映時に snapshot/local/master の三者を比較してマージする
+'     → 他部署が編集した行を壊さず、自部署の編集だけマスタへ反映できる
+'   ・マスタが他ユーザーに開かれていたら最大3回×5秒で再試行
+'
+' 【さわるとき】
+'   通常は触らない。動作不具合の調査時にデバッグログを足す程度。
+'================================================================================
+
+
+'================================================================================
+' 管理者用 メイン操作モジュール（差分マージ版）
+'
+' ■ 動作
+'   ・最新取得時: マスタ内容をこのブックに転写し、同時に隠しスナップショットも作成
+'   ・反映時    : 3者比較（ローカル／マスタ／スナップショット）で差分マージ
+'                 → 管理者の編集・追加・削除を反映しつつ、他者が追加した行は保持
+'================================================================================
+
+
+'================================================================================
+' 【ボタン1】マスタから最新取得
+'================================================================================
+Public Sub マクロ_最新取得()
+    Dim masterPath As String: masterPath = GetMasterPath()
+    If Dir(masterPath) = "" Then
+        MsgBox "マスタファイルにアクセスできません。" & vbCrLf & _
+               "パス: " & masterPath, vbCritical, "最新取得エラー"
+        Exit Sub
+    End If
+
+    If MsgBox("マスタから最新データを取得します。" & vbCrLf & _
+              "このブックの対象シートとスナップショットは上書きされます。" & vbCrLf & vbCrLf & _
+              "よろしいですか？", vbYesNo + vbQuestion, "最新取得") = vbNo Then Exit Sub
+
+    Dim wbMaster As Workbook
+    Dim configs As Variant, cfg As Variant
+    Dim logText As String
+    Dim successCount As Long, skipCount As Long
+
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    On Error GoTo Cleanup
+
+    Set wbMaster = Workbooks.Open(fileName:=masterPath, ReadOnly:=True, UpdateLinks:=0)
+
+    configs = GetSheetSyncConfig()
+    Dim i As Long
+    For i = LBound(configs) To UBound(configs)
+        cfg = configs(i)
+        Dim sheetName As String: sheetName = CStr(cfg(0))
+
+        If Not SheetExistsIn(wbMaster, sheetName) Then
+            logText = logText & " - " & sheetName & " (マスタに無し、スキップ)" & vbCrLf
+            skipCount = skipCount + 1
+            GoTo NextSheet
+        End If
+        If Not SheetExistsIn(ThisWorkbook, sheetName) Then
+            logText = logText & " - " & sheetName & " (ローカルに無し、スキップ)" & vbCrLf
+            skipCount = skipCount + 1
+            GoTo NextSheet
+        End If
+
+        ' 依頼書セル設定は最新取得から除外
+        '   → 管理者がローカルで編集中の項目（但陽信金口座指定 等）が
+        '     マスタの値で上書きされて消えてしまう事故を防ぐ。
+        '   → 同期は「マスタへ反映」マクロ側で差分マージにて行う設計。
+        '   ※ スナップショットは更新する（マスタへ反映時の3者比較のため）
+        If sheetName = "依頼書セル設定" Then
+            Call WriteSnapshotFromSheetFiltered(wbMaster.Sheets(sheetName), sheetName, CLng(cfg(2)), "", "")
+            logText = logText & " - " & sheetName & " (最新取得から除外。ローカル編集を保持)" & vbCrLf
+            skipCount = skipCount + 1
+            GoTo NextSheet
+        End If
+
+        Dim srcSh As Worksheet, dstSh As Worksheet
+        Set srcSh = wbMaster.Sheets(sheetName)
+        Set dstSh = ThisWorkbook.Sheets(sheetName)
+
+        Call SafeUnprotect(dstSh)
+        Call ClearAllFilters(dstSh)
+
+        ' 部門フィルタ列を取得
+        Dim deptFCol_get As String: deptFCol_get = ""
+        If UBound(cfg) >= 4 Then deptFCol_get = CStr(cfg(4))
+
+        ' ローカル可視シートへコピー（部門フィルタ適用）
+        '   ※ 値のみクリア（書式は保持）：以前は .Cells.Clear で書式まで消していたが、
+        '     工事番号一覧の罫線・塗りつぶし・列幅などが毎回リセットされる問題があったため、
+        '     .Cells.ClearContents で値だけクリアするように変更。
+        dstSh.Cells.ClearContents
+        If srcSh.UsedRange.Cells.CountLarge > 0 Then
+            Call CopyFilteredByDept(srcSh, dstSh, CLng(cfg(2)), deptFCol_get, GetMyDeptCode())
+        End If
+        Application.CutCopyMode = False
+
+        ' スナップショットシートへもコピー（部門フィルタ適用、反映時の3者比較用）
+        Call WriteSnapshotFromSheetFiltered(srcSh, sheetName, CLng(cfg(2)), deptFCol_get, GetMyDeptCode())
+
+        ' 工事番号一覧シートのB列「NO」(連番) を非表示にする
+        '   2026/6/1～ 工事番号だけで管理する仕様変更により、B列の連番表示は不要
+        If sheetName = "工事番号一覧" Then
+            On Error Resume Next
+            dstSh.Columns("B").Hidden = True
+            On Error GoTo 0
+        End If
+
+        successCount = successCount + 1
+        logText = logText & " - " & sheetName & " (取得成功)" & vbCrLf
+NextSheet:
+    Next i
+
+    wbMaster.Close SaveChanges:=False
+    Set wbMaster = Nothing
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+
+    MsgBox "最新取得が完了しました。" & vbCrLf & vbCrLf & _
+           "成功: " & successCount & " シート" & vbCrLf & _
+           "スキップ: " & skipCount & " シート" & vbCrLf & vbCrLf & _
+           "詳細:" & vbCrLf & logText, vbInformation, "最新取得完了"
+    Exit Sub
+
+Cleanup:
+    If Not wbMaster Is Nothing Then wbMaster.Close SaveChanges:=False
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+    MsgBox "最新取得中にエラーが発生しました: " & vbCrLf & Err.Description, vbCritical
+End Sub
+
+
+'================================================================================
+' 【ボタン2】マスタへ反映（差分マージ）
+'================================================================================
+Public Sub マクロ_マスタへ反映()
+    Dim masterPath As String: masterPath = GetMasterPath()
+    If Dir(masterPath) = "" Then
+        MsgBox "マスタファイルにアクセスできません。" & vbCrLf & _
+               "パス: " & masterPath, vbCritical, "反映エラー"
+        Exit Sub
+    End If
+
+    ' スナップショット存在確認
+    Dim configs As Variant: configs = GetSheetSyncConfig()
+    Dim i As Long, missingSnapshots As String
+    For i = LBound(configs) To UBound(configs)
+        Dim sn As String: sn = SNAPSHOT_PREFIX & CStr(configs(i)(0))
+        If Not SheetExistsIn(ThisWorkbook, sn) Then
+            If CStr(configs(i)(3)) = "merge" Then
+                missingSnapshots = missingSnapshots & " - " & CStr(configs(i)(0)) & vbCrLf
+            End If
+        End If
+    Next i
+    If missingSnapshots <> "" Then
+        If MsgBox("以下のシートでスナップショットが未作成です:" & vbCrLf & missingSnapshots & vbCrLf & _
+                  "差分マージができないため、他者の追加が失われる可能性があります。" & vbCrLf & vbCrLf & _
+                  "先に「最新取得」を実行することを強く推奨します。" & vbCrLf & vbCrLf & _
+                  "このまま進めますか？（全上書きフォールバック）", _
+                  vbYesNo + vbExclamation + vbDefaultButton2, "警告") = vbNo Then Exit Sub
+    End If
+
+    If MsgBox("ローカルの変更をマスタへ反映します。" & vbCrLf & vbCrLf & _
+              "差分マージ方式:" & vbCrLf & _
+              " ・管理者の編集・追加・削除を反映" & vbCrLf & _
+              " ・取得後に他者が追加した行は保持" & vbCrLf & vbCrLf & _
+              "続行しますか？", vbYesNo + vbQuestion, "マスタへ反映") = vbNo Then Exit Sub
+
+    ' 他Excelで開かれていないかチェック
+    Dim wb As Workbook
+    For Each wb In Application.Workbooks
+        If LCase(wb.FullName) = LCase(masterPath) Then
+            MsgBox "マスタファイルが別のExcelウィンドウで開かれています。閉じてから再実行してください。", vbCritical
+            Exit Sub
+        End If
+    Next wb
+
+    Dim wbMaster As Workbook
+    Dim logText As String
+    Dim successCount As Long, skipCount As Long
+
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    On Error GoTo Cleanup
+
+    ' 【マスタロック時の自動リトライ 2026/5/22】
+    '   他部署の管理者がマスタを編集中だと ReadOnly fallback される。
+    '   最大3回まで5秒間隔でリトライし、それでも書込可で開けない場合は中断。
+    Set wbMaster = OpenMasterWithRetry(masterPath, retryCount:=3, retryWaitSec:=5)
+    If wbMaster Is Nothing Then
+        MsgBox "マスタファイルを書き込み可能で開けませんでした。" & vbCrLf & _
+               "他部署の管理者がマスタを編集中の可能性があります。" & vbCrLf & _
+               "（3回リトライしましたが全て失敗）" & vbCrLf & vbCrLf & _
+               "しばらく時間をおいてから再度お試しください。", vbCritical
+        GoTo Cleanup
+    End If
+
+    For i = LBound(configs) To UBound(configs)
+        Dim cfg As Variant: cfg = configs(i)
+        Dim sheetName As String: sheetName = CStr(cfg(0))
+        Dim keyCol As String: keyCol = CStr(cfg(1))
+        Dim dataStartRow As Long: dataStartRow = CLng(cfg(2))
+        Dim mode As String: mode = CStr(cfg(3))
+
+        If Not SheetExistsIn(wbMaster, sheetName) Then
+            logText = logText & " - " & sheetName & " (マスタに無し、スキップ)" & vbCrLf
+            skipCount = skipCount + 1
+            GoTo NextSheet
+        End If
+        If Not SheetExistsIn(ThisWorkbook, sheetName) Then
+            logText = logText & " - " & sheetName & " (ローカルに無し、スキップ)" & vbCrLf
+            skipCount = skipCount + 1
+            GoTo NextSheet
+        End If
+
+        Dim ret As String
+        If mode = "overwrite" Or keyCol = "" Then
+            ret = SyncSheetOverwrite(ThisWorkbook.Sheets(sheetName), wbMaster.Sheets(sheetName))
+        Else
+            Dim snapSheet As Worksheet
+            If SheetExistsIn(ThisWorkbook, SNAPSHOT_PREFIX & sheetName) Then
+                Set snapSheet = ThisWorkbook.Sheets(SNAPSHOT_PREFIX & sheetName)
+            Else
+                Set snapSheet = Nothing
+            End If
+            Dim deptFilterCol As String: deptFilterCol = ""
+            If UBound(cfg) >= 4 Then deptFilterCol = CStr(cfg(4))
+            ret = SyncSheetMerge( _
+                    ThisWorkbook.Sheets(sheetName), _
+                    wbMaster.Sheets(sheetName), _
+                    snapSheet, _
+                    keyCol, dataStartRow, deptFilterCol)
+        End If
+
+        logText = logText & " - " & sheetName & ": " & ret & vbCrLf
+        successCount = successCount + 1
+NextSheet:
+    Next i
+
+    wbMaster.Save
+    wbMaster.Close SaveChanges:=False
+    Set wbMaster = Nothing
+
+    ' 反映成功したらスナップショットも新しいマスタ状態で更新しておく
+    Call SilentRefreshSnapshots
+
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+
+    MsgBox "マスタへの反映が完了しました。" & vbCrLf & vbCrLf & _
+           "成功: " & successCount & " シート" & vbCrLf & _
+           "スキップ: " & skipCount & " シート" & vbCrLf & vbCrLf & _
+           "詳細:" & vbCrLf & logText, vbInformation, "反映完了"
+    Exit Sub
+
+Cleanup:
+    If Not wbMaster Is Nothing Then wbMaster.Close SaveChanges:=False
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+    MsgBox "反映中にエラーが発生しました: " & vbCrLf & Err.Description, vbCritical
+End Sub
+
+
+'================================================================================
+' シート単位: 全上書きモード
+'================================================================================
+Public Function SyncSheetOverwrite(ByVal src As Worksheet, ByVal dst As Worksheet) As String
+    Call SafeUnprotect(dst)
+    Call ClearAllFilters(dst)
+    dst.Cells.Clear
+    If src.UsedRange.Cells.CountLarge > 0 Then
+        src.UsedRange.Copy
+        dst.Range(src.UsedRange.Address).PasteSpecial Paste:=xlPasteAllUsingSourceTheme
+        dst.Range(src.UsedRange.Address).PasteSpecial Paste:=xlPasteColumnWidths
+    End If
+    Application.CutCopyMode = False
+    SyncSheetOverwrite = "全上書き完了"
+End Function
+
+
+'================================================================================
+' シート単位: 差分マージモード（キーベース3者比較）
+'   local   : 管理者のローカルシート（編集済み）
+'   master  : マスタシート（現在の本物）
+'   snap    : スナップショット（最新取得時点のマスタ）
+'   keyCol  : キー列文字 (例: "D")
+'   dataRow : データ開始行
+'================================================================================
+Public Function SyncSheetMerge(ByVal localSh As Worksheet, ByVal masterSh As Worksheet, ByVal snapSh As Worksheet, ByVal keyCol As String, ByVal dataRow As Long, Optional ByVal deptFilterCol As String = "") As String
+
+    ' 各キー→行番号 のマップを作る
+    Dim dictLocal As Object, dictMaster As Object, dictSnap As Object
+    Dim myDept As String: myDept = GetMyDeptCode()
+    Set dictLocal = BuildKeyMap(localSh, keyCol, dataRow)
+    ' master と snap は部門フィルタ適用（他部署のレコードに触れないため）
+    Set dictMaster = BuildKeyMap(masterSh, keyCol, dataRow, deptFilterCol, myDept)
+    If snapSh Is Nothing Then
+        Set dictSnap = CreateObject("Scripting.Dictionary")  ' 空（他者追加と区別不可）
+    Else
+        Set dictSnap = BuildKeyMap(snapSh, keyCol, dataRow, deptFilterCol, myDept)
+    End If
+
+    Call SafeUnprotect(masterSh)
+
+    Dim lastCol As Long
+    lastCol = localSh.UsedRange.Columns.Count
+    If masterSh.UsedRange.Columns.Count > lastCol Then lastCol = masterSh.UsedRange.Columns.Count
+    If Not snapSh Is Nothing Then
+        If snapSh.UsedRange.Columns.Count > lastCol Then lastCol = snapSh.UsedRange.Columns.Count
+    End If
+    If lastCol < 1 Then lastCol = 1
+
+    Dim updated As Long, added As Long, deleted As Long, preserved As Long
+    Dim k As Variant
+
+    ' 1. localSh にある = 編集か追加
+    For Each k In dictLocal.Keys
+        Dim srcRow As Long: srcRow = dictLocal(k)
+        If dictMaster.Exists(k) Then
+            ' 編集: masterの該当行をlocalで上書き
+            Dim dstRow1 As Long: dstRow1 = dictMaster(k)
+            Call CopyRow(localSh, srcRow, masterSh, dstRow1, lastCol)
+            updated = updated + 1
+        Else
+            ' 追加: masterに新規行として追記
+            Dim newRow As Long
+            newRow = GetLastDataRow(masterSh, keyCol) + 1
+            If newRow < dataRow Then newRow = dataRow
+            Call CopyRow(localSh, srcRow, masterSh, newRow, lastCol)
+            added = added + 1
+        End If
+    Next k
+
+    ' 2. masterSh にあるが localSh に無い = 削除 or 他者追加
+    Dim rowsToDelete As Collection: Set rowsToDelete = New Collection
+    For Each k In dictMaster.Keys
+        If Not dictLocal.Exists(k) Then
+            If dictSnap.Exists(k) Then
+                ' 取得時点にもあった → 管理者が削除した
+                rowsToDelete.Add dictMaster(k)
+                deleted = deleted + 1
+            Else
+                ' 取得時点には無かった → 他者が追加したので保持
+                preserved = preserved + 1
+            End If
+        End If
+    Next k
+
+    ' 削除は後ろから行う（行番号がズレないように）
+    Dim toDelete() As Long, n As Long: n = rowsToDelete.Count
+    If n > 0 Then
+        ReDim toDelete(1 To n)
+        Dim j As Long
+        For j = 1 To n
+            toDelete(j) = rowsToDelete(j)
+        Next j
+        Call SortDescending(toDelete)
+        For j = 1 To n
+            masterSh.Rows(toDelete(j)).Delete
+        Next j
+    End If
+
+    Application.CutCopyMode = False
+    SyncSheetMerge = "編集:" & updated & " / 追加:" & added & _
+                     " / 削除:" & deleted & " / 他者追加保持:" & preserved
+End Function
+
+
+'================================================================================
+' ヘルパー: キー値 → 行番号 の辞書を作る
+'================================================================================
+Public Function BuildKeyMap(ByVal ws As Worksheet, ByVal keyCol As String, ByVal dataRow As Long, _
+                            Optional ByVal deptFilterCol As String = "", _
+                            Optional ByVal deptCode As String = "") As Object
+    ' deptFilterCol が指定されている時、その列の値が "deptCode-*" で始まる行のみ含める
+    Dim d As Object: Set d = CreateObject("Scripting.Dictionary")
+    If ws Is Nothing Then Set BuildKeyMap = d: Exit Function
+
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, keyCol).End(xlUp).Row
+    If lastRow < dataRow Then Set BuildKeyMap = d: Exit Function
+
+    Dim r As Long, v As String, filterVal As String
+    Dim filterPrefix As String
+    If deptFilterCol <> "" And deptCode <> "" Then filterPrefix = deptCode & "-"
+
+    For r = dataRow To lastRow
+        v = Trim(CStr(ws.Cells(r, keyCol).Value))
+        If v <> "" Then
+            ' 部門フィルタチェック
+            If filterPrefix <> "" Then
+                filterVal = CStr(ws.Cells(r, deptFilterCol).Value)
+                If Left(filterVal, Len(filterPrefix)) <> filterPrefix Then
+                    GoTo NextRow  ' フィルタ外
+                End If
+            End If
+            If Not d.Exists(v) Then d.Add v, r
+        End If
+NextRow:
+    Next r
+    Set BuildKeyMap = d
+End Function
+
+
+'================================================================================
+' ヘルパー: 行コピー（値と書式）
+'================================================================================
+Public Sub CopyRow(ByVal src As Worksheet, ByVal srcRow As Long, ByVal dst As Worksheet, ByVal dstRow As Long, ByVal lastCol As Long)
+    If lastCol < 1 Then lastCol = 1
+    src.Range(src.Cells(srcRow, 1), src.Cells(srcRow, lastCol)).Copy _
+        Destination:=dst.Cells(dstRow, 1)
+End Sub
+
+
+'================================================================================
+' ヘルパー: 対象シートのキー列で最終データ行を得る
+'================================================================================
+Public Function GetLastDataRow(ByVal ws As Worksheet, ByVal keyCol As String) As Long
+    GetLastDataRow = ws.Cells(ws.Rows.Count, keyCol).End(xlUp).Row
+End Function
+
+
+'================================================================================
+' ヘルパー: Long配列を降順ソート
+'================================================================================
+Public Sub SortDescending(arr() As Long)
+    Dim i As Long, j As Long, tmp As Long
+    For i = LBound(arr) To UBound(arr) - 1
+        For j = i + 1 To UBound(arr)
+            If arr(j) > arr(i) Then
+                tmp = arr(i): arr(i) = arr(j): arr(j) = tmp
+            End If
+        Next j
+    Next i
+End Sub
+
+
+'================================================================================
+' ヘルパー: srcシートの全内容をスナップショットシートに書く
+'================================================================================
+Public Sub WriteSnapshotFromSheet(ByVal src As Worksheet, ByVal baseName As String)
+    ' 全行版（既存呼び出し互換用）
+    Call WriteSnapshotFromSheetFiltered(src, baseName, 1, "", "")
+End Sub
+
+' 部門フィルタ対応版
+Public Sub WriteSnapshotFromSheetFiltered(ByVal src As Worksheet, ByVal baseName As String, _
+                                          ByVal dataStartRow As Long, _
+                                          ByVal deptFilterCol As String, _
+                                          ByVal deptCode As String)
+    Dim snapName As String: snapName = SNAPSHOT_PREFIX & baseName
+    Dim snapSh As Worksheet
+
+    If SheetExistsIn(ThisWorkbook, snapName) Then
+        Set snapSh = ThisWorkbook.Sheets(snapName)
+    Else
+        Set snapSh = ThisWorkbook.Sheets.Add(After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count))
+        snapSh.Name = snapName
+    End If
+
+    On Error Resume Next
+    snapSh.Visible = xlSheetVeryHidden
+    snapSh.Cells.Clear
+
+    If src.UsedRange.Cells.CountLarge > 0 Then
+        If deptFilterCol = "" Or deptCode = "" Then
+            ' フィルタなし: 全体コピー
+            src.UsedRange.Copy snapSh.Range("A1")
+        Else
+            ' フィルタあり: 行ごとに判定してコピー
+            Call CopyFilteredByDept(src, snapSh, dataStartRow, deptFilterCol, deptCode)
+        End If
+    End If
+    Application.CutCopyMode = False
+    On Error GoTo 0
+End Sub
+
+' 部門フィルタを適用しつつシート間をコピー
+'   dataStartRow より前はヘッダ行として無条件コピー
+'   dataStartRow 以降は deptFilterCol の値が "deptCode-*" で始まる行のみコピー
+'
+' 【v2】2026/5/19 リファクタ:
+'   - UsedRange の絶対座標から lastCol/lastRow を算出（起点が A1 でなくても安全）
+'   - 出力配列のサイズを「実際にコピーする行数」で正確に確保（書き込み時の
+'     サイズ不一致による書き込み失敗を排除）
+'   - エラー握りつぶしを止め、Debug.Print で動作ログを出力
+'     （イミディエイトウィンドウ Ctrl+G で確認可能）
+Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
+                              ByVal dataStartRow As Long, _
+                              ByVal deptFilterCol As String, _
+                              ByVal deptCode As String)
+    If src Is Nothing Or dst Is Nothing Then
+        Debug.Print "[CopyFilteredByDept] ABORT: src or dst is Nothing"
+        Exit Sub
+    End If
+
+    Dim usedRng As Range
+    Set usedRng = src.UsedRange
+    If usedRng Is Nothing Then
+        Debug.Print "[CopyFilteredByDept] ABORT: src has no UsedRange (sheet=" & src.Name & ")"
+        Exit Sub
+    End If
+    If usedRng.Cells.CountLarge = 0 Then
+        Debug.Print "[CopyFilteredByDept] ABORT: UsedRange is empty (sheet=" & src.Name & ")"
+        Exit Sub
+    End If
+
+    ' UsedRange の絶対座標から右下端を算出
+    Dim lastCol As Long
+    Dim lastRow As Long
+    lastCol = usedRng.Column + usedRng.Columns.Count - 1
+    lastRow = usedRng.Row + usedRng.Rows.Count - 1
+    If lastCol < 1 Then lastCol = 1
+    If lastRow < 1 Then Exit Sub
+
+    Debug.Print "[CopyFilteredByDept] sheet=" & src.Name & _
+                " UsedRange=" & usedRng.Address & _
+                " lastRow=" & lastRow & " lastCol=" & lastCol & _
+                " dataStartRow=" & dataStartRow & _
+                " deptFilterCol=" & deptFilterCol & " deptCode=" & deptCode
+
+    ' A1～(lastRow, lastCol) を一括読み込み
+    Dim readRange As Range
+    Set readRange = src.Range(src.Cells(1, 1), src.Cells(lastRow, lastCol))
+    Dim arr As Variant
+    If readRange.Cells.Count = 1 Then
+        ReDim arr(1 To 1, 1 To 1)
+        arr(1, 1) = readRange.Value
+    Else
+        arr = readRange.Value
+    End If
+
+    ' フィルタ列インデックス
+    Dim filterColIdx As Long: filterColIdx = 0
+    If deptFilterCol <> "" And deptCode <> "" Then
+        On Error Resume Next
+        filterColIdx = src.Range(deptFilterCol & "1").Column
+        On Error GoTo 0
+    End If
+
+    Dim filterPrefix As String
+    If filterColIdx > 0 Then filterPrefix = deptCode & "-"
+
+    ' フィルタ後の対象行をリストに溜める
+    Dim resultRows As Collection
+    Set resultRows = New Collection
+    Dim r As Long
+
+    ' ヘッダ部（無条件）
+    For r = 1 To dataStartRow - 1
+        If r > lastRow Then Exit For
+        resultRows.Add r
+    Next r
+
+    ' データ部（フィルタ判定）
+    Dim filteredOutCount As Long: filteredOutCount = 0
+    For r = dataStartRow To lastRow
+        Dim include As Boolean: include = True
+        If filterColIdx > 0 Then
+            Dim val As String
+            val = CStr(arr(r, filterColIdx))
+            If Left(val, Len(filterPrefix)) <> filterPrefix Then
+                include = False
+                filteredOutCount = filteredOutCount + 1
+            End If
+        End If
+        If include Then resultRows.Add r
+    Next r
+
+    Debug.Print "[CopyFilteredByDept] result rows=" & resultRows.Count & _
+                " (filtered out=" & filteredOutCount & ")"
+
+    If resultRows.Count = 0 Then
+        Debug.Print "[CopyFilteredByDept] No rows to copy. Skipped."
+        Exit Sub
+    End If
+
+    ' 結果配列を正確なサイズで構築（書き込み時のサイズ不一致を防ぐ）
+    Dim outArr() As Variant
+    ReDim outArr(1 To resultRows.Count, 1 To lastCol)
+    Dim outR As Long, c As Long
+    For outR = 1 To resultRows.Count
+        Dim srcR As Long: srcR = resultRows(outR)
+        For c = 1 To lastCol
+            outArr(outR, c) = arr(srcR, c)
+        Next c
+    Next outR
+
+    ' 一括書き込み
+    dst.Range(dst.Cells(1, 1), dst.Cells(resultRows.Count, lastCol)).Value = outArr
+
+    Debug.Print "[CopyFilteredByDept] WROTE " & resultRows.Count & " rows × " & _
+                lastCol & " cols to " & dst.Name
+
+    Application.CutCopyMode = False
+End Sub
+
+
+'================================================================================
+' 反映直後に静かに最新取得（メッセージ無し、スナップショット再作成が目的）
+'================================================================================
+Public Sub SilentRefreshSnapshots()
+    Dim masterPath As String: masterPath = GetMasterPath()
+    If Dir(masterPath) = "" Then Exit Sub
+
+    Dim wbMaster As Workbook
+    On Error GoTo Cleanup
+    Set wbMaster = Workbooks.Open(fileName:=masterPath, ReadOnly:=True, UpdateLinks:=0)
+
+    Dim configs As Variant: configs = GetSheetSyncConfig()
+    Dim i As Long
+    For i = LBound(configs) To UBound(configs)
+        Dim sheetName As String: sheetName = CStr(configs(i)(0))
+        If SheetExistsIn(wbMaster, sheetName) Then
+            Call WriteSnapshotFromSheet(wbMaster.Sheets(sheetName), sheetName)
+        End If
+    Next i
+
+    wbMaster.Close SaveChanges:=False
+    Exit Sub
+
+Cleanup:
+    If Not wbMaster Is Nothing Then wbMaster.Close SaveChanges:=False
+End Sub
+
+
+'================================================================================
+' OpenMasterWithRetry: マスタを書込可能で開く（ロック時自動リトライ）
+'================================================================================
+' 他部署の管理者が同時にマスタを編集中だと、Excel が ReadOnly fallback する。
+' 最大 retryCount 回、retryWaitSec 秒間隔でリトライ。
+' すべて失敗したら Nothing を返す（呼び出し側でエラー処理）。
+'
+' 【追加 2026/5/22】部門間同時操作時の UX 改善。
+'================================================================================
+Public Function OpenMasterWithRetry(ByVal masterPath As String, _
+                                     Optional ByVal retryCount As Long = 3, _
+                                     Optional ByVal retryWaitSec As Long = 5) As Workbook
+    Dim attempt As Long
+    Dim wb As Workbook
+
+    For attempt = 1 To retryCount
+        Set wb = Nothing
+        On Error Resume Next
+        Set wb = Workbooks.Open(fileName:=masterPath, ReadOnly:=False, UpdateLinks:=0)
+        On Error GoTo 0
+
+        ' 書込可で開けた場合
+        If Not wb Is Nothing Then
+            If Not wb.ReadOnly Then
+                Set OpenMasterWithRetry = wb
+                Exit Function
+            End If
+            ' ReadOnly で開かれた → 閉じてリトライ
+            wb.Close False
+        End If
+
+        ' 最終リトライでなければ待機
+        If attempt < retryCount Then
+            Application.Wait Now + TimeValue("0:00:" & Format(retryWaitSec, "00"))
+        End If
+    Next attempt
+
+    Set OpenMasterWithRetry = Nothing
+End Function

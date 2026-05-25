@@ -45,7 +45,7 @@ Option Explicit
 '
 '   ★ お客様環境にデプロイ時は必ず False にすること ★
 '================================================================================
-Public Const IS_TEST_MODE As Boolean = False
+Public Const IS_TEST_MODE As Boolean = True
 
 ' テスト用マスタファイルのパス（IS_TEST_MODE=True の時のみ参照される）
 Public Const TEST_MASTER_FILE_PATH As String = "Z:\Users\n-machida\Desktop\工事番号管理表.xlsm"
