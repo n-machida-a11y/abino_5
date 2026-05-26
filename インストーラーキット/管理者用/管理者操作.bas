@@ -2,6 +2,17 @@ Attribute VB_Name = "管理者操作"
 Option Explicit
 
 '================================================================================
+' 診断情報モジュール変数（最新取得エラー時にメッセージで表示するために蓄積）
+'   CopyFilteredByDept の中で「これから読み込もうとしている範囲」を
+'   毎回ここに記録する。エラーが起きた時に Cleanup から参照する。
+'================================================================================
+Private m_DiagSheet As String         ' エラー時に処理中だったシート名
+Private m_DiagUsedRange As String     ' UsedRange のアドレス（例 "$A$1:$X$178"）
+Private m_DiagUsedLastRow As Long     ' UsedRange の最終行（ゴースト含む）
+Private m_DiagActualLastRow As Long   ' A列End(xlUp)で取った実データ最終行
+Private m_DiagLastCol As Long         ' 使用列数
+
+'================================================================================
 ' [心臓部] 管理者操作（管理者入力用xlsm の主要マクロ）
 '--------------------------------------------------------------------------------
 ' 【何のファイル？】
@@ -138,14 +149,55 @@ NextSheet:
 Cleanup:
     Dim errNo As Long: errNo = Err.Number
     Dim errDesc As String: errDesc = Err.Description
-    Dim errSheet As String: errSheet = sheetName  ' エラー発生時に処理中だったシート名
+    Dim errSheet As String: errSheet = sheetName  ' For ループ最終時点のシート名
     If Not wbMaster Is Nothing Then wbMaster.Close SaveChanges:=False
     Application.ScreenUpdating = True
     Application.DisplayAlerts = True
-    MsgBox "最新取得中にエラーが発生しました:" & vbCrLf & _
-           "エラー番号: " & errNo & vbCrLf & _
-           "内容: " & errDesc & vbCrLf & _
-           "処理中のシート: " & errSheet, vbCritical
+
+    ' --- 診断メッセージ組み立て（画像送付で原因切り分けできるように） ---
+    Dim msg As String
+    On Error Resume Next  ' 診断情報取得中に二次エラーが出ても本来のエラー表示は継続
+
+    msg = "【最新取得エラー】" & vbCrLf
+    msg = msg & "（このメッセージのスクリーンショットを送付ください）" & vbCrLf
+    msg = msg & String(38, "-") & vbCrLf
+    msg = msg & "■ エラー" & vbCrLf
+    msg = msg & "  番号  : " & errNo & vbCrLf
+    msg = msg & "  内容  : " & errDesc & vbCrLf
+    msg = msg & "  処理中: " & errSheet & vbCrLf
+    msg = msg & vbCrLf
+
+    msg = msg & "■ 直前にコピー中だったシート" & vbCrLf
+    If m_DiagSheet = "" Then
+        msg = msg & "  (CopyFilteredByDept 未到達)" & vbCrLf
+    Else
+        msg = msg & "  シート         : " & m_DiagSheet & vbCrLf
+        msg = msg & "  UsedRange      : " & m_DiagUsedRange & vbCrLf
+        msg = msg & "  UsedRange最終行: " & m_DiagUsedLastRow & vbCrLf
+        msg = msg & "  A列実最終行    : " & m_DiagActualLastRow & vbCrLf
+        msg = msg & "  使用列数       : " & m_DiagLastCol & vbCrLf
+    End If
+    msg = msg & vbCrLf
+
+    msg = msg & "■ ファイル" & vbCrLf
+    msg = msg & "  本ブック  : " & ThisWorkbook.Name & vbCrLf
+    msg = msg & "  マスタパス: " & GetMasterPath() & vbCrLf
+    msg = msg & "  マスタ存在: " & IIf(Dir(GetMasterPath()) <> "", "OK", "見つからない") & vbCrLf
+    msg = msg & vbCrLf
+
+    msg = msg & "■ 設定" & vbCrLf
+    msg = msg & "  部署コード(操作!B1): " & GetMyDeptCode() & vbCrLf
+    msg = msg & "  IS_TEST_MODE       : " & IS_TEST_MODE & vbCrLf
+    msg = msg & vbCrLf
+
+    msg = msg & "■ Excel環境" & vbCrLf
+    msg = msg & "  Version: " & Application.Version & " (Build " & Application.Build & ")" & vbCrLf
+    msg = msg & "  OS     : " & Application.OperatingSystem & vbCrLf
+    msg = msg & "  User   : " & Environ("USERNAME") & vbCrLf
+    msg = msg & "  PC     : " & Environ("COMPUTERNAME")
+
+    On Error GoTo 0
+    MsgBox msg, vbCritical, "最新取得エラー詳細"
 End Sub
 
 
@@ -541,6 +593,13 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
     If lastRow < usedRng.Row Then lastRow = usedRng.Row
     If lastCol < 1 Then lastCol = 1
     If lastRow < 1 Then Exit Sub
+
+    ' 診断モジュール変数を更新（エラー発生時のメッセージに使用）
+    m_DiagSheet = src.Name
+    m_DiagUsedRange = usedRng.Address
+    m_DiagUsedLastRow = usedLastRow
+    m_DiagActualLastRow = lastRow
+    m_DiagLastCol = lastCol
 
     Debug.Print "[CopyFilteredByDept] sheet=" & src.Name & _
                 " UsedRange=" & usedRng.Address & _
