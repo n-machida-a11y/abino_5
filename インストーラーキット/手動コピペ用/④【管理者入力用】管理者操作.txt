@@ -10,6 +10,8 @@ Private m_DiagUsedRange As String     ' UsedRange のアドレス（例 "$A$1:$X$178"）
 Private m_DiagUsedLastRow As Long     ' UsedRange の最終行（ゴースト含む）
 Private m_DiagActualLastRow As Long   ' A列End(xlUp)で取った実データ最終行
 Private m_DiagLastCol As Long         ' 使用列数
+Private m_DiagStep As String          ' CopyFilteredByDept 内の現在処理ステップ
+Private m_DiagExtra As String         ' 追加情報（エラー時のセル位置など）
 
 '================================================================================
 ' [心臓部] 管理者操作（管理者入力用xlsm の主要マクロ）
@@ -175,6 +177,13 @@ Cleanup:
         msg = msg & "  UsedRange最終行: " & m_DiagUsedLastRow & vbCrLf
         msg = msg & "  A列実最終行    : " & m_DiagActualLastRow & vbCrLf
         msg = msg & "  使用列数       : " & m_DiagLastCol & vbCrLf
+    End If
+    msg = msg & vbCrLf
+
+    msg = msg & "■ 処理ステップ" & vbCrLf
+    msg = msg & "  詰まった場所: " & IIf(m_DiagStep = "", "(未到達)", m_DiagStep) & vbCrLf
+    If m_DiagExtra <> "" Then
+        msg = msg & "  追加情報    : " & m_DiagExtra & vbCrLf
     End If
     msg = msg & vbCrLf
 
@@ -559,41 +568,32 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
                               ByVal dataStartRow As Long, _
                               ByVal deptFilterCol As String, _
                               ByVal deptCode As String)
+    m_DiagStep = "①開始"
+    m_DiagExtra = ""
+
     If src Is Nothing Or dst Is Nothing Then
         Debug.Print "[CopyFilteredByDept] ABORT: src or dst is Nothing"
         Exit Sub
     End If
 
+    m_DiagStep = "②src.UsedRange取得"
     Dim usedRng As Range
     Set usedRng = src.UsedRange
-    If usedRng Is Nothing Then
-        Debug.Print "[CopyFilteredByDept] ABORT: src has no UsedRange (sheet=" & src.Name & ")"
-        Exit Sub
-    End If
-    If usedRng.Cells.CountLarge = 0 Then
-        Debug.Print "[CopyFilteredByDept] ABORT: UsedRange is empty (sheet=" & src.Name & ")"
-        Exit Sub
-    End If
+    If usedRng Is Nothing Then Exit Sub
+    If usedRng.Cells.CountLarge = 0 Then Exit Sub
 
-    ' UsedRange から列範囲を、A列 End(xlUp) から行範囲を算出
-    '   【2026/5/22 修正】
-    '   UsedRange.Rows.Count は削除済みデータの書式痕跡を含み、実データが178行
-    '   程度でも 1,048,576 まで膨らむことがある（UsedRangeゴースト）。
-    '   その場合 arr = readRange.Value のメモリ確保が失敗し、
-    '   「実行時エラー6: オーバーフローしました」が発生する。
-    '   実データ最終行は A列の End(xlUp) で安全に判定する。
+    m_DiagStep = "③範囲算出(lastRow/lastCol)"
     Dim lastCol As Long
     Dim lastRow As Long
     Dim usedLastRow As Long
     lastCol = usedRng.Column + usedRng.Columns.Count - 1
     usedLastRow = usedRng.Row + usedRng.Rows.Count - 1
     lastRow = src.Cells(src.Rows.Count, 1).End(xlUp).Row
-    ' ヘッダ行があり A列が空の場合に備えて、UsedRange の開始行は最低保持
     If lastRow < usedRng.Row Then lastRow = usedRng.Row
     If lastCol < 1 Then lastCol = 1
     If lastRow < 1 Then Exit Sub
 
-    ' 診断モジュール変数を更新（エラー発生時のメッセージに使用）
+    ' 診断モジュール変数を更新
     m_DiagSheet = src.Name
     m_DiagUsedRange = usedRng.Address
     m_DiagUsedLastRow = usedLastRow
@@ -606,9 +606,11 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
                 " dataStartRow=" & dataStartRow & _
                 " deptFilterCol=" & deptFilterCol & " deptCode=" & deptCode
 
-    ' A1～(lastRow, lastCol) を一括読み込み
+    m_DiagStep = "④readRange作成"
     Dim readRange As Range
     Set readRange = src.Range(src.Cells(1, 1), src.Cells(lastRow, lastCol))
+
+    m_DiagStep = "⑤arr読み込み(マスタからメモリへ)"
     Dim arr As Variant
     If readRange.Cells.Count = 1 Then
         ReDim arr(1 To 1, 1 To 1)
@@ -617,7 +619,7 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
         arr = readRange.Value
     End If
 
-    ' フィルタ列インデックス
+    m_DiagStep = "⑥フィルタ列番号取得"
     Dim filterColIdx As Long: filterColIdx = 0
     If deptFilterCol <> "" And deptCode <> "" Then
         On Error Resume Next
@@ -628,20 +630,19 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
     Dim filterPrefix As String
     If filterColIdx > 0 Then filterPrefix = deptCode & "-"
 
-    ' フィルタ後の対象行をリストに溜める
+    m_DiagStep = "⑦ヘッダ行収集"
     Dim resultRows As Collection
     Set resultRows = New Collection
     Dim r As Long
-
-    ' ヘッダ部（無条件）
     For r = 1 To dataStartRow - 1
         If r > lastRow Then Exit For
         resultRows.Add r
     Next r
 
-    ' データ部（フィルタ判定）
+    m_DiagStep = "⑧データ行フィルタ判定"
     Dim filteredOutCount As Long: filteredOutCount = 0
     For r = dataStartRow To lastRow
+        m_DiagExtra = "判定中: r=" & r & " filterColIdx=" & filterColIdx
         Dim include As Boolean: include = True
         If filterColIdx > 0 Then
             Dim val As String
@@ -653,33 +654,39 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
         End If
         If include Then resultRows.Add r
     Next r
+    m_DiagExtra = ""
 
     Debug.Print "[CopyFilteredByDept] result rows=" & resultRows.Count & _
                 " (filtered out=" & filteredOutCount & ")"
 
-    If resultRows.Count = 0 Then
-        Debug.Print "[CopyFilteredByDept] No rows to copy. Skipped."
-        Exit Sub
-    End If
+    If resultRows.Count = 0 Then Exit Sub
 
-    ' 結果配列を正確なサイズで構築（書き込み時のサイズ不一致を防ぐ）
+    m_DiagStep = "⑨outArr配列確保"
     Dim outArr() As Variant
     ReDim outArr(1 To resultRows.Count, 1 To lastCol)
+
+    m_DiagStep = "⑩outArrへコピー"
     Dim outR As Long, c As Long
     For outR = 1 To resultRows.Count
         Dim srcR As Long: srcR = resultRows(outR)
         For c = 1 To lastCol
+            m_DiagExtra = "コピー中: outR=" & outR & " c=" & c & " srcR=" & srcR
             outArr(outR, c) = arr(srcR, c)
         Next c
     Next outR
+    m_DiagExtra = ""
 
-    ' 一括書き込み
+    m_DiagStep = "⑪dst書き込み(ローカルシートへ)"
+    m_DiagExtra = "宛先: " & dst.Name & " 範囲: " & _
+                  dst.Cells(1, 1).Address & ":" & dst.Cells(resultRows.Count, lastCol).Address
     dst.Range(dst.Cells(1, 1), dst.Cells(resultRows.Count, lastCol)).Value = outArr
+    m_DiagExtra = ""
 
     Debug.Print "[CopyFilteredByDept] WROTE " & resultRows.Count & " rows × " & _
                 lastCol & " cols to " & dst.Name
 
     Application.CutCopyMode = False
+    m_DiagStep = "⑫完了"
 End Sub
 
 
