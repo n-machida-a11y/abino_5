@@ -12,7 +12,7 @@ Option Explicit
 '   1. IS_TEST_MODE       … 本番なら必ず False
 '   2. PROD_MASTER_PATH   … 本番のマスタxlsm のフルパス
 '   3. 「操作」シート B1  … 自部署の2桁コード（建築=03/土木=05）
-'   4. 「操作」シート A1  … テスト用マスタパス（通常は空欄。空欄=本番マスタ）
+'   4. 「操作」シート A1  … 本番モード時のマスタパス（空欄なら PROD_MASTER_PATH）
 '
 ' 【触らなくていい箇所】
 '   - SHEET_PASSWORD（保護パスワード）
@@ -95,12 +95,12 @@ End Function
 '================================================================================
 ' マスタファイルのパスを返す共通関数
 '--------------------------------------------------------------------------------
-' 【2026/5/26 改修】「操作」シート A1 セルでパスを上書きできるようにした。
+' 【2026/5/26 改修】本番モード時に「操作」シート A1 セルでパスを指定可能にした。
 '   優先順位:
-'     1. 「操作」シート A1 セルにパスが入っていれば、それを最優先で使う
-'        → VBE を開かずに、セルにパスを打つだけでテスト用マスタへ切替できる
-'        → テスト後は A1 を空欄に戻せば、下記2の通常動作に戻る
-'     2. A1 が空欄なら IS_TEST_MODE に従って TEST/PROD の定数を使う（従来動作）
+'     1. IS_TEST_MODE = True  → コードの TEST_MASTER_PATH を使う（A1は無視）
+'                               ※ 開発・社内テスト用
+'     2. IS_TEST_MODE = False → 「操作」シート A1 セルのパスを使う
+'                               A1 が空欄なら PROD_MASTER_PATH にフォールバック
 '
 ' 【お客様がテスト用マスタで動作確認する手順】
 '   ・本番マスタをコピーして例: デスクトップに「工事番号管理表_テスト.xlsm」を作る
@@ -109,21 +109,21 @@ End Function
 '   ・確認できたら A1 を空欄に戻す（本番マスタに自動で戻る）
 '================================================================================
 Public Function GetMasterPath() As String
-    ' 1. 「操作」シート A1 セルのパスを最優先で使う（空欄ならスキップ）
-    Dim cellPath As String
-    On Error Resume Next
-    cellPath = Trim(CStr(ThisWorkbook.Sheets("操作").Range("A1").Value))
-    On Error GoTo 0
-    If cellPath <> "" Then
-        GetMasterPath = cellPath
-        Exit Function
-    End If
-
-    ' 2. A1 空欄なら従来どおり定数を使う
     If IS_TEST_MODE Then
+        ' テストモード: コードの TEST_MASTER_PATH を使う（A1セルは無視）
         GetMasterPath = TEST_MASTER_PATH
     Else
-        GetMasterPath = PROD_MASTER_PATH
+        ' 本番モード: 「操作」シート A1 セルのパスを使う
+        '             A1 が空欄なら PROD_MASTER_PATH にフォールバック
+        Dim cellPath As String
+        On Error Resume Next
+        cellPath = Trim(CStr(ThisWorkbook.Sheets("操作").Range("A1").Value))
+        On Error GoTo 0
+        If cellPath <> "" Then
+            GetMasterPath = cellPath
+        Else
+            GetMasterPath = PROD_MASTER_PATH
+        End If
     End If
 End Function
 
