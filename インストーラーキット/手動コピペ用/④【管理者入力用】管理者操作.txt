@@ -611,12 +611,35 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
     Set readRange = src.Range(src.Cells(1, 1), src.Cells(lastRow, lastCol))
 
     m_DiagStep = "⑤arr読み込み(マスタからメモリへ)"
+    '   【2026/5/26 修正】一括読み込み(arr = readRange.Value)が
+    '   「オーバーフローしました」で失敗するケースがあるため、
+    '   失敗時は1セルずつ安全に読み込むフォールバックを追加。
+    '   - 1セルずつ読めれば → そのまま正常動作（一括読み込みのクセが原因だった）
+    '   - 特定セルで失敗 → m_DiagExtra にそのセル位置が残り、原因セルを特定できる
     Dim arr As Variant
-    If readRange.Cells.Count = 1 Then
+    Dim rr As Long, cc As Long
+    If lastRow = 1 And lastCol = 1 Then
         ReDim arr(1 To 1, 1 To 1)
-        arr(1, 1) = readRange.Value
+        arr(1, 1) = src.Cells(1, 1).Value
     Else
+        Dim bulkErr As Long
+        On Error Resume Next
         arr = readRange.Value
+        bulkErr = Err.Number
+        On Error GoTo 0
+
+        If bulkErr <> 0 Or Not IsArray(arr) Then
+            ' 一括読み込み失敗 → 1セルずつ読み直す
+            m_DiagExtra = "一括読込失敗(err=" & bulkErr & ")→セル単位で再試行"
+            ReDim arr(1 To lastRow, 1 To lastCol)
+            For rr = 1 To lastRow
+                For cc = 1 To lastCol
+                    m_DiagExtra = "セル読込中: " & rr & "行目 " & cc & "列目"
+                    arr(rr, cc) = src.Cells(rr, cc).Value
+                Next cc
+            Next rr
+            m_DiagExtra = ""
+        End If
     End If
 
     m_DiagStep = "⑥フィルタ列番号取得"
