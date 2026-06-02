@@ -89,6 +89,7 @@ Public Sub SetupAndShow(ByVal KoujiName As String, ByVal Tantousha As String)
     Me.提出日付.Value = Format(Date, "yyyy/mm/dd")
     Me.数量1.Value = 1
     Me.単位1.Value = "式"
+    Me.txt名称1.Value = "上記工事"   ' 【2026/6/2 追加】明細1行目の品名に初期値（編集・削除可）
     Me.小計.Value = 0
     Me.消費税.Value = 0
     Me.請求金額.Value = 0
@@ -166,6 +167,10 @@ Private Sub TextBox14_Change()
 End Sub
 
 Private Sub TextBox3_Change()
+
+End Sub
+
+Private Sub txt名称1_Change()
 
 End Sub
 
@@ -443,7 +448,7 @@ Private Sub 依頼書作成_Click()
         .Range(GetCellAddr("郵送先住所")).Value = "〒" & Me.郵便番号.Value & "　" & Me.住所.Value  ' 郵送先住所
         ' 請求金額(税込): セル設定シートから動的取得
         Dim invAddr As String: invAddr = GetCellAddr("請求金額(税込)")
-        If invAddr <> "" Then .Range(invAddr).Value = Val(Replace(Me.請求金額.Value, ",", ""))
+        If invAddr <> "" Then .Range(invAddr).Value = val(Replace(Me.請求金額.Value, ",", ""))
         .Range(GetCellAddr("消費税テキスト")).Value = "（ 内消費税　　" & Me.消費税.Value & " ）"  ' 消費税テキスト（￥は新書式の要望により削除）
         .Range(GetCellAddr("工事名称")).Value = Me.工事名称.Value                        ' 工事名称
         .Range(GetCellAddr("工事番号")).Value = m_KoujiBangou                            ' 工事番号
@@ -466,8 +471,8 @@ Private Sub 依頼書作成_Click()
         ' --- 小計・消費税: セル設定シートから動的計算で取得 ---
         Dim subtotalAddr As String: subtotalAddr = GetSubtotalCellAddr()
         Dim taxAddr As String: taxAddr = GetTaxCellAddr()
-        If subtotalAddr <> "" Then .Range(subtotalAddr).Value = Val(Replace(Me.小計.Value, ",", ""))
-        If taxAddr <> "" Then .Range(taxAddr).Value = Val(Replace(Me.消費税.Value, ",", ""))
+        If subtotalAddr <> "" Then .Range(subtotalAddr).Value = val(Replace(Me.小計.Value, ",", ""))
+        If taxAddr <> "" Then .Range(taxAddr).Value = val(Replace(Me.消費税.Value, ",", ""))
         
         ' --- 引継ぎコメント ---
         .Range(GetCellAddr("引継ぎコメント")).Value = Me.引継ぎコメント.Value
@@ -555,11 +560,11 @@ Private Sub 税込み_Click()
     Dim subTotal As Currency
     
     ' 金額1～5の合計を算出（空欄は0扱い）
-    val1 = Val(Replace(Me.金額1.Value, ",", ""))
-    val2 = Val(Replace(Me.金額2.Value, ",", ""))
-    val3 = Val(Replace(Me.金額3.Value, ",", ""))
-    val4 = Val(Replace(Me.金額4.Value, ",", ""))
-    val5 = Val(Replace(Me.金額5.Value, ",", ""))
+    val1 = val(Replace(Me.金額1.Value, ",", ""))
+    val2 = val(Replace(Me.金額2.Value, ",", ""))
+    val3 = val(Replace(Me.金額3.Value, ",", ""))
+    val4 = val(Replace(Me.金額4.Value, ",", ""))
+    val5 = val(Replace(Me.金額5.Value, ",", ""))
     subTotal = val1 + val2 + val3 + val4 + val5
     
     If subTotal = 0 Then
@@ -626,6 +631,11 @@ Private Sub 金額5_Change(): Call CalculateTotals: End Sub
 
 ' 日付欄からフォーカスが外れたら、書式をチェック・統一する
 Private Sub 作成日_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.作成日, "作成日", Cancel): End Sub
+
+Private Sub 但陽信金口座指定_Click()
+
+End Sub
+
 Private Sub 着手_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.着手, "工期着手", Cancel): End Sub
 Private Sub 完成_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.完成, "工期完成", Cancel): End Sub
 Private Sub 引渡日_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.引渡日, "引渡日", Cancel): End Sub
@@ -672,12 +682,14 @@ Private Sub AddDataToIraiRireki(ByVal wsRireki As Worksheet)
             numVal = CLng(cellVal)
             If numVal >= 301 And numVal <= 399 Then
                 cellNum = numVal - 300
+            Else
+                cellNum = numVal
+            End If
                 If cellNum > maxNum Then maxNum = cellNum
             End If
-        End If
     Next i
     nextNoNum = maxNum + 1
-    newIraiNo = "03" & Format(nextNoNum, "00")
+    newIraiNo = CStr(nextNoNum)
 
     ' --- 3. データを書き込む ---
     With wsRireki
@@ -689,7 +701,7 @@ Private Sub AddDataToIraiRireki(ByVal wsRireki As Worksheet)
         .Cells(nextRow, "F").Value = Me.工事名称.Value ' 3:工事名称 (F列)
         .Cells(nextRow, "G").Value = FormatIfDate(Me.着手.Value) ' 4:工期 着手 (G列)
         .Cells(nextRow, "H").Value = FormatIfDate(Me.完成.Value) ' 5:工期 完成 (H列)
-        .Cells(nextRow, "I").Value = Val(Replace(Me.請求金額.Value, ",", "")) ' 6:請負金額 (I列)
+        .Cells(nextRow, "I").Value = val(Replace(Me.請求金額.Value, ",", "")) ' 6:請負金額 (I列)
         .Cells(nextRow, "J").Value = FormatIfDate(Me.作成日.Value) ' 7:依頼書作成日 (J列)
         .Cells(nextRow, "K").Value = GetSelectedTeishutsuyoukou() ' 8:提出要項 (K列)
         
@@ -741,14 +753,14 @@ End Sub
 
 
 ' 日付の形式が正しいかチェックし、自動で書式を整える
-Private Sub ValidateDate(ByVal DateField As MSForms.Control, ByVal FieldName As String, ByRef Cancel As MSForms.ReturnBoolean)
+Private Sub ValidateDate(ByVal DateField As MSForms.Control, ByVal fieldName As String, ByRef Cancel As MSForms.ReturnBoolean)
     Dim inputText As String
     inputText = Trim(DateField.Value)
     If inputText = "" Then Exit Sub
     If IsDate(inputText) Then
         DateField.Value = Format(CDate(inputText), "yyyy/mm/dd")
     Else
-        MsgBox FieldName & " は「YYYY/MM/DD」形式で入力してください。", vbExclamation, "入力エラー"
+        MsgBox fieldName & " は「YYYY/MM/DD」形式で入力してください。", vbExclamation, "入力エラー"
         Cancel = True
     End If
 End Sub
@@ -757,11 +769,11 @@ End Sub
 Private Sub CalculateTotals()
     Dim val1 As Currency, val2 As Currency, val3 As Currency, val4 As Currency, val5 As Currency
     Dim subTotal As Currency, tax As Currency, grandTotal As Currency
-    val1 = Val(Replace(Me.金額1.Value, ",", ""))
-    val2 = Val(Replace(Me.金額2.Value, ",", ""))
-    val3 = Val(Replace(Me.金額3.Value, ",", ""))
-    val4 = Val(Replace(Me.金額4.Value, ",", ""))
-    val5 = Val(Replace(Me.金額5.Value, ",", ""))
+    val1 = val(Replace(Me.金額1.Value, ",", ""))
+    val2 = val(Replace(Me.金額2.Value, ",", ""))
+    val3 = val(Replace(Me.金額3.Value, ",", ""))
+    val4 = val(Replace(Me.金額4.Value, ",", ""))
+    val5 = val(Replace(Me.金額5.Value, ",", ""))
     subTotal = val1 + val2 + val3 + val4 + val5
     tax = Application.WorksheetFunction.Round(subTotal * 0.1, 0) ' 消費税10%を計算（四捨五入）
     grandTotal = subTotal + tax
@@ -781,7 +793,7 @@ Private Sub UpdateExternalFile(ByVal wsTarget As Worksheet, ByVal rowToUpdate As
         .Cells(rowToUpdate, "S").Value = Me.請求書提出先.Value
         .Cells(rowToUpdate, "G").Value = FormatIfDate(Me.着手.Value)
         .Cells(rowToUpdate, "H").Value = FormatIfDate(Me.完成.Value)
-        .Cells(rowToUpdate, "K").Value = Val(Replace(Me.小計.Value, ",", ""))
+        .Cells(rowToUpdate, "K").Value = val(Replace(Me.小計.Value, ",", ""))
         .Cells(rowToUpdate, "C").Value = Me.担当者.Value
         .Cells(rowToUpdate, "Q").Value = FormatIfDate(Me.提出日付.Value)
         .Cells(rowToUpdate, "O").Value = GetSelectedTeishutsuyoukou()
@@ -793,6 +805,13 @@ Private Sub UpdateExternalFile(ByVal wsTarget As Worksheet, ByVal rowToUpdate As
         .Cells(rowToUpdate, "U").Value = Me.住所.Value
         .Cells(rowToUpdate, "X").Value = Me.引継ぎコメント.Value
         .Cells(rowToUpdate, "N").Value = Date ' 最終更新日
+
+        ' --- 依頼書作成済みの目印として、この工事の行(A:X)を薄いグレーに塗る ---
+        '   【2026/6/2 追加】お客様要望: 依頼書を作成した工事の行をグレー表示。
+        '   マスタ側でここに塗っておくと、後続の UpdateLocalListSheet が
+        '   書式ごとコピーするため、手元(ローカル)の一覧にも同じグレーが反映される。
+        '   → マスタ・ローカルの両方が一度の処理でグレーになる。
+        .Range(.Cells(rowToUpdate, "A"), .Cells(rowToUpdate, "X")).Interior.Color = RGB(220, 220, 220)
     End With
     Call SafeProtectData(wsTarget)
     Exit Sub
@@ -1400,3 +1419,5 @@ Private Function SheetExists(ByVal wb As Workbook, ByVal sheetName As String) As
     SheetExists = Not ws Is Nothing
 End Function
 
+
+-------------------------------------------------------------------------------
