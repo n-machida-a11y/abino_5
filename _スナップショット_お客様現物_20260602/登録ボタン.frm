@@ -1,0 +1,443 @@
+Option Explicit
+
+'================================================================================
+' [フォーム] 登録ボタン（「新規登録」フォーム）
+'--------------------------------------------------------------------------------
+' 【何のファイル？】
+'   新しい工事を登録するフォーム。工事番号は採番ルールに従い自動生成。
+'
+' 【採番ルール（2026/6/1～）】
+'   "03-26-000001"
+'    - 03  …… 部署コード（建築=03, 土木=05）
+'    - 26  …… 年度下2桁
+'    - 000001 …… 6桁通し番号（部署×年度ごとに最大値+1）
+'
+'   ※ 旧旧: 03-YYZZ-NNN (ZZ=担当者番号)、旧: 03-YY-NNNNNN。
+'
+' 【しくみ】
+'   - 担当者リストは担当者マスタから自部署フィルタ
+'   - 担当者マスタ A=担当者名、B=部署番号
+'================================================================================
+
+' IS_TEST_MODE / TEST_FILE_PATH / SHEET_* / CELL_* / PATH_CELL は Config モジュールで一元管理。
+
+'--- 定数（このフォーム固有） ---
+Private Const COL_YEAR As String = "A"
+Private Const COL_NO As String = "B"
+Private Const COL_STAFF As String = "C"
+Private Const COL_KOUJI_BANGO As String = "D"
+Private Const COL_KOUJI_NAME As String = "E"
+Private Const MASTER_COL_STAFF_NAME As String = "A"
+Private Const MASTER_COL_STAFF_NO As String = "B"
+
+'--- キャッシュ変数 ---
+Private m_CachedStaffList As Variant
+Private m_CachedTargetSheetName As String
+
+Private Sub Label13_Click()
+End Sub
+
+Private Sub Label18_Click()
+
+End Sub
+
+'================================================================================
+' フォーム初期化
+'================================================================================
+
+Private Sub UserForm_Terminate()
+    ' メモリリーク防止：キャッシュ変数を明示的に解放
+    m_CachedStaffList = Empty
+End Sub
+
+Private Sub UserForm_Initialize()
+    Dim wbTarget_Init As Workbook
+    Dim wsMaster_Init As Worksheet
+    Dim targetFilePath As String
+    Dim originalDisplayAlerts As Boolean
+    Dim originalEnableEvents As Boolean
+
+    Application.ScreenUpdating = False
+    originalDisplayAlerts = Application.DisplayAlerts
+    Application.DisplayAlerts = False
+    originalEnableEvents = Application.EnableEvents
+    Application.EnableEvents = False
+
+    On Error GoTo ErrorHandlerInit
+
+    If Not IsEmpty(m_CachedStaffList) Then
+        Me.担当者.List = m_CachedStaffList
+        GoTo FinalizeInitWithoutFileOpen
+    End If
+
+    targetFilePath = GetTargetFilePath()
+
+    If Dir(targetFilePath) = "" Then
+        MsgBox "対象のファイルが見つかりません。" & vbCrLf & targetFilePath, vbCritical
+        Unload Me
+        GoTo FinalizeInit
+    End If
+
+    Set wbTarget_Init = Application.Workbooks.Open(fileName:=targetFilePath, ReadOnly:=True, UpdateLinks:=0)
+
+    ' 工事番号一覧シート名を管理マスタA列「工事番号一覧シート」項目から取得
+    m_CachedTargetSheetName = GetSheetNameFromMaster(wbTarget_Init, "工事番号一覧シート", SHEET_KOUJI_LIST)
+    If m_CachedTargetSheetName = "" Then
+        MsgBox "「管理マスタ」シートの「工事番号一覧シート」項目に値が設定されていません。", vbCritical, "設定エラー"
+        GoTo FinalizeInit
+    End If
+
+    If Not SheetExists(wbTarget_Init, m_CachedTargetSheetName) Then
+        MsgBox "参照先のファイルに「" & m_CachedTargetSheetName & "」が見つかりません。", vbCritical, "シートエラー"
+        GoTo FinalizeInit
+    End If
+
+    Me.担当者.Clear
+    ' 担当者リスト = 担当者マスタA列から自部門コード(B列)でフィルタ
+    m_CachedStaffList = GetStaffListFiltered(wbTarget_Init, GetMyDeptCode())
+    If IsEmpty(m_CachedStaffList) Then
+        MsgBox "担当者マスタに自部門(" & GetMyDeptCode() & ")の担当者が見つかりません。", vbExclamation
+        GoTo FinalizeInit
+    End If
+    Me.担当者.List = m_CachedStaffList
+
+FinalizeInit:
+    If Not wsMaster_Init Is Nothing Then Set wsMaster_Init = Nothing
+    If Not wbTarget_Init Is Nothing Then wbTarget_Init.Close SaveChanges:=False
+
+FinalizeInitWithoutFileOpen:
+    Application.DisplayAlerts = originalDisplayAlerts
+    Application.EnableEvents = originalEnableEvents
+    Application.ScreenUpdating = True
+    Exit Sub
+
+ErrorHandlerInit:
+    MsgBox "初期化中に予期せぬエラーが発生しました。" & vbCrLf & Err.Description, vbCritical
+    Resume FinalizeInit
+End Sub
+
+'================================================================================
+' 入力チェック・自動処理
+'================================================================================
+Private Sub 着手_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.着手, "着手日", Cancel): End Sub
+Private Sub 完成_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.完成, "完成日", Cancel): End Sub
+Private Sub 契約日_Exit(ByVal Cancel As MSForms.ReturnBoolean): Call ValidateDate(Me.契約日, "契約日", Cancel): End Sub
+
+Private Sub 金額_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    If IsNumeric(Me.金額.Value) Then
+        If val(Me.金額.Value) >= 10000000 Then Me.アンケート.Value = True
+    End If
+End Sub
+
+Private Sub ValidateDate(ByVal DateField As MSForms.TextBox, ByVal fieldName As String, ByRef Cancel As MSForms.ReturnBoolean)
+    Dim inputText As String
+    inputText = Trim(DateField.Value)
+    If inputText = "" Then Exit Sub
+    If IsDate(inputText) Then
+        DateField.Value = Format(CDate(inputText), "yyyy/mm/dd")
+    Else
+        MsgBox fieldName & " は「YYYY/MM/DD」形式で入力してください。" & vbCrLf & "(例: " & Format(Date, "yyyy/mm/dd") & ")", vbExclamation, "入力エラー"
+        Cancel = True
+    End If
+End Sub
+
+'================================================================================
+' 「登録」ボタン
+'================================================================================
+Private Sub 登録_Click()
+    Dim wbTarget_Reg As Workbook
+    Dim wsTarget_Reg As Worksheet, wsMaster_Reg As Worksheet
+    Dim targetRow As Long
+    Dim newKoujiBangou As String
+    Dim isSuccess As Boolean
+    Dim targetFilePath As String
+    Dim originalDisplayAlerts As Boolean
+    Dim originalEnableEvents As Boolean
+
+    isSuccess = False
+    originalDisplayAlerts = Application.DisplayAlerts
+    originalEnableEvents = Application.EnableEvents
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    Application.EnableEvents = False
+
+    On Error GoTo ErrorHandlerReg
+
+    If m_CachedTargetSheetName = "" Then
+        MsgBox "対象シート名がキャッシュされていません。フォームを一度閉じて再度開いてください。", vbCritical
+        GoTo TheEndReg
+    End If
+
+    targetFilePath = GetTargetFilePath()
+
+    If Dir(targetFilePath) = "" Then
+        MsgBox "対象のファイルパスが無効です。" & vbCrLf & targetFilePath, vbCritical, "設定エラー"
+        GoTo TheEndReg
+    End If
+
+    If Not ValidateInputs() Then GoTo TheEndReg
+
+    Dim openedWbMain As Workbook
+    For Each openedWbMain In Application.Workbooks
+        If openedWbMain.FullName = targetFilePath Then
+            MsgBox "対象のExcelファイルが既に開かれています。閉じてから再度実行してください。", vbCritical
+            GoTo TheEndReg
+        End If
+    Next openedWbMain
+
+    On Error Resume Next
+    Set wbTarget_Reg = Application.Workbooks.Open(fileName:=targetFilePath, ReadOnly:=False, UpdateLinks:=0)
+    On Error GoTo ErrorHandlerReg
+
+    If wbTarget_Reg Is Nothing Then
+        MsgBox "対象のExcelファイルを開けませんでした。他のユーザーが書き込みロックしている可能性があります。", vbCritical
+        GoTo TheEndReg
+    End If
+
+    If wbTarget_Reg.ReadOnly Then
+        MsgBox "対象のExcelファイルは読み取り専用で開かれました。他のユーザーが使用中か確認してください。", vbExclamation
+        GoTo TheEndReg
+    End If
+
+    Dim staffSheetName_Reg As String
+    staffSheetName_Reg = GetSheetNameFromMaster(wbTarget_Reg, "担当者マスタシート", SHEET_STAFF_MASTER)
+    If Not SheetExists(wbTarget_Reg, staffSheetName_Reg) Then
+        MsgBox "登録先Excelに「" & staffSheetName_Reg & "」が見つかりません。", vbCritical
+        GoTo TheEndReg
+    End If
+    Set wsMaster_Reg = wbTarget_Reg.Sheets(staffSheetName_Reg)
+
+    If Not SheetExists(wbTarget_Reg, m_CachedTargetSheetName) Then
+        MsgBox "登録先Excelに「" & m_CachedTargetSheetName & "」が見つかりません。", vbCritical
+        GoTo TheEndReg
+    End If
+    Set wsTarget_Reg = wbTarget_Reg.Sheets(m_CachedTargetSheetName)
+
+    targetRow = FindNextAvailableRow(wsTarget_Reg)
+    If targetRow = 0 Then
+        MsgBox "転記先の空白行が見つかりませんでした。", vbExclamation
+        GoTo TheEndReg
+    End If
+
+    newKoujiBangou = GenerateAndConfirmKoujiBangou(wsTarget_Reg, wsMaster_Reg)
+    If newKoujiBangou = "" Then GoTo TheEndReg
+
+    Call TransferDataToSheet(wsTarget_Reg, targetRow, newKoujiBangou)
+    Call ClearAllFilters(wsTarget_Reg)
+    wbTarget_Reg.Save
+
+    If Not UpdateLocalListSheet(wsTarget_Reg, wsMaster_Reg) Then GoTo TheEndReg
+
+    isSuccess = True
+
+TheEndReg:
+    If Not wsMaster_Reg Is Nothing Then Set wsMaster_Reg = Nothing
+    If Not wsTarget_Reg Is Nothing Then Set wsTarget_Reg = Nothing
+    If Not wbTarget_Reg Is Nothing Then wbTarget_Reg.Close SaveChanges:=False
+    Application.CutCopyMode = False
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = originalDisplayAlerts
+    Application.EnableEvents = originalEnableEvents
+    If isSuccess Then
+        MsgBox "登録が完了しました。", vbInformation
+        Unload Me
+    End If
+    Exit Sub
+
+ErrorHandlerReg:
+    MsgBox "予期せぬエラーが発生しました。" & vbCrLf & vbCrLf & _
+           "エラー番号: " & Err.Number & vbCrLf & _
+           "エラー内容: " & Err.Description, vbCritical, "VBA実行エラー"
+    Resume TheEndReg
+End Sub
+
+'================================================================================
+' 補助関数
+'================================================================================
+Private Function ValidateInputs() As Boolean
+    Dim errorMessage As String
+    errorMessage = ""
+    If Me.担当者.ListIndex = -1 Then errorMessage = errorMessage & "・担当者名を選択してください。" & vbCrLf
+    If Trim(Me.工事名称.Value) = "" Then errorMessage = errorMessage & "・工事名称を入力してください。" & vbCrLf
+    If Trim(Me.発注者入力.Value) = "" Then errorMessage = errorMessage & "・発注者を入力してください。" & vbCrLf
+    If errorMessage <> "" Then
+        MsgBox "以下の項目を確認してください。" & vbCrLf & vbCrLf & errorMessage, vbExclamation, "入力エラー"
+        ValidateInputs = False
+    Else
+        ValidateInputs = True
+    End If
+End Function
+
+Private Function FindNextAvailableRow(ByVal ws As Worksheet) As Long
+    Dim r As Long
+    For r = 4 To ws.Cells(ws.Rows.count, COL_KOUJI_NAME).End(xlUp).Row + 1
+        If Trim(CStr(ws.Cells(r, COL_KOUJI_NAME).Value)) = "" Then
+            FindNextAvailableRow = r
+            Exit Function
+        End If
+    Next r
+    FindNextAvailableRow = 0
+End Function
+
+Private Function GenerateAndConfirmKoujiBangou(ByVal wsTarget As Worksheet, ByVal wsMaster As Worksheet) As String
+    Dim autoKoujiBangou As String
+    Dim userModifiedKoujiBangou As String
+
+    autoKoujiBangou = CreateNewKoujiBangou(wsTarget, wsMaster)
+    If autoKoujiBangou = "ERROR" Then
+        MsgBox "担当者がマスタに見つかりません。", vbCritical
+        GenerateAndConfirmKoujiBangou = ""
+        Exit Function
+    End If
+
+    userModifiedKoujiBangou = InputBox("工事番号を下記で自動生成します。必要に応じて修正してください。", "工事番号の確認", autoKoujiBangou)
+
+    If StrPtr(userModifiedKoujiBangou) = 0 Then
+        GenerateAndConfirmKoujiBangou = ""
+    ElseIf userModifiedKoujiBangou = "" Then
+        MsgBox "工事番号が空欄です。登録を中止します。", vbExclamation
+        GenerateAndConfirmKoujiBangou = ""
+    Else
+        GenerateAndConfirmKoujiBangou = userModifiedKoujiBangou
+    End If
+End Function
+
+Private Function CreateNewKoujiBangou(ByVal wsTarget As Worksheet, ByVal wsMaster As Worksheet) As String
+    Dim decisionDate As Date
+    Dim inputYearShort As Integer
+    Dim selectedStaff As String
+    Dim staffNumberValue As Variant
+    Dim matchRow As Variant
+    Dim prefix As String
+    Dim maxZZZ As Long
+    Dim r As Long
+    Dim koujiBangou As String
+
+    If IsDate(Me.契約日.Value) Then decisionDate = CDate(Me.契約日.Value) Else decisionDate = Date
+    If Month(decisionDate) >= 6 Then inputYearShort = Year(decisionDate) Else inputYearShort = Year(decisionDate) - 1
+
+    selectedStaff = Me.担当者.Value
+    ' wsMaster は登録_Click から「担当者マスタ」シートが渡される（2026/5/24 改修）
+    matchRow = Application.Match(selectedStaff, wsMaster.Columns(MASTER_COL_STAFF_NAME), 0)
+    If IsError(matchRow) Then
+        CreateNewKoujiBangou = "ERROR"
+        Exit Function
+    End If
+    staffNumberValue = wsMaster.Cells(matchRow, MASTER_COL_STAFF_NO).Value  ' 行データ用に取得（工事番号には使わない）
+
+    ' 担当者番号は工事番号に含めない（2026/6/1～の新ルール）
+    '   旧旧: "03-YYZZ-NNN" (YY=年度, ZZ=担当者番号, NNN=3桁通し番号)
+    '   旧:   "03-YY-NNNNNN" (YY=年度, NNNNNN=6桁通し番号)
+    '   新:   "03-YYNNNNN" (YY=年度, NNNNN=5桁通し番号、ハイフンは部門の後だけ)
+    Dim deptCode As String: deptCode = GetMyDeptCode()  ' 自部門コード（A37セル）
+    prefix = deptCode & "-" & Right(CStr(inputYearShort), 2)  ' 例: "03-26"
+
+    maxZZZ = 0
+    For r = 1 To wsTarget.Cells(wsTarget.Rows.count, COL_KOUJI_BANGO).End(xlUp).Row
+        koujiBangou = CStr(wsTarget.Cells(r, COL_KOUJI_BANGO).Value)
+        If Left(koujiBangou, Len(prefix)) = prefix Then
+            Dim existingZZZ As String
+            ' プレフィックスより後ろの部分（5桁通し番号）を取得
+            existingZZZ = Mid(koujiBangou, Len(prefix) + 1)
+            If IsNumeric(existingZZZ) Then
+                If CLng(existingZZZ) > maxZZZ Then maxZZZ = CLng(existingZZZ)
+            End If
+        End If
+    Next r
+
+    CreateNewKoujiBangou = prefix & Format(maxZZZ + 1, "00000")  ' 5桁通し番号
+End Function
+
+Private Sub TransferDataToSheet(ByVal wsTarget As Worksheet, ByVal targetRow As Long, ByVal newKoujiBangou As String)
+    Dim inputYearFull As Integer
+    Dim parts() As String
+    On Error GoTo ErrorHandlerTransfer
+
+    Call SafeUnprotect(wsTarget)
+
+    parts = Split(newKoujiBangou, "-")
+    If UBound(parts) >= 1 And Len(parts(1)) >= 2 And IsNumeric(Left(parts(1), 2)) Then
+        inputYearFull = CInt("20" & Left(parts(1), 2))
+    Else
+        inputYearFull = Year(Date)
+    End If
+
+    With wsTarget
+        .Cells(targetRow, COL_YEAR).Value = inputYearFull
+        .Cells(targetRow, COL_NO).Value = Application.WorksheetFunction.Max(.Columns(COL_NO)) + 1
+        .Cells(targetRow, COL_STAFF).Value = Me.担当者.Value
+        .Cells(targetRow, COL_KOUJI_BANGO).Value = newKoujiBangou
+        .Cells(targetRow, COL_KOUJI_NAME).Value = Me.工事名称.Value
+        .Cells(targetRow, "F").Value = Me.発注者入力.Value
+        If IsDate(Me.着手.Value) Then .Cells(targetRow, "G").Value = CDate(Me.着手.Value)
+        If IsDate(Me.完成.Value) Then .Cells(targetRow, "H").Value = CDate(Me.完成.Value)
+        If Me.有り.Value = True Then
+            .Cells(targetRow, "I").Value = "◯"
+        ElseIf Me.無し.Value = True Then
+            .Cells(targetRow, "I").Value = "ー"
+        End If
+        If IsDate(Me.契約日.Value) Then .Cells(targetRow, "J").Value = CDate(Me.契約日.Value)
+        .Cells(targetRow, "K").Value = Me.金額.Value
+        If val(Me.金額.Value) >= 10000000 Then
+            .Cells(targetRow, "L").Value = "◯"
+        ElseIf Me.アンケート.Value = True Then
+            .Cells(targetRow, "L").Value = "◯"
+        Else
+            .Cells(targetRow, "L").Value = "ー"
+        End If
+        .Cells(targetRow, "M").Value = Me.コメント.Value
+    End With
+    Call SafeProtectData(wsTarget)
+    Exit Sub
+
+ErrorHandlerTransfer:
+    Call SafeProtectData(wsTarget)
+    MsgBox "工事番号一覧へのデータ転記中にエラー: " & Err.Description, vbCritical
+End Sub
+
+Private Function UpdateLocalListSheet(ByVal wsSource As Worksheet, ByVal wsMaster As Worksheet) As Boolean
+    Dim wsDest As Worksheet
+    Dim destSheetName As String
+    Dim lastRowSource As Long
+    Dim copyRange As Range
+
+    UpdateLocalListSheet = False
+
+    destSheetName = GetSheetNameFromMaster(ThisWorkbook, "工事番号一覧シート", SHEET_KOUJI_LIST)
+    If destSheetName = "" Then
+        MsgBox "「管理マスタ」シートの「工事番号一覧シート」項目に値が設定されていません。", vbExclamation
+        Exit Function
+    End If
+
+    On Error Resume Next
+    Set wsDest = ThisWorkbook.Sheets(destSheetName)
+    On Error GoTo 0
+    If wsDest Is Nothing Then
+        MsgBox "このファイルに「" & destSheetName & "」が見つかりませんでした。", vbExclamation
+        Exit Function
+    End If
+
+    On Error GoTo ErrorHandlerUpdateLocalReg
+    Call SafeUnprotect(wsDest)
+    wsDest.Range("A3:X" & wsDest.Rows.count).Clear
+
+    lastRowSource = wsSource.Cells(wsSource.Rows.count, "A").End(xlUp).Row
+    If lastRowSource >= 5 Then
+        Set copyRange = wsSource.Range("A5:X" & lastRowSource)
+        copyRange.Copy Destination:=wsDest.Range("A3")
+    End If
+
+    Call SafeProtectData(wsDest)
+    Application.CutCopyMode = False
+    UpdateLocalListSheet = True
+    Exit Function
+
+ErrorHandlerUpdateLocalReg:
+    Call SafeProtectData(wsDest)
+    MsgBox "ローカル一覧更新中にエラー: " & Err.Description, vbCritical
+    UpdateLocalListSheet = False
+End Function
+
+
+
+-------------------------------------------------------------------------------

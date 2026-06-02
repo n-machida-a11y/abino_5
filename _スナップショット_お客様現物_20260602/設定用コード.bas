@@ -1,0 +1,271 @@
+Option Explicit
+
+'================================================================================
+' [設定] 設定用コード（現場用xlsm の設定値）
+'--------------------------------------------------------------------------------
+' 【何のファイル？】
+'   現場用xlsm（全社展開用）の「環境依存の設定値」をひとまとめにした場所。
+'   テスト⇔本番の切替、マスタファイルのパス、部署コード等。
+'
+' 【お客様環境セットアップ時にチェックする箇所】
+'   1. IS_TEST_MODE          … 本番なら必ず False
+'   2. 「入力フォーム」A36  … 本番のマスタxlsm のフルパス
+'   3. 「入力フォーム」A37  … 自部署の2桁コード（建築=03/土木=05）
+'
+' 【触らなくていい箇所】
+'   - シート名や列番地の定数（変えるとコード全体に影響）
+'   - SHEET_PASSWORD（保護パスワード）
+'   - 各種 Function（パス取得・部署コード取得・担当者リスト取得など）
+'================================================================================
+
+
+'================================================================================
+' 共通設定モジュール（工事番号入力管理表.xlsm 用）
+'
+' 【VBEでの設定方法】
+'   このファイルをインポート後、プロパティウィンドウで
+'   モジュール名を「Config」に変更すること。
+'
+' 【使い方】
+'   本番リリース時は IS_TEST_MODE を False にするだけでよい。
+'   シート名や保存先セルが変わった場合もここだけ修正すれば全モジュールに反映される。
+'================================================================================
+
+' ===== テスト設定 =====
+' True: 開発・テスト用ファイルを参照する（TEST_FILE_PATH が使われる）
+' False: 「入力フォーム」シートの PATH_CELL からパスを読み取る（本番動作）
+' ★ リリース時は必ず False にすること ★
+Public Const IS_TEST_MODE As Boolean = False
+Public Const TEST_FILE_PATH As String = "Z:\Users\n-machida\Desktop\工事番号管理表.xlsm"
+
+' ===== 外部マスターファイルの参照先 =====
+' 「入力フォーム」シート上の、外部ファイルパスが記載されているセル番地
+Public Const PATH_CELL As String = "A36"
+
+' ===== シート名 =====
+Public Const SHEET_KOUJI_LIST As String = "工事番号一覧"   ' データ本体
+Public Const SHEET_KANRI_MASTER As String = "管理マスタ"    ' 担当者リスト・設定値
+Public Const SHEET_OTHER_MASTER As String = "その他マスタ"  ' 提出先・同封物リスト
+
+'================================================================================
+' [設定] 設定用コード（現場用xlsm の設定値）
+'--------------------------------------------------------------------------------
+' 【何のファイル？】
+'   現場用xlsm（全社展開用）の「環境依存の設定値」をひとまとめにした場所。
+'   テスト⇔本番の切替、マスタファイルのパス、部署コード等。
+'
+' 【お客様環境セットアップ時にチェックする箇所】
+'   1. IS_TEST_MODE          … 本番なら必ず False
+'   2. 「入力フォーム」A36  … 本番のマスタxlsm のフルパス
+'   3. 「入力フォーム」A37  … 自部署の2桁コード（建築=03/土木=05）
+'
+' 【触らなくていい箇所】
+'   - シート名や列番地の定数（変えるとコード全体に影響）
+'   - SHEET_PASSWORD（保護パスワード）
+'   - 各種 Function（パス取得・部署コード取得・担当者リスト取得など）
+'================================================================================
+
+Public Const SHEET_STAFF_MASTER As String = "担当者マスタ"  ' 担当者リスト（部署フィルタあり）
+Public Const SHEET_IRAI_RIREKI As String = "依頼履歴"       ' 依頼履歴
+Public Const SHEET_IRAISHO As String = "請求書提出依頼書"
+Public Const SHEET_CELL_SETTING As String = "依頼書セル設定"  ' 請求書提出依頼書のセル位置設定シート  ' 依頼書（マクロ専用シート）
+
+' ===== 管理マスタ上のセル番地 =====
+' G3: 外部ファイル上の「対象データシート名」（再登録・名称選択・登録フォームが参照）
+Public Const CELL_TARGET_SHEET As String = "G3"
+' G5: このツール内の「ローカルコピー先シート名」（UpdateLocalListSheet が参照）
+Public Const CELL_LOCAL_COPY_SHEET As String = "G5"
+
+' ===== シート保護パスワード =====
+' 現在は未使用（空欄）。将来的に保護を設定する場合はここで一括管理する。
+Public Const SHEET_PASSWORD As String = "3555"
+
+' ===== 部門コード（自部門識別用） =====
+' 各管理Excelで「自分がどの部門のファイルか」を表す2桁コード。
+' 工事番号の採番プレフィックス（"03-..." 等）や、工事番号一覧の表示フィルタに使う。
+' 「入力フォーム」シートの DEPT_CODE_CELL セル（既定: A37）に入力する。
+'   建築事業部 → "03"
+'   土木事業部 → "05"（仮）
+' 空の場合は "03"（建築事業部）にフォールバック。
+Public Const DEPT_CODE_CELL As String = "A37"
+
+' ===== 提出依頼者の所属部署 =====
+' 各管理Excelごとに固有の値を設定する（例: "建築事業部", "土木事業部" 等）
+' 空文字の場合は書き込みをスキップする
+Public Const SUBMITTER_DEPARTMENT As String = "建築事業部"
+
+'================================================================================
+' マスターファイルのパスを返す共通関数
+' IS_TEST_MODE が True の場合はテスト用パス、False の場合は「入力フォーム」シートの
+' PATH_CELL に記載されたパスを返す。
+'================================================================================
+Public Function GetMasterPath() As String
+    If IS_TEST_MODE Then
+        GetMasterPath = TEST_FILE_PATH
+    Else
+        GetMasterPath = Trim(CStr(ThisWorkbook.Sheets("入力フォーム").Range(PATH_CELL).Value))
+    End If
+End Function
+
+'================================================================================
+' 自部門コードを返す
+'   「入力フォーム」シート DEPT_CODE_CELL（A37）の値を読む。
+'   空 or 取得失敗時は "03"（建築事業部）にフォールバック。
+'================================================================================
+Public Function GetMyDeptCode() As String
+    Dim v As String
+    On Error Resume Next
+    v = Trim(CStr(ThisWorkbook.Sheets("入力フォーム").Range(DEPT_CODE_CELL).Value))
+    On Error GoTo 0
+    If v = "" Then v = "03"
+    GetMyDeptCode = v
+End Function
+
+'================================================================================
+' GetMyDepartmentName: 自部門の名称を返す（依頼書の「提出依頼者所属部署」欄用）
+'================================================================================
+' 部門コード(A37)を元に、部門名を自動判定する。
+'   "03" → "建築事業部"
+'   "05" → "土木事業部"
+'   その他 → "建築事業部" にフォールバック（=既定）
+'
+' 【追加 2026/5/22】
+' 旧 SUBMITTER_DEPARTMENT 定数によるハードコードを廃止し、
+' A37セルの部門コードから自動判定するように変更。
+' 各部署用xlsm配布時の設定漏れを防ぐ。
+'================================================================================
+Public Function GetMyDepartmentName() As String
+    Dim code As String: code = GetMyDeptCode()
+    Select Case code
+        Case "03": GetMyDepartmentName = "建築事業部"
+        Case "05": GetMyDepartmentName = "土木事業部"
+        Case Else: GetMyDepartmentName = "建築事業部"  ' 既定（フォールバック）
+    End Select
+End Function
+
+'================================================================================
+' GetSheetNameFromMaster: 「管理マスタ」シートのkey/value表からシート名を取得
+'   wb       : 検索対象のワークブック（マスタExcel）
+'   itemName : A列の項目名（例: "工事番号一覧シート"）
+'   defaultVal : 見つからない/空の場合のフォールバック値
+' 【2026/5/24 新規】
+'   旧 G3/G5 セル固定方式から、A列項目名キーの key/value 方式に移行。
+'   管理マスタ A列に項目名（日本語）、B列にシート名を記入する運用。
+'================================================================================
+Public Function GetSheetNameFromMaster(ByVal wb As Workbook, ByVal itemName As String, _
+                                        Optional ByVal defaultVal As String = "") As String
+    Dim ws As Worksheet
+    On Error Resume Next
+    Set ws = wb.Sheets("管理マスタ")
+    On Error GoTo 0
+    If ws Is Nothing Then
+        GetSheetNameFromMaster = defaultVal
+        Exit Function
+    End If
+
+    Dim lastRow As Long, r As Long
+    lastRow = ws.Cells(ws.Rows.count, "A").End(xlUp).Row
+    For r = 2 To lastRow
+        If Trim(CStr(ws.Cells(r, "A").Value)) = itemName Then
+            Dim v As String
+            v = Trim(CStr(ws.Cells(r, "B").Value))
+            If v <> "" Then
+                GetSheetNameFromMaster = v
+                Exit Function
+            End If
+        End If
+    Next r
+    GetSheetNameFromMaster = defaultVal
+End Function
+
+'================================================================================
+' GetStaffListFiltered: 担当者マスタから自部門の担当者リストを取得
+'   wb       : 検索対象のワークブック（マスタExcel）
+'   deptCode : 部門コード（"03" / "05" 等）
+' 戻り値    : Variant配列（担当者名の1次元配列、空なら Empty）
+' 【2026/5/24 新規】
+'   担当者リストを「管理マスタA列」→「担当者マスタA列」に移行。
+'   担当者マスタB列の部署番号で自部門のみフィルタする。
+'================================================================================
+Public Function GetStaffListFiltered(ByVal wb As Workbook, ByVal deptCode As String) As Variant
+    Dim staffSheetName As String
+    staffSheetName = GetSheetNameFromMaster(wb, "担当者マスタシート", "担当者マスタ")
+
+    Dim wsStaff As Worksheet
+    On Error Resume Next
+    Set wsStaff = wb.Sheets(staffSheetName)
+    On Error GoTo 0
+    If wsStaff Is Nothing Then
+        GetStaffListFiltered = Empty
+        Exit Function
+    End If
+
+    Dim lastRow As Long
+    lastRow = wsStaff.Cells(wsStaff.Rows.count, "A").End(xlUp).Row
+    If lastRow < 2 Then
+        GetStaffListFiltered = Empty
+        Exit Function
+    End If
+
+    Dim arr As Variant
+    arr = wsStaff.Range("A2:B" & lastRow).Value
+
+    Dim filtered() As String
+    ReDim filtered(0 To UBound(arr, 1) - 1)
+    Dim cnt As Long: cnt = 0
+    Dim i As Long
+    Dim dept As String, name As String
+    Dim myDept As String
+    myDept = Trim(deptCode)
+    If Len(myDept) = 1 Then myDept = "0" & myDept
+
+    For i = 1 To UBound(arr, 1)
+        name = Trim(CStr(arr(i, 1)))
+        dept = Trim(CStr(arr(i, 2)))
+        If Len(dept) = 1 Then dept = "0" & dept  ' "3" → "03" に正規化
+        If name <> "" And dept = myDept Then
+            filtered(cnt) = name
+            cnt = cnt + 1
+        End If
+    Next i
+
+    If cnt = 0 Then
+        GetStaffListFiltered = Empty
+    Else
+        ReDim Preserve filtered(0 To cnt - 1)
+        GetStaffListFiltered = filtered
+    End If
+End Function
+
+'================================================================================
+' GetStaffNumber: 担当者マスタから特定の担当者の部署番号を取得
+'   wb       : 検索対象のワークブック（マスタExcel）
+'   staffName: 担当者名
+' 戻り値    : B列の値（部署番号）、見つからなければ ""
+' 【2026/5/24 新規】
+'   旧 管理マスタA列で Match → B列値取得 を担当者マスタに移行。
+'================================================================================
+Public Function GetStaffNumber(ByVal wb As Workbook, ByVal staffName As String) As String
+    Dim staffSheetName As String
+    staffSheetName = GetSheetNameFromMaster(wb, "担当者マスタシート", "担当者マスタ")
+
+    Dim wsStaff As Worksheet
+    On Error Resume Next
+    Set wsStaff = wb.Sheets(staffSheetName)
+    On Error GoTo 0
+    If wsStaff Is Nothing Then
+        GetStaffNumber = ""
+        Exit Function
+    End If
+
+    Dim matchRow As Variant
+    matchRow = Application.Match(staffName, wsStaff.Columns("A"), 0)
+    If IsError(matchRow) Then
+        GetStaffNumber = ""
+        Exit Function
+    End If
+    GetStaffNumber = Trim(CStr(wsStaff.Cells(matchRow, "B").Value))
+End Function
+
+
+-------------------------------------------------------------------------------
