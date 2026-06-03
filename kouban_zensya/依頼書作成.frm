@@ -1327,7 +1327,14 @@ Private Sub LoadCellSettings(ByVal wbMaster As Workbook)
     On Error Resume Next
     Set ws = wbMaster.Sheets(SHEET_CELL_SETTING)
     On Error GoTo CleanUp
-    If ws Is Nothing Then Exit Sub
+    If ws Is Nothing Then
+        ' 【2026/6/3 追加】シート自体が無い場合も警告（新部門マスタのセットアップ漏れ検出）
+        MsgBox "マスタに「" & SHEET_CELL_SETTING & "」シートが見つかりません。" & vbCrLf & _
+               "このままでは依頼書の作成に失敗します。" & vbCrLf & _
+               "マスタファイルに「" & SHEET_CELL_SETTING & "」シートを用意してください。", _
+               vbExclamation, "依頼書セル設定が見つかりません"
+        Exit Sub
+    End If
     
     lastRow = ws.Cells(ws.Rows.count, "A").End(xlUp).Row
     For r = 2 To lastRow
@@ -1340,7 +1347,19 @@ Private Sub LoadCellSettings(ByVal wbMaster As Workbook)
             End If
         End If
     Next r
-    
+
+    ' --- 設定0件の検出【2026/6/3 追加・全社展開対応】 ---
+    '   新部門用マスタで「依頼書セル設定」シートが未整備のまま依頼書作成すると、
+    '   転記先セルが解決できず原因の分かりにくいエラーで止まる。
+    '   読込時点で0件なら警告を出して、セットアップ漏れにすぐ気付けるようにする。
+    If m_CellMap.count = 0 Then
+        MsgBox "マスタの「" & SHEET_CELL_SETTING & "」シートから設定を読み込めませんでした。" & vbCrLf & _
+               "（シートが無いか、項目が未入力です）" & vbCrLf & vbCrLf & _
+               "このままでは依頼書の作成に失敗します。" & vbCrLf & _
+               "マスタファイルの「" & SHEET_CELL_SETTING & "」シートを整備してください。", _
+               vbExclamation, "依頼書セル設定が未整備です"
+    End If
+
 CleanUp:
     Exit Sub
 End Sub

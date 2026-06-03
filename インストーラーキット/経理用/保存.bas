@@ -278,7 +278,7 @@ Private Sub SyncInvoiceNoToMaster()
     End If
 
     Set wsRireki = wbMaster.Sheets(SHEET_IRAI_RIREKI)
-    Set found = wsRireki.Columns("A").Find(What:=iraiNo, LookAt:=xlWhole)
+    Set found = wsRireki.Columns("A").Find(What:=iraiNo, LookIn:=xlValues, LookAt:=xlWhole)
     If found Is Nothing Then
         MsgBox "マスタ内に依頼NO [" & iraiNo & "] が見つかりません。", vbCritical
         GoTo Cleanup
