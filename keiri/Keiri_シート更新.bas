@@ -1,139 +1,139 @@
-ï»¿Option Explicit
+Option Explicit
 
 '================================================================================
-' [æ›´æ–°] Keiri_ã‚·ãƒ¼ãƒˆæ›´æ–°ï¼ˆçµŒç†ç”¨ ã€Œæœ€æ–°å–å¾—ã€ãƒœã‚¿ãƒ³ã®å‡¦ç†ï¼‰
+' [XV] Keiri_ƒV[ƒgXViŒo——p uÅVæ“¾vƒ{ƒ^ƒ“‚Ìˆ—j
 '--------------------------------------------------------------------------------
-' ã€ä½•ã®ãƒ•ã‚¡ã‚¤ãƒ«ï¼Ÿã€‘
-'   çµŒç†ç”¨xlsm ã®ã€Œä¾é ¼æ¤œç´¢ã€ã‚·ãƒ¼ãƒˆã‚’ãƒã‚¹ã‚¿ã®æœ€æ–°çŠ¶æ…‹ã§å†æç”»ã™ã‚‹ãŸã‚ã®
-'   ä¸€é€£ã®å‡¦ç†ã€‚å„éƒ¨ç½²ãŒç¾å ´ã§ä½œæˆã—ãŸä¾é ¼æ›¸ã‚’çµŒç†å´ã§ä¸€è¦§åŒ–ã™ã‚‹ã€‚
+' y‰½‚Ìƒtƒ@ƒCƒ‹Hz
+'   Œo——pxlsm ‚ÌuˆË—ŠŒŸõvƒV[ƒg‚ğƒ}ƒXƒ^‚ÌÅVó‘Ô‚ÅÄ•`‰æ‚·‚é‚½‚ß‚Ì
+'   ˆê˜A‚Ìˆ—BŠe•”‚ªŒ»ê‚Åì¬‚µ‚½ˆË—Š‘‚ğŒo—‘¤‚Åˆê——‰»‚·‚éB
 '
-' ã€å…¥å£ã€‘
-'   ãƒã‚¯ãƒ­ã€Œã‚·ãƒ¼ãƒˆæ›´æ–°ã€ï¼ˆä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆä¸Šã®ãƒœã‚¿ãƒ³ã«ç´ä»˜ã‘ï¼‰
+' y“üŒûz
+'   ƒ}ƒNƒuƒV[ƒgXVviˆË—ŠŒŸõƒV[ƒgã‚Ìƒ{ƒ^ƒ“‚É•R•t‚¯j
 '
-' ã€ã•ã‚ã‚‹ã¨ãã€‘
-'   ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆã®åˆ—æ§‹æˆãŒå¤‰ã‚ã£ãŸã¨ãã€‚
+' y‚³‚í‚é‚Æ‚«z
+'   ˆË—ŠŒŸõƒV[ƒg‚Ì—ñ\¬‚ª•Ï‚í‚Á‚½‚Æ‚«B
 '================================================================================
 
 
 '================================================================================
-' ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«: ã‚·ãƒ¼ãƒˆæ›´æ–°ï¼ˆã€å…±æœ‰_çµŒç†ç”¨ã€‘è«‹æ±‚æ›¸ä½œæˆ.xlsm ç”¨ï¼‰
+' ƒ‚ƒWƒ…[ƒ‹: ƒV[ƒgXViy‹¤—L_Œo——pz¿‹‘ì¬.xlsm —pj
 '================================================================================
-' ã€å½¹å‰²ã€‘
-'   ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆä¸Šã§ã€Œæ¤œç´¢å®Ÿè¡Œã€ã€Œä¸Šæ›¸ãä¿å­˜ã€ã€Œæ–°è¦ä½œæˆã€ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚ŒãŸ
-'   æ™‚ã®å‡¦ç†ã€‚ãƒã‚¹ã‚¿ï¼ˆå·¥äº‹ç•ªå·ç®¡ç†è¡¨.xlsmï¼‰ã®ä¾é ¼å±¥æ­´ã‚·ãƒ¼ãƒˆã¨åŒæ–¹å‘åŒæœŸã™ã‚‹ã€‚
+' y–ğŠ„z
+'   ˆË—ŠŒŸõƒV[ƒgã‚ÅuŒŸõÀsvuã‘‚«•Û‘¶vuV‹Kì¬vƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚½
+'   ‚Ìˆ—Bƒ}ƒXƒ^iH–”Ô†ŠÇ—•\.xlsmj‚ÌˆË—Š—š—ğƒV[ƒg‚Æ‘o•ûŒü“¯Šú‚·‚éB
 '
-' ã€ä¸»ãªå…¬é–‹ãƒã‚¯ãƒ­ã€‘
-'   ãƒã‚¯ãƒ­_æ¤œç´¢å®Ÿè¡Œ   : ä¾é ¼æ¤œç´¢!A2 ã®ä¾é ¼NO ã§ãƒã‚¹ã‚¿ã‚’æ¤œç´¢ â†’ è©²å½“è¡Œã‚’ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆã«å±•é–‹
-'   ãƒã‚¯ãƒ­_ä¸Šæ›¸ãä¿å­˜ : ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆã®ç·¨é›†å†…å®¹ã‚’ãƒã‚¹ã‚¿ã«ä¸Šæ›¸ã
-'   ãƒã‚¯ãƒ­_æ–°è¦ä½œæˆ   : ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆã®å†…å®¹ã‚’æ–°è¦ä¾é ¼ã¨ã—ã¦è¿½åŠ 
+' yå‚ÈŒöŠJƒ}ƒNƒz
+'   ƒ}ƒNƒ_ŒŸõÀs   : ˆË—ŠŒŸõ!A2 ‚ÌˆË—ŠNO ‚Åƒ}ƒXƒ^‚ğŒŸõ ¨ ŠY“–s‚ğˆË—ŠŒŸõƒV[ƒg‚É“WŠJ
+'   ƒ}ƒNƒ_ã‘‚«•Û‘¶ : ˆË—ŠŒŸõƒV[ƒg‚Ì•ÒW“à—e‚ğƒ}ƒXƒ^‚Éã‘‚«
+'   ƒ}ƒNƒ_V‹Kì¬   : ˆË—ŠŒŸõƒV[ƒg‚Ì“à—e‚ğV‹KˆË—Š‚Æ‚µ‚Ä’Ç‰Á
 '
-' ã€ä¾é ¼NOã®ä½“ç³»ã€‘
-'   - è¦ªNO       : "301" "302" ...ï¼ˆãƒã‚¹ã‚¿ã®ä¾é ¼å±¥æ­´ Aåˆ—ã®é€£ç•ªï¼‰
-'   - æNO       : "301-1" "301-2" ...ï¼ˆåŒã˜æ¡ˆä»¶ã§è¤‡æ•°å›è«‹æ±‚ã™ã‚‹å ´åˆã«æ´¾ç”Ÿï¼‰
-'   GetNextIntegerID / GetNextBranchID ã§æ¡ç•ªã€‚
+' yˆË—ŠNO‚Ì‘ÌŒnz
+'   - eNO       : "301" "302" ...iƒ}ƒXƒ^‚ÌˆË—Š—š—ğ A—ñ‚Ì˜A”Ôj
+'   - }NO       : "301-1" "301-2" ...i“¯‚¶ˆÄŒ‚Å•¡”‰ñ¿‹‚·‚éê‡‚É”h¶j
+'   GetNextIntegerID / GetNextBranchID ‚ÅÌ”ÔB
 '
-' ã€ãƒ‡ãƒ¼ã‚¿ã®æµã‚Œï¼ˆæ¤œç´¢å®Ÿè¡Œæ™‚ï¼‰ã€‘
-'   ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒä¾é ¼æ¤œç´¢!A2 ã«ã€Œ301ã€ç­‰ã‚’å…¥åŠ› â†’ æ¤œç´¢å®Ÿè¡Œãƒœã‚¿ãƒ³
-'      â†“ GetMasterPath() ã§ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã
-'   ãƒã‚¹ã‚¿ã€Œä¾é ¼å±¥æ­´ã€ã‚·ãƒ¼ãƒˆã® Aåˆ—ã§ æ¤œç´¢å€¤ã‚’ Find
-'      â†“ è©²å½“è¡Œç™ºè¦‹
-'   TransferRowToSearchSheet ã§è©²å½“è¡Œã®ãƒ‡ãƒ¼ã‚¿ã‚’ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆã«å±•é–‹
-'      â†“
-'   ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆä¸Šã§å†…å®¹ã‚’ç¢ºèªãƒ»ç·¨é›† â†’ è«‹æ±‚æ›¸ä½œæˆ ã¸
+' yƒf[ƒ^‚Ì—¬‚êiŒŸõÀsjz
+'   ƒ†[ƒU[‚ªˆË—ŠŒŸõ!A2 ‚Éu301v“™‚ğ“ü—Í ¨ ŒŸõÀsƒ{ƒ^ƒ“
+'      « GetMasterPath() ‚Åƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ğŠJ‚­
+'   ƒ}ƒXƒ^uˆË—Š—š—ğvƒV[ƒg‚Ì A—ñ‚Å ŒŸõ’l‚ğ Find
+'      « ŠY“–s”­Œ©
+'   TransferRowToSearchSheet ‚ÅŠY“–s‚Ìƒf[ƒ^‚ğˆË—ŠŒŸõƒV[ƒg‚É“WŠJ
+'      «
+'   ƒ†[ƒU[‚ªˆË—ŠŒŸõƒV[ƒgã‚Å“à—e‚ğŠm”FE•ÒW ¨ ¿‹‘ì¬ ‚Ö
 '
-' ã€ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆã®ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã€‘
-'   A1=ä¾é ¼NO ãƒ©ãƒ™ãƒ«, A2=ä¾é ¼NO å…¥åŠ›æ¬„, B2=è«‹æ±‚æ›¸ç•ªå·
-'   A4-F4: ãƒ˜ãƒƒãƒ€ãƒ¼ï¼ˆå·¥äº‹ç•ªå·/è«‹æ±‚æ›¸æ—¥ä»˜/è«‹æ±‚å®›å/å·¥äº‹åç§°/è«‹è² é‡‘é¡/æ‹…å½“è€…ï¼‰
-'   A5-F5: æ¡ˆä»¶ãƒ‡ãƒ¼ã‚¿
-'   A6-F6: ãƒ˜ãƒƒãƒ€ãƒ¼ï¼ˆå·¥æœŸç€æ‰‹/å®Œæˆ/å¼•æ¸¡æ—¥/ä½†é™½ä¿¡é‡‘/ã‚³ãƒ¡ãƒ³ãƒˆ/ä½œæˆæ—¥ï¼‰
-'   A7-F7: æ¡ˆä»¶ãƒ‡ãƒ¼ã‚¿
-'   A8-F8: ãƒ˜ãƒƒãƒ€ãƒ¼ï¼ˆæå‡ºè¦é …/åŒå°ç‰©/éƒµä¾¿ç•ªå·/éƒµé€å…ˆä½æ‰€/çµŒç†ãƒ¡ãƒ¢/ä½œæˆæ—¥ï¼‰
-'   A9-F9: æ¡ˆä»¶ãƒ‡ãƒ¼ã‚¿
-'   A10  : æ“ä½œå±¥æ­´
+' yˆË—ŠŒŸõƒV[ƒg‚ÌƒŒƒCƒAƒEƒgz
+'   A1=ˆË—ŠNO ƒ‰ƒxƒ‹, A2=ˆË—ŠNO “ü—Í—“, B2=¿‹‘”Ô†
+'   A4-F4: ƒwƒbƒ_[iH–”Ô†/¿‹‘“ú•t/¿‹ˆ¶–¼/H––¼Ì/¿•‰‹àŠz/’S“–Òj
+'   A5-F5: ˆÄŒƒf[ƒ^
+'   A6-F6: ƒwƒbƒ_[iHŠú’…è/Š®¬/ˆø“n“ú/’A—zM‹à/ƒRƒƒ“ƒg/ì¬“új
+'   A7-F7: ˆÄŒƒf[ƒ^
+'   A8-F8: ƒwƒbƒ_[i’ño—v€/“¯•••¨/—X•Ö”Ô†/—X‘—æZŠ/Œo—ƒƒ‚/ì¬“új
+'   A9-F9: ˆÄŒƒf[ƒ^
+'   A10  : ‘€ì—š—ğ
 '
-' ã€ä¾å­˜é–¢ä¿‚ã€‘
-'   - Config ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«: GetMasterPath(), SHEET_IRAI_RIREKI, SHEET_IRAI_SEARCH
+' yˆË‘¶ŠÖŒWz
+'   - Config ƒ‚ƒWƒ…[ƒ‹: GetMasterPath(), SHEET_IRAI_RIREKI, SHEET_IRAI_SEARCH
 '
-' ã€é‡è¦ãªå¤‰æ›´å±¥æ­´ã€‘
-'   - 2026/5: è¦ªNO/æNO ã®æ¡ç•ªãƒ­ã‚¸ãƒƒã‚¯ã‚’æ•´ç†
-'   - 2026/5: SyncAllDataToMaster ã‚’ FunctionåŒ–ï¼ˆBooleanè¿”å´ï¼‰
-'   - 2026/5: GetMasterPath() ãƒ€ãƒ–ãƒ«ã‚¯ã‚©ãƒ¼ãƒˆé™¤å»å¯¾å¿œ
-'================================================================================
-
-'================================================================================
-' è¨­å®šãƒ»å®šæ•°å®šç¾©
-' IS_TEST_MODE / SHEET_IRAI_* / GetMasterPath ãªã©ã¯ Config ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ä¸€å…ƒç®¡ç†ã€‚
-' ã“ã®ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã§ã¯å®šç¾©ã—ãªã„ã€‚
+' yd—v‚È•ÏX—š—ğz
+'   - 2026/5: eNO/}NO ‚ÌÌ”ÔƒƒWƒbƒN‚ğ®—
+'   - 2026/5: SyncAllDataToMaster ‚ğ Function‰»iBoolean•Ô‹pj
+'   - 2026/5: GetMasterPath() ƒ_ƒuƒ‹ƒNƒH[ƒgœ‹‘Î‰
 '================================================================================
 
-Public Const m_IRAI_RIREKI_SHEET_NAME As String = "ä¾é ¼å±¥æ­´"
-Public Const m_IRAI_SEARCH_SHEET_NAME As String = "ä¾é ¼æ¤œç´¢"
+'================================================================================
+' İ’èE’è”’è‹`
+' IS_TEST_MODE / SHEET_IRAI_* / GetMasterPath ‚È‚Ç‚Í Config ƒ‚ƒWƒ…[ƒ‹‚ÅˆêŒ³ŠÇ—B
+' ‚±‚Ìƒ‚ƒWƒ…[ƒ‹‚Å‚Í’è‹`‚µ‚È‚¢B
+'================================================================================
 
-'--- ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆã®ã‚»ãƒ«é…ç½®å®šç¾© ---
-Private Const CELL_IRAI_NO As String = "A2"       ' æ¤œç´¢ã‚­ãƒ¼
-Private Const CELL_KEIRI_NO As String = "B2"      ' è«‹æ±‚æ›¸ç•ªå·(çµŒç†ç”¨)
+Public Const m_IRAI_RIREKI_SHEET_NAME As String = "ˆË—Š—š—ğ"
+Public Const m_IRAI_SEARCH_SHEET_NAME As String = "ˆË—ŠŒŸõ"
 
-' â– 5è¡Œç›®ã‚¨ãƒªã‚¢ï¼ˆä¸»è¦é …ç›®ï¼‰
-Private Const CELL_PROJ_NO As String = "A5"       ' å·¥äº‹ç•ªå·
-Private Const CELL_DATE_SUBMIT As String = "B5"   ' è«‹æ±‚æ›¸æ—¥ä»˜
-Private Const CELL_DESTINATION As String = "C5"   ' è«‹æ±‚å®›å
-Private Const CELL_PROJ_NAME As String = "D5"     ' å·¥äº‹åç§°
-Private Const CELL_AMOUNT As String = "E5"        ' è«‹è² é‡‘é¡(ç¨è¾¼)
-Private Const CELL_STAFF As String = "F5"         ' æ‹…å½“è€…
+'--- ˆË—ŠŒŸõƒV[ƒg‚ÌƒZƒ‹”z’u’è‹` ---
+Private Const CELL_IRAI_NO As String = "A2"       ' ŒŸõƒL[
+Private Const CELL_KEIRI_NO As String = "B2"      ' ¿‹‘”Ô†(Œo——p)
 
-' â– 7è¡Œç›®ã‚¨ãƒªã‚¢ï¼ˆæ–°ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆï¼‰
-Private Const CELL_TERM_START As String = "A7"    ' å·¥æœŸ ç€æ‰‹
-Private Const CELL_TERM_END As String = "B7"      ' å·¥æœŸ å®Œæˆ
-Private Const CELL_DATE_DELIVERY As String = "C7" ' å¼•æ¸¡æ—¥ (æ—§G9)
-Private Const CELL_BANK_ACCOUNT As String = "D7"  ' ä½†é™½ä¿¡é‡‘å£åº§æŒ‡å®š (æ—§F7)
-Private Const CELL_COMMENT As String = "E7"       ' æ‹…å½“è€…å¼•ç¶™ãã‚³ãƒ¡ãƒ³ãƒˆ (æ—§F9)
-Private Const CELL_DATE_CREATE As String = "F7"   ' ä¾é ¼æ›¸ä½œæˆæ—¥ (æ—§A11)
+' ¡5s–ÚƒGƒŠƒAiå—v€–Új
+Private Const CELL_PROJ_NO As String = "A5"       ' H–”Ô†
+Private Const CELL_DATE_SUBMIT As String = "B5"   ' ¿‹‘“ú•t
+Private Const CELL_DESTINATION As String = "C5"   ' ¿‹ˆ¶–¼
+Private Const CELL_PROJ_NAME As String = "D5"     ' H––¼Ì
+Private Const CELL_AMOUNT As String = "E5"        ' ¿•‰‹àŠz(Å)
+Private Const CELL_STAFF As String = "F5"         ' ’S“–Ò
 
-' â– 9è¡Œç›®ã‚¨ãƒªã‚¢ï¼ˆè¦é …ãƒ»ä½æ‰€ãƒ»è©³ç´°ï¼‰
-Private Const CELL_REQ_ITEM As String = "A9"      ' æå‡ºè¦é …
-Private Const CELL_ENCLOSURE As String = "B9"     ' åŒå°ç‰© (æ—§E9)
-Private Const CELL_POST_CODE As String = "C9"     ' éƒµä¾¿ç•ªå·
-Private Const CELL_ADDRESS As String = "D9"       ' éƒµé€å…ˆä½æ‰€
-Private Const CELL_MEMO As String = "E9"          ' çµŒç†ãƒ¡ãƒ¢ (æ—§C11)
-Private Const CELL_DATE_ISSUE As String = "F9"    ' ä½œæˆæ—¥ (æ—§B11)
+' ¡7s–ÚƒGƒŠƒAiVƒŒƒCƒAƒEƒgj
+Private Const CELL_TERM_START As String = "A7"    ' HŠú ’…è
+Private Const CELL_TERM_END As String = "B7"      ' HŠú Š®¬
+Private Const CELL_DATE_DELIVERY As String = "C7" ' ˆø“n“ú (‹ŒG9)
+Private Const CELL_BANK_ACCOUNT As String = "D7"  ' ’A—zM‹àŒûÀw’è (‹ŒF7)
+Private Const CELL_COMMENT As String = "E7"       ' ’S“–ÒˆøŒp‚¬ƒRƒƒ“ƒg (‹ŒF9)
+Private Const CELL_DATE_CREATE As String = "F7"   ' ˆË—Š‘ì¬“ú (‹ŒA11)
 
-' â– 11è¡Œç›®ã‚¨ãƒªã‚¢ï¼ˆç®¡ç†æƒ…å ±ï¼‰
-Private Const CELL_HISTORY As String = "A11"      ' æ“ä½œå±¥æ­´ (æ—§D11)
+' ¡9s–ÚƒGƒŠƒAi—v€EZŠEÚ×j
+Private Const CELL_REQ_ITEM As String = "A9"      ' ’ño—v€
+Private Const CELL_ENCLOSURE As String = "B9"     ' “¯•••¨ (‹ŒE9)
+Private Const CELL_POST_CODE As String = "C9"     ' —X•Ö”Ô†
+Private Const CELL_ADDRESS As String = "D9"       ' —X‘—æZŠ
+Private Const CELL_MEMO As String = "E9"          ' Œo—ƒƒ‚ (‹ŒC11)
+Private Const CELL_DATE_ISSUE As String = "F9"    ' ì¬“ú (‹ŒB11)
 
-'--- å»ƒæ­¢ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ï¼ˆæ–°ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã§ã¯ ä¾é ¼æ¤œç´¢ ã«å­˜åœ¨ã—ãªã„ï¼‰---
-'   CELL_REQ_OTHER     (æ—§ B9, æå‡ºè¦é …(ãã®ä»–))
-'   CELL_TEXT_INVOICE  (æ—§ C7, è«‹æ±‚æ›¸è¨˜è¼‰æ–‡è¨€)
-'   CELL_NOTE_RECEIPT  (æ—§ D7, é ˜åæ›¸æ³¨æ„æ–‡)
-'   CELL_NOTE_FEE      (æ—§ E7, æŒ¯è¾¼æ‰‹æ•°æ–™æ³¨æ„æ–‡)
+' ¡11s–ÚƒGƒŠƒAiŠÇ—î•ñj
+Private Const CELL_HISTORY As String = "A11"      ' ‘€ì—š—ğ (‹ŒD11)
+
+'--- ”p~ƒtƒB[ƒ‹ƒhiVƒŒƒCƒAƒEƒg‚Å‚Í ˆË—ŠŒŸõ ‚É‘¶İ‚µ‚È‚¢j---
+'   CELL_REQ_OTHER     (‹Œ B9, ’ño—v€(‚»‚Ì‘¼))
+'   CELL_TEXT_INVOICE  (‹Œ C7, ¿‹‘‹LÚ•¶Œ¾)
+'   CELL_NOTE_RECEIPT  (‹Œ D7, —Ìû‘’ˆÓ•¶)
+'   CELL_NOTE_FEE      (‹Œ E7, Uè”—¿’ˆÓ•¶)
 
 
 '================================================================================
-' ãƒœã‚¿ãƒ³ç™»éŒ²ç”¨
+' ƒ{ƒ^ƒ““o˜^—p
 '================================================================================
-Public Sub ãƒã‚¯ãƒ­_æ¤œç´¢å®Ÿè¡Œ()
+Public Sub ƒ}ƒNƒ_ŒŸõÀs()
     Call ExecuteUpdateAndSearch
-    ' æ¤œç´¢å¾Œã¯ä¾é ¼æ¤œç´¢ã‚·ãƒ¼ãƒˆã«æˆ»ã™ï¼ˆUpdateKeiriRirekiSheet ã§ä¾é ¼å±¥æ­´ã‚·ãƒ¼ãƒˆã«
-    ' é·ç§»ã—ã¦ã—ã¾ã†å‰¯ä½œç”¨ã¸ã®å¯¾ç­–ï¼‰
+    ' ŒŸõŒã‚ÍˆË—ŠŒŸõƒV[ƒg‚É–ß‚·iUpdateKeiriRirekiSheet ‚ÅˆË—Š—š—ğƒV[ƒg‚É
+    ' ‘JˆÚ‚µ‚Ä‚µ‚Ü‚¤•›ì—p‚Ö‚Ì‘Îôj
     On Error Resume Next
     ThisWorkbook.Sheets(m_IRAI_SEARCH_SHEET_NAME).Activate
     On Error GoTo 0
 End Sub
 
-Public Sub ãƒã‚¯ãƒ­_ä¸Šæ›¸ãä¿å­˜()
+Public Sub ƒ}ƒNƒ_ã‘‚«•Û‘¶()
     Dim wsRireki As Worksheet: Set wsRireki = ThisWorkbook.Sheets(m_IRAI_RIREKI_SHEET_NAME)
     Dim wsSearch As Worksheet: Set wsSearch = ThisWorkbook.Sheets(m_IRAI_SEARCH_SHEET_NAME)
     Dim targetIraiNo As String: targetIraiNo = Trim(wsSearch.Range(CELL_IRAI_NO).Value)
     Dim foundRange As Range, autoReason As String
     
     If targetIraiNo = "" Then
-        MsgBox "ä¾é ¼NOã‚’æŒ‡å®šã—ã¦ãã ã•ã„ã€‚"
+        MsgBox "ˆË—ŠNO‚ğw’è‚µ‚Ä‚­‚¾‚³‚¢B"
         Exit Sub
     End If
 
-    ' å®Œå…¨ä¸€è‡´ã§æ¤œç´¢ï¼ˆä¸Šæ›¸ãæ™‚ã¯IDã‚’å¤‰ãˆãªã„ãŸã‚ï¼‰
+    ' Š®‘Sˆê’v‚ÅŒŸõiã‘‚«‚ÍID‚ğ•Ï‚¦‚È‚¢‚½‚ßj
     Set foundRange = wsRireki.Columns("A").Find(What:=targetIraiNo, LookAt:=xlWhole)
     If foundRange Is Nothing Then
-        MsgBox "æŒ‡å®šã®ä¾é ¼NOãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚" & vbCrLf & "ï¼ˆæ–°è¦ã®å ´åˆã¯ã€Œæ–°è¦ä½œæˆã€ãƒœã‚¿ãƒ³ã‚’ä½¿ç”¨ã—ã¦ãã ã•ã„ï¼‰"
+        MsgBox "w’è‚ÌˆË—ŠNO‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB" & vbCrLf & "iV‹K‚Ìê‡‚ÍuV‹Kì¬vƒ{ƒ^ƒ“‚ğg—p‚µ‚Ä‚­‚¾‚³‚¢j"
         Exit Sub
     End If
     
@@ -141,9 +141,9 @@ Public Sub ãƒã‚¯ãƒ­_ä¸Šæ›¸ãä¿å­˜()
     
     Dim msg As String
     If autoReason = "" Then
-        msg = "å¤‰æ›´ç®‡æ‰€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚ä¸Šæ›¸ãã—ã¾ã™ã‹ï¼Ÿ"
+        msg = "•ÏX‰ÓŠ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½Bã‘‚«‚µ‚Ü‚·‚©H"
     Else
-        msg = "ä»¥ä¸‹ã®å¤‰æ›´ã‚’åŒæœŸã—ã¦ä¸Šæ›¸ãã—ã¾ã™ã‹ï¼Ÿ" & vbCrLf & autoReason
+        msg = "ˆÈ‰º‚Ì•ÏX‚ğ“¯Šú‚µ‚Äã‘‚«‚µ‚Ü‚·‚©H" & vbCrLf & autoReason
     End If
 
     If MsgBox(msg, vbYesNo + vbQuestion) = vbNo Then
@@ -151,14 +151,14 @@ Public Sub ãƒã‚¯ãƒ­_ä¸Šæ›¸ãä¿å­˜()
     End If
 
     Call WriteDataToRireki(wsRireki, wsSearch, foundRange.Row, False, autoReason, "")
-    ' ãƒã‚¹ã‚¿åŒæœŸæˆåŠŸæ™‚ã®ã¿ãƒ­ãƒ¼ã‚«ãƒ«ç‰©ç†ä¿å­˜ã€‚å¤±æ•—æ™‚ã¯ä¿å­˜ã›ãšãƒ­ãƒ¼ãƒ«ãƒãƒƒã‚¯å¯èƒ½ã«ã€‚
+    ' ƒ}ƒXƒ^“¯Šú¬Œ÷‚Ì‚İƒ[ƒJƒ‹•¨—•Û‘¶B¸”s‚Í•Û‘¶‚¹‚¸ƒ[ƒ‹ƒoƒbƒN‰Â”\‚ÉB
     If SyncAllDataToMaster(targetIraiNo, False, autoReason) Then
         ThisWorkbook.Save
-        MsgBox "åŒæœŸå®Œäº†ã—ã¾ã—ãŸã€‚", vbInformation
+        MsgBox "“¯ŠúŠ®—¹‚µ‚Ü‚µ‚½B", vbInformation
     End If
 End Sub
 
-Public Sub ãƒã‚¯ãƒ­_æ–°è¦ä½œæˆ()
+Public Sub ƒ}ƒNƒ_V‹Kì¬()
     Dim wsRireki As Worksheet: Set wsRireki = ThisWorkbook.Sheets(m_IRAI_RIREKI_SHEET_NAME)
     Dim wsSearch As Worksheet: Set wsSearch = ThisWorkbook.Sheets(m_IRAI_SEARCH_SHEET_NAME)
     Dim lastRow As Long
@@ -166,52 +166,52 @@ Public Sub ãƒã‚¯ãƒ­_æ–°è¦ä½œæˆ()
     Dim parentID As String
     Dim newIraiNo As String
     
-    ' è¦ªIDã®å…¥åŠ›ã‚’æ±‚ã‚ã‚‹ï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤ã¨ã—ã¦ç¾åœ¨ã®IDã‚’å…¥ã‚Œã‚‹ï¼‰
-    ' ãã®ã¾ã¾Enterã§æç•ªä½œæˆã€æ¶ˆã—ã¦Enterã§å®Œå…¨æ–°è¦ã€ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã§ä¸­æ­¢
-    parentID = InputBox("è¦ªã¨ãªã‚‹ä¾é ¼NOã‚’æŒ‡å®šã—ã¦ãã ã•ã„ã€‚" & vbCrLf & _
-                        "ï¼ˆã“ã®ç•ªå·ã®æç•ªã‚’ä½œæˆã—ã¾ã™ï¼‰" & vbCrLf & vbCrLf & _
-                        "â€»å®Œå…¨æ–°è¦ï¼ˆé€£ç•ªï¼‰ã®å ´åˆã¯ã€ã“ã“ã‚’ç©ºæ¬„ã«ã—ã¦OKã‚’æŠ¼ã—ã¦ãã ã•ã„ã€‚", _
-                        "æ–°è¦ãƒ»æç•ªç™ºè¡Œ", oldIraiNo)
+    ' eID‚Ì“ü—Í‚ğ‹‚ß‚éiƒfƒtƒHƒ‹ƒg’l‚Æ‚µ‚ÄŒ»İ‚ÌID‚ğ“ü‚ê‚éj
+    ' ‚»‚Ì‚Ü‚ÜEnter‚Å}”Ôì¬AÁ‚µ‚ÄEnter‚ÅŠ®‘SV‹KAƒLƒƒƒ“ƒZƒ‹‚Å’†~
+    parentID = InputBox("e‚Æ‚È‚éˆË—ŠNO‚ğw’è‚µ‚Ä‚­‚¾‚³‚¢B" & vbCrLf & _
+                        "i‚±‚Ì”Ô†‚Ì}”Ô‚ğì¬‚µ‚Ü‚·j" & vbCrLf & vbCrLf & _
+                        "¦Š®‘SV‹Ki˜A”Ôj‚Ìê‡‚ÍA‚±‚±‚ğ‹ó—“‚É‚µ‚ÄOK‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢B", _
+                        "V‹KE}”Ô”­s", oldIraiNo)
                         
-    If StrPtr(parentID) = 0 Then Exit Sub ' ã‚­ãƒ£ãƒ³ã‚»ãƒ«ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚ŒãŸå ´åˆ
+    If StrPtr(parentID) = 0 Then Exit Sub ' ƒLƒƒƒ“ƒZƒ‹ƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚½ê‡
     
     If parentID <> "" Then
-        ' --- æç•ªç™ºè¡Œï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆï¼‰ ---
+        ' --- }”Ô”­siƒfƒtƒHƒ‹ƒgj ---
         newIraiNo = GetNextBranchID(wsRireki, parentID)
     Else
-        ' --- å®Œå…¨æ–°è¦ï¼ˆé€£ç•ªï¼‰ ---
+        ' --- Š®‘SV‹Ki˜A”Ôj ---
         newIraiNo = GetNextIntegerID(wsRireki)
     End If
     
-    ' æ–°è¦IDã‚»ãƒƒãƒˆ
+    ' V‹KIDƒZƒbƒg
     wsSearch.Range(CELL_IRAI_NO).Value = newIraiNo
-    ' çµŒç†ç•ªå·ã¯ç©ºã«ã™ã‚‹
+    ' Œo—”Ô†‚Í‹ó‚É‚·‚é
     wsSearch.Range(CELL_KEIRI_NO).Value = ""
     
-    ' å±¥æ­´ã‚·ãƒ¼ãƒˆã¸ã®è¡Œè¿½åŠ 
+    ' —š—ğƒV[ƒg‚Ö‚Ìs’Ç‰Á
     lastRow = wsRireki.Cells(wsRireki.Rows.Count, "A").End(xlUp).Row
     Dim nextRow As Long: nextRow = lastRow + 1
-    ' ã€ã‚·ãƒ¼ãƒˆä¿è­·å¯¾å¿œã€‘æ–°è¦è¡Œè¿½åŠ å‰ã«ä¿è­·è§£é™¤
+    ' yƒV[ƒg•ÛŒì‘Î‰zV‹Ks’Ç‰Á‘O‚É•ÛŒì‰ğœ
     Call SafeUnprotect(wsRireki)
-    wsRireki.Cells(nextRow, "A").Value = newIraiNo ' æ–‡å­—åˆ—ã¨ã—ã¦ã‚»ãƒƒãƒˆã•ã‚Œã‚‹ã‚ˆã†æ³¨æ„
+    wsRireki.Cells(nextRow, "A").Value = newIraiNo ' •¶š—ñ‚Æ‚µ‚ÄƒZƒbƒg‚³‚ê‚é‚æ‚¤’ˆÓ
     
     Dim logMsg As String
-    logMsg = "æ–°è¦ç™ºè¡Œ (ID:" & newIraiNo & ")"
+    logMsg = "V‹K”­s (ID:" & newIraiNo & ")"
     If parentID <> "" Then
-        logMsg = logMsg & " (è¦ªID:" & parentID & "ã‹ã‚‰ã®æç•ª)"
+        logMsg = logMsg & " (eID:" & parentID & "‚©‚ç‚Ì}”Ô)"
     End If
     
     Call WriteDataToRireki(wsRireki, wsSearch, nextRow, True, "", oldIraiNo)
-    ' æ–°IDå‘ŠçŸ¥ã‚’åŒæœŸã®å‰ã«å‡ºã™ã€‚å¤±æ•—æ™‚ã¯ã€Œæ–°è¦ç™ºè¡Œâ†’åŒæœŸã‚¨ãƒ©ãƒ¼ã€ã®é †ã§è¡¨ç¤ºã•ã‚Œã‚‹ã€‚
-    MsgBox "æ–°è¦ç™ºè¡Œ: " & newIraiNo, vbInformation
-    ' ãƒã‚¹ã‚¿åŒæœŸæˆåŠŸæ™‚ã®ã¿ãƒ­ãƒ¼ã‚«ãƒ«ç‰©ç†ä¿å­˜ã€‚
+    ' VID’m‚ğ“¯Šú‚Ì‘O‚Éo‚·B¸”s‚ÍuV‹K”­s¨“¯ŠúƒGƒ‰[v‚Ì‡‚Å•\¦‚³‚ê‚éB
+    MsgBox "V‹K”­s: " & newIraiNo, vbInformation
+    ' ƒ}ƒXƒ^“¯Šú¬Œ÷‚Ì‚İƒ[ƒJƒ‹•¨—•Û‘¶B
     If SyncAllDataToMaster(newIraiNo, True, logMsg) Then
         ThisWorkbook.Save
     End If
 End Sub
 
 '================================================================================
-' å†…éƒ¨ãƒ­ã‚¸ãƒƒã‚¯ï¼ˆIDç”Ÿæˆãƒ»æ¤œç´¢ãƒ»åŒæœŸï¼‰
+' “à•”ƒƒWƒbƒNiID¶¬EŒŸõE“¯Šúj
 '================================================================================
 
 Private Function GetNextIntegerID(ws As Worksheet) As String
@@ -261,7 +261,7 @@ End Function
 
 Private Sub WriteDataToRireki(wsRireki As Worksheet, wsSearch As Worksheet, targetRow As Long, _
                               isNew As Boolean, autoReason As String, oldIraiNo As String)
-    ' ã€ã‚·ãƒ¼ãƒˆä¿è­·å¯¾å¿œã€‘ãƒ­ãƒ¼ã‚«ãƒ«ä¾é ¼å±¥æ­´ãŒä¿è­·ã•ã‚Œã¦ã„ã‚‹å ´åˆã«å‚™ãˆã¦è§£é™¤
+    ' yƒV[ƒg•ÛŒì‘Î‰zƒ[ƒJƒ‹ˆË—Š—š—ğ‚ª•ÛŒì‚³‚ê‚Ä‚¢‚éê‡‚É”õ‚¦‚Ä‰ğœ
     Call SafeUnprotect(wsRireki)
     With wsRireki
         .Cells(targetRow, 2).Value = wsSearch.Range(CELL_KEIRI_NO).Value
@@ -275,7 +275,7 @@ Private Sub WriteDataToRireki(wsRireki As Worksheet, wsSearch As Worksheet, targ
         
         .Cells(targetRow, 10).Value = wsSearch.Range(CELL_DATE_CREATE).Value
         .Cells(targetRow, 11).Value = wsSearch.Range(CELL_REQ_ITEM).Value
-        ' col 12 (æå‡ºè¦é …ãã®ä»–) å»ƒæ­¢ã«ã¤ãæ›¸ãè¾¼ã¾ãªã„
+        ' col 12 (’ño—v€‚»‚Ì‘¼) ”p~‚É‚Â‚«‘‚«‚Ü‚È‚¢
         .Cells(targetRow, 13).Value = wsSearch.Range(CELL_ENCLOSURE).Value
         .Cells(targetRow, 14).Value = wsSearch.Range(CELL_DATE_SUBMIT).Value
         .Cells(targetRow, 15).Value = wsSearch.Range(CELL_DATE_DELIVERY).Value
@@ -283,10 +283,10 @@ Private Sub WriteDataToRireki(wsRireki As Worksheet, wsSearch As Worksheet, targ
         .Cells(targetRow, 17).Value = wsSearch.Range(CELL_POST_CODE).Value
         .Cells(targetRow, 18).Value = wsSearch.Range(CELL_ADDRESS).Value
         
-        ' col 19 (è«‹æ±‚æ›¸è¨˜è¼‰æ–‡è¨€) å»ƒæ­¢ã«ã¤ãæ›¸ãè¾¼ã¾ãªã„
+        ' col 19 (¿‹‘‹LÚ•¶Œ¾) ”p~‚É‚Â‚«‘‚«‚Ü‚È‚¢
         .Cells(targetRow, 20).Value = wsSearch.Range(CELL_COMMENT).Value
-        ' col 21 (é ˜åæ›¸æ³¨æ„æ–‡) å»ƒæ­¢ã«ã¤ãæ›¸ãè¾¼ã¾ãªã„
-        ' col 22 (æŒ¯è¾¼æ‰‹æ•°æ–™æ³¨æ„æ–‡) å»ƒæ­¢ã«ã¤ãæ›¸ãè¾¼ã¾ãªã„
+        ' col 21 (—Ìû‘’ˆÓ•¶) ”p~‚É‚Â‚«‘‚«‚Ü‚È‚¢
+        ' col 22 (Uè”—¿’ˆÓ•¶) ”p~‚É‚Â‚«‘‚«‚Ü‚È‚¢
         .Cells(targetRow, 23).Value = wsSearch.Range(CELL_BANK_ACCOUNT).Value
     End With
     
@@ -296,9 +296,9 @@ Private Sub WriteDataToRireki(wsRireki As Worksheet, wsSearch As Worksheet, targ
     Dim entry As String: entry = ""
     
     If isNew Then
-        entry = "ã€æ–°è¦ç™ºè¡Œã€‘ " & timeStamp & IIf(oldIraiNo <> "", " (å…ƒ:No." & oldIraiNo & "ã‹ã‚‰å‚ç…§ä½œæˆ)", "")
+        entry = "yV‹K”­sz " & timeStamp & IIf(oldIraiNo <> "", " (Œ³:No." & oldIraiNo & "‚©‚çQÆì¬)", "")
     ElseIf autoReason <> "" Then
-        entry = "ã€æ›´æ–°ã€‘ " & timeStamp & vbCrLf & autoReason
+        entry = "yXVz " & timeStamp & vbCrLf & autoReason
     End If
     
     If entry <> "" Then
@@ -315,9 +315,9 @@ Private Sub WriteDataToRireki(wsRireki As Worksheet, wsSearch As Worksheet, targ
     
     wsSearch.Range(CELL_HISTORY).Value = wsRireki.Cells(targetRow, 24).Value
     wsSearch.Range(CELL_MEMO).Value = wsRireki.Cells(targetRow, 25).Value
-    ' ã€2026/5/20ã€‘ãƒ­ãƒ¼ã‚«ãƒ«çµŒç†ç”¨ãƒ–ãƒƒã‚¯ã¯ä¿è­·ãªã—é‹ç”¨ â†’ SafeProtectä¸è¦
-    ' ThisWorkbook.Save ã¯å‘¼ã³å‡ºã—å…ƒã§ã€Œãƒã‚¹ã‚¿åŒæœŸæˆåŠŸæ™‚ã®ã¿ã€å®Ÿè¡Œã™ã‚‹
-    ' ï¼ˆå…ˆã«ç‰©ç†ä¿å­˜ã™ã‚‹ã¨ãƒã‚¹ã‚¿åŒæœŸå¤±æ•—æ™‚ã«ãƒ­ãƒ¼ã‚«ãƒ«ã ã‘æ–°å€¤ã§æ®‹ã£ã¦ä¸æ•´åˆã«ãªã‚‹ï¼‰
+    ' y2026/5/20zƒ[ƒJƒ‹Œo——pƒuƒbƒN‚Í•ÛŒì‚È‚µ‰^—p ¨ SafeProtect•s—v
+    ' ThisWorkbook.Save ‚ÍŒÄ‚Ño‚µŒ³‚Åuƒ}ƒXƒ^“¯Šú¬Œ÷‚Ì‚İvÀs‚·‚é
+    ' iæ‚É•¨—•Û‘¶‚·‚é‚Æƒ}ƒXƒ^“¯Šú¸”s‚Éƒ[ƒJƒ‹‚¾‚¯V’l‚Åc‚Á‚Ä•s®‡‚É‚È‚éj
 End Sub
 
 Private Function GetDifferenceLog(wsRireki As Worksheet, wsSearch As Worksheet, targetRow As Long) As String
@@ -325,32 +325,32 @@ Private Function GetDifferenceLog(wsRireki As Worksheet, wsSearch As Worksheet, 
     Dim checkItems, i As Long
     
     checkItems = Array( _
-        Array("æ‹…å½“è€…", CELL_STAFF, 4), _
-        Array("å·¥äº‹ç•ªå·", CELL_PROJ_NO, 5), _
-        Array("å·¥äº‹åç§°", CELL_PROJ_NAME, 6), _
-        Array("å·¥æœŸç€æ‰‹", CELL_TERM_START, 7), _
-        Array("å·¥æœŸå®Œæˆ", CELL_TERM_END, 8), _
-        Array("è«‹è² é‡‘é¡", CELL_AMOUNT, 9), _
-        Array("æå‡ºæ—¥ä»˜", CELL_DATE_SUBMIT, 14), _
-        Array("å®›å…ˆ", CELL_DESTINATION, 16), _
-        Array("ç™ºè¡Œæ—¥", CELL_DATE_ISSUE, 3), _
-        Array("æå‡ºè¦é …", CELL_REQ_ITEM, 11), _
-        Array("éƒµä¾¿ç•ªå·", CELL_POST_CODE, 17), _
-        Array("ä½æ‰€", CELL_ADDRESS, 18) _
+        Array("’S“–Ò", CELL_STAFF, 4), _
+        Array("H–”Ô†", CELL_PROJ_NO, 5), _
+        Array("H––¼Ì", CELL_PROJ_NAME, 6), _
+        Array("HŠú’…è", CELL_TERM_START, 7), _
+        Array("HŠúŠ®¬", CELL_TERM_END, 8), _
+        Array("¿•‰‹àŠz", CELL_AMOUNT, 9), _
+        Array("’ño“ú•t", CELL_DATE_SUBMIT, 14), _
+        Array("ˆ¶æ", CELL_DESTINATION, 16), _
+        Array("”­s“ú", CELL_DATE_ISSUE, 3), _
+        Array("’ño—v€", CELL_REQ_ITEM, 11), _
+        Array("—X•Ö”Ô†", CELL_POST_CODE, 17), _
+        Array("ZŠ", CELL_ADDRESS, 18) _
     )
                             
     For i = LBound(checkItems) To UBound(checkItems)
         Dim nV: nV = wsSearch.Range(checkItems(i)(1)).Value
         Dim oV: oV = wsRireki.Cells(targetRow, checkItems(i)(2)).Value
         If CStr(nV) <> CStr(oV) Then
-            log = log & checkItems(i)(0) & "ï¼š" & oV & " â†’ " & nV & vbCrLf
+            log = log & checkItems(i)(0) & "F" & oV & " ¨ " & nV & vbCrLf
         End If
     Next i
     GetDifferenceLog = log
 End Function
 
 Public Function SyncAllDataToMaster(ByVal targetIraiNo As String, ByVal isNew As Boolean, ByVal logMsg As String) As Boolean
-    SyncAllDataToMaster = False  ' æ—¢å®šã¯å¤±æ•—ã€‚å…¨å‡¦ç†æˆåŠŸã§ True
+    SyncAllDataToMaster = False  ' Šù’è‚Í¸”sB‘Sˆ—¬Œ÷‚Å True
 
     Dim mPath As String, wbM As Workbook, wsM As Worksheet, wsS As Worksheet
     Dim targetRow As Long
@@ -358,21 +358,21 @@ Public Function SyncAllDataToMaster(ByVal targetIraiNo As String, ByVal isNew As
     Set wsS = ThisWorkbook.Sheets(m_IRAI_SEARCH_SHEET_NAME)
     mPath = GetMasterPath()
     
-    ' ç©ºãƒ‘ã‚¹å¯¾ç­–: Dir("") ã¯ã‚¨ãƒ©ãƒ¼52ã‚’æŠ•ã’ã‚‹ã®ã§äº‹å‰ãƒã‚§ãƒƒã‚¯
+    ' ‹óƒpƒX‘Îô: Dir("") ‚ÍƒGƒ‰[52‚ğ“Š‚°‚é‚Ì‚Å–‘Oƒ`ƒFƒbƒN
     If Trim(mPath) = "" Then
-        MsgBox "ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚" & vbCrLf & _
-               "ä¾é ¼å±¥æ­´ã‚·ãƒ¼ãƒˆã® G1 ã‚»ãƒ«ã«ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹ã‚’è¨­å®šã—ã¦ãã ã•ã„ã€‚", vbCritical
+        MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÌƒpƒX‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB" & vbCrLf & _
+               "ˆË—Š—š—ğƒV[ƒg‚Ì G1 ƒZƒ‹‚Éƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÌƒpƒX‚ğİ’è‚µ‚Ä‚­‚¾‚³‚¢B", vbCritical
         Exit Function
     End If
     On Error Resume Next
     Dim dirChk As String: dirChk = Dir(mPath)
     On Error GoTo 0
     If dirChk = "" Then
-        MsgBox "ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã«ã‚¢ã‚¯ã‚»ã‚¹ã§ãã¾ã›ã‚“ã€‚" & vbCrLf & _
-               "ãƒ‘ã‚¹: " & mPath & vbCrLf & vbCrLf & _
-               "ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯(Z:)ã®æ¥ç¶šã‚’ç¢ºèªã—ã¦ãã ã•ã„ã€‚" & vbCrLf & vbCrLf & _
-               "å¤‰æ›´ã¯ãƒ­ãƒ¼ã‚«ãƒ«RAMã«æ®‹ã£ã¦ã„ã¾ã™ãŒç‰©ç†ä¿å­˜ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚" & vbCrLf & _
-               "æ¥ç¶šå›å¾©å¾Œã€åŒã˜æ“ä½œã‚’å†å®Ÿè¡Œã—ã¦ãã ã•ã„ã€‚", vbCritical, "ãƒã‚¹ã‚¿åŒæœŸã‚¨ãƒ©ãƒ¼"
+        MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÉƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñB" & vbCrLf & _
+               "ƒpƒX: " & mPath & vbCrLf & vbCrLf & _
+               "ƒlƒbƒgƒ[ƒN(Z:)‚ÌÚ‘±‚ğŠm”F‚µ‚Ä‚­‚¾‚³‚¢B" & vbCrLf & vbCrLf & _
+               "•ÏX‚Íƒ[ƒJƒ‹RAM‚Éc‚Á‚Ä‚¢‚Ü‚·‚ª•¨—•Û‘¶‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB" & vbCrLf & _
+               "Ú‘±‰ñ•œŒãA“¯‚¶‘€ì‚ğÄÀs‚µ‚Ä‚­‚¾‚³‚¢B", vbCritical, "ƒ}ƒXƒ^“¯ŠúƒGƒ‰["
         Exit Function
     End If
     
@@ -382,15 +382,15 @@ Public Function SyncAllDataToMaster(ByVal targetIraiNo As String, ByVal isNew As
     On Error GoTo 0
     
     If wbM Is Nothing Then
-        MsgBox "ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‘ã¾ã›ã‚“ã§ã—ãŸã€‚" & vbCrLf & _
-               "ä»–ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒç·¨é›†ä¸­ã®å¯èƒ½æ€§ãŒã‚ã‚Šã¾ã™ã€‚", vbCritical
+        MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ğŠJ‚¯‚Ü‚¹‚ñ‚Å‚µ‚½B" & vbCrLf & _
+               "‘¼‚Ìƒ†[ƒU[‚ª•ÒW’†‚Ì‰Â”\«‚ª‚ ‚è‚Ü‚·B", vbCritical
         Application.ScreenUpdating = True
         Exit Function
     End If
     
     Set wsM = wbM.Sheets(m_IRAI_RIREKI_SHEET_NAME)
     
-    ' ã€ã‚·ãƒ¼ãƒˆä¿è­·å¯¾å¿œã€‘ãƒã‚¹ã‚¿ã®ä¾é ¼å±¥æ­´ã‚·ãƒ¼ãƒˆãŒä¿è­·ã•ã‚Œã¦ã„ã‚‹å ´åˆã«å‚™ãˆã€æ›¸ãè¾¼ã¿å‰ã«è§£é™¤
+    ' yƒV[ƒg•ÛŒì‘Î‰zƒ}ƒXƒ^‚ÌˆË—Š—š—ğƒV[ƒg‚ª•ÛŒì‚³‚ê‚Ä‚¢‚éê‡‚É”õ‚¦A‘‚«‚İ‘O‚É‰ğœ
     Call SafeUnprotect(wsM)
     
     If isNew Then
@@ -400,7 +400,7 @@ Public Function SyncAllDataToMaster(ByVal targetIraiNo As String, ByVal isNew As
         Dim f As Range
         Set f = wsM.Columns("A").Find(targetIraiNo, LookAt:=xlWhole)
         If f Is Nothing Then
-            MsgBox "ãƒã‚¹ã‚¿å†…ã«ä¾é ¼NO [" & targetIraiNo & "] ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚", vbExclamation
+            MsgBox "ƒ}ƒXƒ^“à‚ÉˆË—ŠNO [" & targetIraiNo & "] ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B", vbExclamation
             wbM.Close False
             Application.ScreenUpdating = True
             Exit Function
@@ -420,7 +420,7 @@ Public Function SyncAllDataToMaster(ByVal targetIraiNo As String, ByVal isNew As
         
         .Cells(targetRow, 10).Value = wsS.Range(CELL_DATE_CREATE).Value
         .Cells(targetRow, 11).Value = wsS.Range(CELL_REQ_ITEM).Value
-        ' col 12 (æå‡ºè¦é …ãã®ä»–) å»ƒæ­¢ã«ã¤ãæ›¸ãè¾¼ã¾ãªã„
+        ' col 12 (’ño—v€‚»‚Ì‘¼) ”p~‚É‚Â‚«‘‚«‚Ü‚È‚¢
         .Cells(targetRow, 13).Value = wsS.Range(CELL_ENCLOSURE).Value
         .Cells(targetRow, 14).Value = wsS.Range(CELL_DATE_SUBMIT).Value
         .Cells(targetRow, 15).Value = wsS.Range(CELL_DATE_DELIVERY).Value
@@ -428,27 +428,27 @@ Public Function SyncAllDataToMaster(ByVal targetIraiNo As String, ByVal isNew As
         .Cells(targetRow, 17).Value = wsS.Range(CELL_POST_CODE).Value
         .Cells(targetRow, 18).Value = wsS.Range(CELL_ADDRESS).Value
         
-        ' col 19 (è«‹æ±‚æ›¸è¨˜è¼‰æ–‡è¨€) å»ƒæ­¢ã«ã¤ãæ›¸ãè¾¼ã¾ãªã„
+        ' col 19 (¿‹‘‹LÚ•¶Œ¾) ”p~‚É‚Â‚«‘‚«‚Ü‚È‚¢
         .Cells(targetRow, 20).Value = wsS.Range(CELL_COMMENT).Value
-        ' col 21 (é ˜åæ›¸æ³¨æ„æ–‡) å»ƒæ­¢ã«ã¤ãæ›¸ãè¾¼ã¾ãªã„
-        ' col 22 (æŒ¯è¾¼æ‰‹æ•°æ–™æ³¨æ„æ–‡) å»ƒæ­¢ã«ã¤ãæ›¸ãè¾¼ã¾ãªã„
+        ' col 21 (—Ìû‘’ˆÓ•¶) ”p~‚É‚Â‚«‘‚«‚Ü‚È‚¢
+        ' col 22 (Uè”—¿’ˆÓ•¶) ”p~‚É‚Â‚«‘‚«‚Ü‚È‚¢
         .Cells(targetRow, 23).Value = wsS.Range(CELL_BANK_ACCOUNT).Value
         
         .Cells(targetRow, 24).Value = wsS.Range(CELL_HISTORY).Value
         .Cells(targetRow, 25).Value = wsS.Range(CELL_MEMO).Value
     End With
     
-    ' ã€ã‚·ãƒ¼ãƒˆä¿è­·å¯¾å¿œã€‘æ›¸ãè¾¼ã¿å®Œäº†å¾Œã€å†ä¿è­·
+    ' yƒV[ƒg•ÛŒì‘Î‰z‘‚«‚İŠ®—¹ŒãAÄ•ÛŒì
     Call SafeProtect(wsM)
     
     wbM.Save
     wbM.Close False
     Application.ScreenUpdating = True
-    SyncAllDataToMaster = True  ' ã“ã“ã¾ã§åˆ°é”ã§æˆåŠŸ
+    SyncAllDataToMaster = True  ' ‚±‚±‚Ü‚Å“’B‚Å¬Œ÷
 End Function
 
-' GetMasterPath() ã¯ Keiri_è¨­å®šç”¨ã‚³ãƒ¼ãƒ‰ (Config ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«) å´ã®
-' åŒåé–¢æ•°ã‚’ä½¿ã†ã€‚é‡è¤‡å®šç¾©ã‚’é¿ã‘ã‚‹ãŸã‚ã“ã¡ã‚‰å´ã¯å‰Šé™¤æ¸ˆã¿ã€‚
+' GetMasterPath() ‚Í Keiri_İ’è—pƒR[ƒh (Config ƒ‚ƒWƒ…[ƒ‹) ‘¤‚Ì
+' “¯–¼ŠÖ”‚ğg‚¤Bd•¡’è‹`‚ğ”ğ‚¯‚é‚½‚ß‚±‚¿‚ç‘¤‚ÍíœÏ‚İB
 
 Function ExecuteUpdateAndSearch() As Boolean
     ExecuteUpdateAndSearch = False
@@ -464,11 +464,11 @@ Function ExecuteUpdateAndSearch() As Boolean
     searchKey = Trim(wsS.Range(CELL_IRAI_NO).Value)
     
     If searchKey = "" Then
-        MsgBox "ä¾é ¼NOã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚"
+        MsgBox "ˆË—ŠNO‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B"
         Exit Function
     End If
     
-    ' --- å€™è£œæ¤œç´¢ãƒ­ã‚¸ãƒƒã‚¯ ---
+    ' --- Œó•âŒŸõƒƒWƒbƒN ---
     Dim candidates As Collection: Set candidates = New Collection
     Dim lastRow As Long: lastRow = wsR.Cells(wsR.Rows.Count, "A").End(xlUp).Row
     Dim i As Long, v As String
@@ -483,37 +483,37 @@ Function ExecuteUpdateAndSearch() As Boolean
     
     If candidates.Count = 0 Then
         Call ClearSearchSheet(wsS)
-        MsgBox "è©²å½“ã™ã‚‹ãƒ‡ãƒ¼ã‚¿ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚", vbInformation
+        MsgBox "ŠY“–‚·‚éƒf[ƒ^‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB", vbInformation
         Exit Function
         
     ElseIf candidates.Count = 1 Then
         targetRow = candidates(1)
         
     Else
-        ' è¤‡æ•°å€™è£œãŒã‚ã‚‹ã®ã§ã€ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«ã©ã‚Œã‚’é¸ã¶ã‹èã
-        ' UserForm ä¾å­˜ã‚’é¿ã‘ã‚‹ãŸã‚ã€æ¨™æº–ã® InputBox ã§å€™è£œä¸€è¦§ã‚’è¡¨ç¤ºã—ã¦ç•ªå·ã§é¸ã‚“ã§ã‚‚ã‚‰ã†æ–¹å¼
+        ' •¡”Œó•â‚ª‚ ‚é‚Ì‚ÅAƒ†[ƒU[‚É‚Ç‚ê‚ğ‘I‚Ô‚©•·‚­
+        ' UserForm ˆË‘¶‚ğ”ğ‚¯‚é‚½‚ßA•W€‚Ì InputBox ‚ÅŒó•âˆê——‚ğ•\¦‚µ‚Ä”Ô†‚Å‘I‚ñ‚Å‚à‚ç‚¤•û®
         Dim prompt As String, idx As Long
-        prompt = "è¤‡æ•°ã®ä¾é ¼NOå€™è£œãŒè¦‹ã¤ã‹ã‚Šã¾ã—ãŸã€‚" & vbCrLf & _
-                 "é¸æŠã—ãŸã„ç•ªå·ã‚’å…¥åŠ›ã—ã¦OKã‚’æŠ¼ã—ã¦ãã ã•ã„:" & vbCrLf & vbCrLf
+        prompt = "•¡”‚ÌˆË—ŠNOŒó•â‚ªŒ©‚Â‚©‚è‚Ü‚µ‚½B" & vbCrLf & _
+                 "‘I‘ğ‚µ‚½‚¢”Ô†‚ğ“ü—Í‚µ‚ÄOK‚ğ‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢:" & vbCrLf & vbCrLf
         For idx = 1 To candidates.Count
             prompt = prompt & idx & ": " & CStr(wsR.Cells(candidates(idx), 1).Value)
-            Dim proj As String: proj = CStr(wsR.Cells(candidates(idx), 5).Value) ' å·¥äº‹ç•ªå·
-            Dim nam As String: nam = CStr(wsR.Cells(candidates(idx), 6).Value)  ' å·¥äº‹åç§°
+            Dim proj As String: proj = CStr(wsR.Cells(candidates(idx), 5).Value) ' H–”Ô†
+            Dim nam As String: nam = CStr(wsR.Cells(candidates(idx), 6).Value)  ' H––¼Ì
             If proj <> "" Then prompt = prompt & " [" & proj & "]"
             If nam <> "" Then prompt = prompt & " " & nam
             prompt = prompt & vbCrLf
         Next idx
 
         Dim picked As String
-        picked = InputBox(prompt, "ä¾é ¼NOã®é¸æŠ", "1")
-        If picked = "" Then Exit Function  ' ã‚­ãƒ£ãƒ³ã‚»ãƒ« or ç©ºæ¬„
+        picked = InputBox(prompt, "ˆË—ŠNO‚Ì‘I‘ğ", "1")
+        If picked = "" Then Exit Function  ' ƒLƒƒƒ“ƒZƒ‹ or ‹ó—“
         If Not IsNumeric(picked) Then
-            MsgBox "ç•ªå·ï¼ˆ1ã€œ" & candidates.Count & "ï¼‰ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚", vbExclamation
+            MsgBox "”Ô†i1`" & candidates.Count & "j‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B", vbExclamation
             Exit Function
         End If
         Dim pickIdx As Long: pickIdx = CLng(picked)
         If pickIdx < 1 Or pickIdx > candidates.Count Then
-            MsgBox "ç¯„å›²å¤–ã§ã™ï¼ˆ1ã€œ" & candidates.Count & "ï¼‰ã€‚", vbExclamation
+            MsgBox "”ÍˆÍŠO‚Å‚·i1`" & candidates.Count & "jB", vbExclamation
             Exit Function
         End If
         targetRow = candidates(pickIdx)
@@ -544,14 +544,14 @@ Private Sub TransferRowToSearchSheet(wsR As Worksheet, wsS As Worksheet, r As Lo
         .Range(CELL_TERM_START).Value = wsR.Cells(r, 7).Value
         .Range(CELL_TERM_END).Value = wsR.Cells(r, 8).Value
         
-        ' â˜…æ”¹ä¿®ï¼šé‡‘é¡ã‚’ã‚»ãƒƒãƒˆã—ã€ï¿¥ãƒãƒ¼ã‚¯æ›¸å¼ã‚’é©ç”¨
-        ' Rangeã®å‰ã«ãƒ‰ãƒƒãƒˆ(.)ã‚’ä»˜ä¸ã€æ›¸å¼ã‚’å††è¨˜å·ã«ä¿®æ­£
+        ' š‰üCF‹àŠz‚ğƒZƒbƒg‚µAƒ}[ƒN‘®‚ğ“K—p
+        ' Range‚Ì‘O‚Éƒhƒbƒg(.)‚ğ•t—^A‘®‚ğ‰~‹L†‚ÉC³
         .Range(CELL_AMOUNT).Value = wsR.Cells(r, 9).Value
         .Range(CELL_AMOUNT).NumberFormatLocal = "\#,##0"
         
         .Range(CELL_DATE_CREATE).Value = wsR.Cells(r, 10).Value
         .Range(CELL_REQ_ITEM).Value = wsR.Cells(r, 11).Value
-        ' col 12 (æå‡ºè¦é …ãã®ä»–) å»ƒæ­¢ã«ã¤ãèª­ã¾ãªã„
+        ' col 12 (’ño—v€‚»‚Ì‘¼) ”p~‚É‚Â‚«“Ç‚Ü‚È‚¢
         .Range(CELL_ENCLOSURE).Value = wsR.Cells(r, 13).Value
         .Range(CELL_DATE_SUBMIT).Value = wsR.Cells(r, 14).Value
         .Range(CELL_DATE_DELIVERY).Value = wsR.Cells(r, 15).Value
@@ -559,10 +559,10 @@ Private Sub TransferRowToSearchSheet(wsR As Worksheet, wsS As Worksheet, r As Lo
         .Range(CELL_POST_CODE).Value = wsR.Cells(r, 17).Value
         .Range(CELL_ADDRESS).Value = wsR.Cells(r, 18).Value
         
-        ' col 19 (è«‹æ±‚æ›¸è¨˜è¼‰æ–‡è¨€) å»ƒæ­¢ã«ã¤ãèª­ã¾ãªã„
+        ' col 19 (¿‹‘‹LÚ•¶Œ¾) ”p~‚É‚Â‚«“Ç‚Ü‚È‚¢
         .Range(CELL_COMMENT).Value = wsR.Cells(r, 20).Value
-        ' col 21 (é ˜åæ›¸æ³¨æ„æ–‡) å»ƒæ­¢ã«ã¤ãèª­ã¾ãªã„
-        ' col 22 (æŒ¯è¾¼æ‰‹æ•°æ–™æ³¨æ„æ–‡) å»ƒæ­¢ã«ã¤ãèª­ã¾ãªã„
+        ' col 21 (—Ìû‘’ˆÓ•¶) ”p~‚É‚Â‚«“Ç‚Ü‚È‚¢
+        ' col 22 (Uè”—¿’ˆÓ•¶) ”p~‚É‚Â‚«“Ç‚Ü‚È‚¢
         .Range(CELL_BANK_ACCOUNT).Value = wsR.Cells(r, 23).Value
         
         .Range(CELL_HISTORY).Value = wsR.Cells(r, 24).Value
@@ -576,11 +576,11 @@ Function UpdateKeiriRirekiSheet(Optional ByVal ShowMessage As Boolean = True) As
     Application.ScreenUpdating = False
     p = GetMasterPath()
     
-    ' ç©ºãƒ‘ã‚¹å¯¾ç­–: Dir("") ã¯ã‚¨ãƒ©ãƒ¼52(ãƒ•ã‚¡ã‚¤ãƒ«åã¾ãŸã¯ç•ªå·ãŒä¸æ­£)ã‚’æŠ•ã’ã‚‹ã®ã§äº‹å‰ãƒã‚§ãƒƒã‚¯
+    ' ‹óƒpƒX‘Îô: Dir("") ‚ÍƒGƒ‰[52(ƒtƒ@ƒCƒ‹–¼‚Ü‚½‚Í”Ô†‚ª•s³)‚ğ“Š‚°‚é‚Ì‚Å–‘Oƒ`ƒFƒbƒN
     If Trim(p) = "" Then
         Application.ScreenUpdating = True
-        MsgBox "ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚" & vbCrLf & _
-               "ä¾é ¼å±¥æ­´ã‚·ãƒ¼ãƒˆã® G1 ã‚»ãƒ«ã«ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹ã‚’è¨­å®šã—ã¦ãã ã•ã„ã€‚", vbCritical
+        MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÌƒpƒX‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB" & vbCrLf & _
+               "ˆË—Š—š—ğƒV[ƒg‚Ì G1 ƒZƒ‹‚Éƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÌƒpƒX‚ğİ’è‚µ‚Ä‚­‚¾‚³‚¢B", vbCritical
         Exit Function
     End If
 
@@ -589,8 +589,8 @@ Function UpdateKeiriRirekiSheet(Optional ByVal ShowMessage As Boolean = True) As
     On Error GoTo 0
     If dirResult = "" Then
         Application.ScreenUpdating = True
-        MsgBox "ãƒã‚¹ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã«ã‚¢ã‚¯ã‚»ã‚¹ã§ãã¾ã›ã‚“ã€‚" & vbCrLf & _
-               "ãƒ‘ã‚¹: " & p, vbCritical
+        MsgBox "ƒ}ƒXƒ^ƒtƒ@ƒCƒ‹‚ÉƒAƒNƒZƒX‚Å‚«‚Ü‚¹‚ñB" & vbCrLf & _
+               "ƒpƒX: " & p, vbCritical
         Exit Function
     End If
     
@@ -602,7 +602,7 @@ Function UpdateKeiriRirekiSheet(Optional ByVal ShowMessage As Boolean = True) As
     Set wsSrc = wbT.Sheets(m_IRAI_RIREKI_SHEET_NAME)
     Set wsDst = ThisWorkbook.Sheets(m_IRAI_RIREKI_SHEET_NAME)
     
-    ' ã€ã‚·ãƒ¼ãƒˆä¿è­·å¯¾å¿œã€‘ãƒ­ãƒ¼ã‚«ãƒ«ä¾é ¼å±¥æ­´ã‚·ãƒ¼ãƒˆãŒä¿è­·ã•ã‚Œã¦ã„ã‚‹å ´åˆã«å‚™ãˆã€è§£é™¤
+    ' yƒV[ƒg•ÛŒì‘Î‰zƒ[ƒJƒ‹ˆË—Š—š—ğƒV[ƒg‚ª•ÛŒì‚³‚ê‚Ä‚¢‚éê‡‚É”õ‚¦A‰ğœ
     Call SafeUnprotect(wsDst)
     
     wsDst.Range("A3:Z" & wsDst.Rows.Count).Clear
@@ -611,10 +611,10 @@ Function UpdateKeiriRirekiSheet(Optional ByVal ShowMessage As Boolean = True) As
         wsSrc.Range("A2:Z" & l).Copy wsDst.Range("A3")
     End If
     
-    ' ã€2026/5/20ã€‘ãƒ­ãƒ¼ã‚«ãƒ«çµŒç†ç”¨ãƒ–ãƒƒã‚¯ã¯ä¿è­·ãªã—é‹ç”¨ â†’ SafeProtectä¸è¦
+    ' y2026/5/20zƒ[ƒJƒ‹Œo——pƒuƒbƒN‚Í•ÛŒì‚È‚µ‰^—p ¨ SafeProtect•s—v
     
     wbT.Close False
-    If ShowMessage Then MsgBox "æœ€æ–°ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã—ã¾ã—ãŸã€‚"
+    If ShowMessage Then MsgBox "ÅVƒf[ƒ^‚ğæ“¾‚µ‚Ü‚µ‚½B"
     UpdateKeiriRirekiSheet = True
     Application.ScreenUpdating = True
 End Function

@@ -24,6 +24,23 @@ Private Sub Workbook_Open()
     Dim originalScreenUpdating As Boolean
     Dim originalDisplayAlerts As Boolean
 
+    ' --- 部門コード未設定チェック【2026/6/3 追加・全社展開対応】 ---
+    '   「入力フォーム」シートの DEPT_CODE_CELL(A37) が空のままだと、
+    '   暗黙のフォールバックで建築事業部(03)として採番・フィルタされてしまう。
+    '   各部門への配布時の設定漏れに気付けるよう、起動時に警告を出す（処理は止めない）。
+    '   A37 に部門コード("03"等)を入力すればこの警告は出なくなる。
+    On Error Resume Next
+    Dim deptCheck As String
+    deptCheck = Trim(CStr(ThisWorkbook.Sheets("入力フォーム").Range(DEPT_CODE_CELL).Value))
+    If deptCheck = "" Then
+        MsgBox "部門コードが未設定です。" & vbCrLf & vbCrLf & _
+               "このままでも建築事業部(03)として動作しますが、" & vbCrLf & _
+               "「入力フォーム」シートの " & DEPT_CODE_CELL & " セルに自部門のコードを入力してください。" & vbCrLf & vbCrLf & _
+               "例)  建築=03 / 環境=02 / 営繕=04 / 構内=06 / 企画開発=11 / 九州=13", _
+               vbExclamation, "部門コード未設定"
+    End If
+    On Error GoTo 0
+
     originalScreenUpdating = Application.ScreenUpdating
     originalDisplayAlerts = Application.DisplayAlerts
     Application.ScreenUpdating = False

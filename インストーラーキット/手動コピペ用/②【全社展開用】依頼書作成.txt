@@ -650,29 +650,22 @@ Private Sub AddDataToIraiRireki(ByVal wsRireki As Worksheet)
         nextRow = lastRow + 1
     End If
     
-    ' --- 2. 依頼NOを自動採番 ("0301", "0302"...) ---
-    ' 全行を走査して最大の連番を取得する。
-    ' Excelが先頭ゼロを自動削除して数値保存する場合（例: "0301"→301）も考慮し
-    ' 301?399の数値も旧形式（"03XX"の先頭ゼロ落ち）として検出する。
-    Dim i As Long, maxNum As Long, cellVal As String, cellNum As Long, numVal As Long
+    ' --- 2. 依頼NOを自動採番 (1, 2, 3... の通し番号) ---
+    ' A列の数値の最大値+1。全部門で共通の通し番号となる（依頼履歴シートは全部門共有）。
+    ' 【2026/6/3 修正】旧形式("0301"等)の互換読み取りを削除して単純化。
+    '   旧互換コードは 301～399 を「"0301"の先頭ゼロ落ち」とみなして -300 していたため、
+    '   通し番号が301に達すると最大値を誤認し、採番が重複するバグがあった。
+    '   依頼履歴は2026/6に番号リセット済みで旧形式データは存在しないため削除してよい。
+    Dim i As Long, maxNum As Long, cellVal As String
     maxNum = 0
+    On Error Resume Next  ' 想定外の巨大値などでCLngが失敗しても走査を続ける
     For i = 2 To lastRow
         cellVal = Trim(CStr(wsRireki.Cells(i, "A").Value))
-        If Left(cellVal, 2) = "03" And IsNumeric(Mid(cellVal, 3)) Then
-            ' テキスト形式: "0301", "0302" など
-            cellNum = CLng(Mid(cellVal, 3))
-            If cellNum > maxNum Then maxNum = cellNum
-        ElseIf IsNumeric(cellVal) Then
-            ' 数値として保存された旧形式: 301?399（="0301"?"0399"の先頭ゼロ落ち）
-            numVal = CLng(cellVal)
-            If numVal >= 301 And numVal <= 399 Then
-                cellNum = numVal - 300
-            Else
-                cellNum = numVal
-            End If
-                If cellNum > maxNum Then maxNum = cellNum
-            End If
+        If cellVal <> "" And IsNumeric(cellVal) Then
+            If CLng(cellVal) > maxNum Then maxNum = CLng(cellVal)
+        End If
     Next i
+    On Error GoTo ErrorHandlerAddRireki
     nextNoNum = maxNum + 1
     newIraiNo = CStr(nextNoNum)
 
