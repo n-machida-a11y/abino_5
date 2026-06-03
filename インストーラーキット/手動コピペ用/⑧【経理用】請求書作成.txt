@@ -150,7 +150,8 @@ Sub 請求書作成メニュー()
                       "請求書(振込手数料有)", _
                       "請求書(領収有)", _
                       "請求書(領収有・振込手数料有)", _
-                      "但陽信用金庫")
+                      "但陽信用金庫", _
+                      "請求書(税込)")
     
     topPos = 60
     For i = 0 To UBound(arrLabels)
@@ -181,7 +182,7 @@ Sub GenerateFromSelection()
     Dim wsSearch As Worksheet: Set wsSearch = ThisWorkbook.Worksheets("依頼検索")
     Dim i As Integer
     Dim anySelected As Boolean
-    Dim isSelected(1 To 5) As Boolean
+    Dim isSelected(1 To 6) As Boolean
     Dim honorificValue As String
     
     On Error Resume Next
@@ -193,7 +194,7 @@ Sub GenerateFromSelection()
     End If
     
     anySelected = False
-    For i = 1 To 5
+    For i = 1 To 6
         If wsMenu.CheckBoxes("chkOption_" & i).Value = xlOn Then
             isSelected(i) = True
             anySelected = True
@@ -222,6 +223,7 @@ Sub GenerateFromSelection()
     If isSelected(3) Then Call CreateInvoiceFromTemplate("請求書(領収有)", honorificValue)
     If isSelected(4) Then Call CreateInvoiceFromTemplate("請求書(領収有・振込手数料有)", honorificValue)
     If isSelected(5) Then Call CreateInvoiceFromTemplate("但陽信用金庫", honorificValue)
+    If isSelected(6) Then Call CreateInvoiceFromTemplate("請求書(税込)", honorificValue)
     
     Application.ScreenUpdating = True
     MsgBox "請求書の作成が完了しました。", vbInformation
@@ -267,6 +269,25 @@ Public Sub AssignAccountingInvoiceNo()
     End If
 End Sub
 
+' テンプレシート名を解決する（完全一致 → 半角/全角スペース除去一致 の順）
+'   シート名に意図せずスペースが入っていても正しいシートを見つけられるようにする。
+Private Function ResolveTemplateSheetName(ByVal templateName As String) As String
+    If SheetExists(templateName) Then
+        ResolveTemplateSheetName = templateName
+        Exit Function
+    End If
+    Dim ws As Worksheet
+    Dim normTarget As String
+    normTarget = Replace(Replace(templateName, " ", ""), "　", "")
+    For Each ws In ThisWorkbook.Worksheets
+        If Replace(Replace(ws.Name, " ", ""), "　", "") = normTarget Then
+            ResolveTemplateSheetName = ws.Name
+            Exit Function
+        End If
+    Next ws
+    ResolveTemplateSheetName = ""
+End Function
+
 Private Sub CreateInvoiceFromTemplate(templateName As String, honorific As String)
     Dim wsSrc As Worksheet: Set wsSrc = ThisWorkbook.Worksheets("依頼検索")
     Dim newSheetName As String
@@ -280,11 +301,17 @@ Private Sub CreateInvoiceFromTemplate(templateName As String, honorific As Strin
         Exit Sub
     End If
     
-    ' テンプレート取得チェック（ループチェックに変更）
-    If Not SheetExists(templateName) Then
+    ' テンプレート取得チェック
+    '   【2026/6/3 改修】シート名のスペース揺れ（例:「請求書 (税込)」と「請求書(税込)」）を
+    '   自動で吸収する。過去に半角スペース混入で「シートが見つかりません」エラーが
+    '   発生した経緯があるため、完全一致→スペース除去一致の順で探す。
+    Dim resolvedName As String
+    resolvedName = ResolveTemplateSheetName(templateName)
+    If resolvedName = "" Then
         MsgBox "エラー：テンプレートシート「" & templateName & "」が見つかりません。", vbCritical
         Exit Sub
     End If
+    templateName = resolvedName
     Set templateWs = ThisWorkbook.Sheets(templateName)
     
     ' 非表示対策
@@ -410,8 +437,16 @@ Private Sub TransferData(wsSource As Worksheet, wsDest As Worksheet, honorific A
     wsDest.Range(DEST_SUBJECT).Value = "上記工事代"
     
     If IsNumeric(wsSource.Range(SRC_AMOUNT).Value) Then
-        ' 浮動小数点誤差対策で Round に変更（旧: Int だと 33000000/1.1 が 29999999.99... になり切り捨てで 29999999 になる）
-        wsDest.Range(DEST_AMOUNT).Value = Application.WorksheetFunction.Round(wsSource.Range(SRC_AMOUNT).Value / 1.1, 0)
+        If InStr(templateName, "税込") > 0 Then
+            ' 【2026/6/3 追加】税込テンプレート: 税込額をそのまま転記する。
+            '   税込テンプレはシート側の数式が「内消費税」を逆算表示する構造のため、
+            '   ÷1.1 で税抜に変換してはいけない。
+            wsDest.Range(DEST_AMOUNT).Value = wsSource.Range(SRC_AMOUNT).Value
+        Else
+            ' 税抜テンプレート: 税抜に変換して転記（シート側が消費税10%を加算する構造）
+            ' 浮動小数点誤差対策で Round に変更（旧: Int だと 33000000/1.1 が 29999999.99... になり切り捨てで 29999999 になる）
+            wsDest.Range(DEST_AMOUNT).Value = Application.WorksheetFunction.Round(wsSource.Range(SRC_AMOUNT).Value / 1.1, 0)
+        End If
     End If
     wsDest.Range(DEST_PROJECT_NO).Value = pNo
     
