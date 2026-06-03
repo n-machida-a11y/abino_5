@@ -525,13 +525,21 @@ Function ExecuteUpdateAndSearch() As Boolean
 End Function
 
 Private Sub ClearSearchSheet(wsS As Worksheet)
-    wsS.Range(CELL_KEIRI_NO & "," & CELL_PROJ_NO & "," & CELL_PROJ_NAME & "," & CELL_AMOUNT).ClearContents
-    wsS.Range(CELL_DESTINATION & "," & CELL_TERM_START & "," & CELL_TERM_END).ClearContents
-    wsS.Range(CELL_BANK_ACCOUNT).ClearContents
-    wsS.Range(CELL_REQ_ITEM & "," & CELL_POST_CODE & "," & CELL_ADDRESS).ClearContents
-    wsS.Range(CELL_ENCLOSURE & "," & CELL_COMMENT & "," & CELL_DATE_DELIVERY).ClearContents
-    wsS.Range(CELL_DATE_CREATE & "," & CELL_DATE_ISSUE).ClearContents
-    wsS.Range(CELL_HISTORY & "," & CELL_MEMO).ClearContents
+    ' 【2026/6/3 修正】結合セル対応。
+    '   操作履歴(A11)などが結合セル(A11:C11等)になっていると、
+    '   Range("A11,E9").ClearContents は「結合されたセルの一部を変更
+    '   することはできません」(実行時エラー1004)で止まる。
+    '   セルごとに MergeArea（結合範囲全体。非結合なら自分自身）を
+    '   クリアする方式に変更し、結合の有無にかかわらず動くようにした。
+    Dim addrList As Variant, a As Variant
+    addrList = Array(CELL_KEIRI_NO, CELL_PROJ_NO, CELL_PROJ_NAME, CELL_AMOUNT, _
+                     CELL_DESTINATION, CELL_TERM_START, CELL_TERM_END, _
+                     CELL_BANK_ACCOUNT, CELL_REQ_ITEM, CELL_POST_CODE, CELL_ADDRESS, _
+                     CELL_ENCLOSURE, CELL_COMMENT, CELL_DATE_DELIVERY, _
+                     CELL_DATE_CREATE, CELL_DATE_ISSUE, CELL_HISTORY, CELL_MEMO)
+    For Each a In addrList
+        wsS.Range(CStr(a)).MergeArea.ClearContents
+    Next a
 End Sub
 
 Private Sub TransferRowToSearchSheet(wsR As Worksheet, wsS As Worksheet, r As Long)
