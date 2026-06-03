@@ -36,7 +36,7 @@ Option Explicit
 ' True: 開発・テスト用ファイルを参照する（TEST_FILE_PATH が使われる）
 ' False: 「入力フォーム」シートの PATH_CELL からパスを読み取る（本番動作）
 ' ★ リリース時は必ず False にすること ★
-Public Const IS_TEST_MODE As Boolean = True
+Public Const IS_TEST_MODE As Boolean = False
 Public Const TEST_FILE_PATH As String = "Z:\Users\n-machida\Desktop\工事番号管理表.xlsm"
 
 ' ===== 外部マスターファイルの参照先 =====
@@ -140,6 +140,14 @@ Public Function GetMyDepartmentName() As String
     Select Case code
         Case "03": GetMyDepartmentName = "建築事業部"
         Case "05": GetMyDepartmentName = "土木事業部"
+        ' 【2026/6 全社展開で追加】以下の部門名は暫定（担当者マスタのシート名由来）。
+        ' 依頼書の「提出依頼者所属部署」欄に印字される文言のため、
+        ' 正式名称（「〇〇事業部」等）が確認でき次第ここを差し替えること。
+        Case "02": GetMyDepartmentName = "環境"
+        Case "04": GetMyDepartmentName = "営繕"
+        Case "06": GetMyDepartmentName = "構内"
+        Case "11": GetMyDepartmentName = "企画開発"
+        Case "13": GetMyDepartmentName = "九州"
         Case Else: GetMyDepartmentName = "建築事業部"  ' 既定（フォールバック）
     End Select
 End Function
