@@ -232,6 +232,7 @@ Public Sub 保存_印刷作業()
 
 Cleanup:
     Application.ScreenUpdating = initialScreen
+    Application.DisplayAlerts = True  ' 同梱処理中のエラーでFalseのまま残るのを防止【2026/6/4】
     Dim diag As String
     diag = "エラーが発生しました。" & vbCrLf & vbCrLf & _
            "【エラー詳細】" & vbCrLf & _

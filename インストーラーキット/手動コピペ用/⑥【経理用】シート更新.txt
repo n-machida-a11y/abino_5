@@ -131,7 +131,7 @@ Public Sub マクロ_上書き保存()
     End If
 
     ' 完全一致で検索（上書き時はIDを変えないため）
-    Set foundRange = wsRireki.Columns("A").Find(What:=targetIraiNo, LookAt:=xlWhole)
+    Set foundRange = wsRireki.Columns("A").Find(What:=targetIraiNo, LookIn:=xlValues, LookAt:=xlWhole)
     If foundRange Is Nothing Then
         MsgBox "指定の依頼NOが見つかりません。" & vbCrLf & "（新規の場合は「新規作成」ボタンを使用してください）"
         Exit Sub
@@ -398,7 +398,7 @@ Public Function SyncAllDataToMaster(ByVal targetIraiNo As String, ByVal isNew As
         wsM.Cells(targetRow, "A").Value = targetIraiNo
     Else
         Dim f As Range
-        Set f = wsM.Columns("A").Find(targetIraiNo, LookAt:=xlWhole)
+        Set f = wsM.Columns("A").Find(targetIraiNo, LookIn:=xlValues, LookAt:=xlWhole)
         If f Is Nothing Then
             MsgBox "マスタ内に依頼NO [" & targetIraiNo & "] が見つかりませんでした。", vbExclamation
             wbM.Close False
