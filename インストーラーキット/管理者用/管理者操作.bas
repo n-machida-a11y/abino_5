@@ -704,6 +704,14 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
     m_DiagExtra = "宛先: " & dst.Name & " 範囲: " & _
                   dst.Cells(1, 1).Address & ":" & dst.Cells(resultRows.Count, lastCol).Address
     dst.Range(dst.Cells(1, 1), dst.Cells(resultRows.Count, lastCol)).Value = outArr
+
+    ' --- 文字色を自動（黒）にリセット【2026/6/4 追加・お客様要望】 ---
+    '   ローカルシートのセルに過去の書式（青字等）が残っていると、
+    '   値だけ書き込んでも青字のまま表示される。反映データは常に
+    '   黒字で見えるよう、書き込んだ範囲の文字色を「自動」に戻す。
+    On Error Resume Next
+    dst.Range(dst.Cells(1, 1), dst.Cells(resultRows.Count, lastCol)).Font.ColorIndex = xlColorIndexAutomatic
+    On Error GoTo 0
     m_DiagExtra = ""
 
     Debug.Print "[CopyFilteredByDept] WROTE " & resultRows.Count & " rows × " & _

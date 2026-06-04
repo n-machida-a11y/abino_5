@@ -29,8 +29,17 @@ Option Explicit
 
 ' ブックを開いた時、操作シートを自動で表示する
 ' （マクロ_最新取得 / マクロ_マスタへ反映 ボタンへの動線を明確にするため）
+'
+' 【2026/6/4 追加】お客様要望により管理者用は「保護なし運用」に統一。
+'   配布ファイルに残っていたシート保護が編集の妨げになっていたため、
+'   開いた時に全シートの保護を自動解除する（経理用と同じ方針）。
 Private Sub Workbook_Open()
     On Error Resume Next
+    Dim ws As Worksheet
+    For Each ws In ThisWorkbook.Worksheets
+        ws.Unprotect Password:=SHEET_PASSWORD
+        ws.Unprotect  ' パスワード無し保護にも対応
+    Next ws
     ThisWorkbook.Sheets("操作").Activate
     On Error GoTo 0
 End Sub

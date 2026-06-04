@@ -669,6 +669,20 @@ Private Sub AddDataToIraiRireki(ByVal wsRireki As Worksheet)
     nextNoNum = maxNum + 1
     newIraiNo = CStr(nextNoNum)
 
+    ' --- 新規行に直上データ行の書式をコピー【2026/6/4 追加・お客様要望】 ---
+    '   行追記時は書式（フォントサイズ・罫線等）がExcel既定値のままになり、
+    '   「特定の行だけ文字が大きい・罫線が消える」崩れが起きていた。
+    '   さらにローカル一覧への更新コピーでこの崩れが毎回持ち込まれるため、
+    '   追記の時点で直上の行（既存データ行）の書式を新規行へ適用して揃える。
+    '   ※最初のデータ行（直上がヘッダ行）の場合はスキップ
+    If nextRow >= 3 Then
+        On Error Resume Next
+        wsRireki.Rows(nextRow - 1).Copy
+        wsRireki.Rows(nextRow).PasteSpecial Paste:=xlPasteFormats
+        Application.CutCopyMode = False
+        On Error GoTo ErrorHandlerAddRireki
+    End If
+
     ' --- 3. データを書き込む ---
     With wsRireki
         .Cells(nextRow, "A").Value = newIraiNo ' 依頼NO (A列)
