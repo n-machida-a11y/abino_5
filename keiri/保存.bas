@@ -171,6 +171,38 @@ Public Sub 保存_印刷作業()
     newWb.Sheets(1).Delete  ' 元のSheet1（空）を削除。コピーした請求書は残る。
     Application.DisplayAlerts = True
 
+    ' --- ⑦-2 明細書・納品書の同梱（任意）【2026/6/4 追加・お客様要望】 ---
+    '   月1回程度、請求書と同時に明細書・納品書を発行する運用があるため、
+    '   保存時に「同じファイルへ含めるか」を確認する（既定は「いいえ」）。
+    '   含める場合は、このブック内の明細書・納品書シートを
+    '   【手入力された現在の内容のまま】保存ファイルへコピーする。
+    '   シートは「明細書」「納品書」で始まる名前を自動検出
+    '   （「明細書 (追加分)」のような名前にも対応）。
+    Dim wsMeisai As Worksheet, wsNouhin As Worksheet
+    Set wsMeisai = FindSheetByPrefix("明細書")
+    Set wsNouhin = FindSheetByPrefix("納品書")
+    If Not (wsMeisai Is Nothing And wsNouhin Is Nothing) Then
+        If MsgBox("明細書・納品書も同じファイルに含めますか？" & vbCrLf & vbCrLf & _
+                  "（はい＝請求書・明細書・納品書をまとめて保存" & vbCrLf & _
+                  "　いいえ＝請求書のみ保存）", _
+                  vbYesNo + vbQuestion + vbDefaultButton2, "明細書・納品書の同梱") = vbYes Then
+            Application.DisplayAlerts = False
+            If Not wsMeisai Is Nothing Then
+                wsMeisai.Copy After:=newWb.Sheets(newWb.Sheets.count)
+                On Error Resume Next
+                newWb.Sheets(newWb.Sheets.count).Name = "明細書"
+                On Error GoTo Cleanup
+            End If
+            If Not wsNouhin Is Nothing Then
+                wsNouhin.Copy After:=newWb.Sheets(newWb.Sheets.count)
+                On Error Resume Next
+                newWb.Sheets(newWb.Sheets.count).Name = "納品書"
+                On Error GoTo Cleanup
+            End If
+            Application.DisplayAlerts = True
+        End If
+    End If
+
     ' --- ⑧ AJ列以降のボタン・図形を削除 ---
     '   テンプレ請求書の右側（AJ列以降）には「保存」ボタン等のマクロ用
     '   オブジェクトが配置されている。これが xlsx に含まれてお客様に渡ると
@@ -317,4 +349,19 @@ Private Function SanitizeFileName(ByVal name As String) As String
         result = Replace(result, ch, "_")
     Next i
     SanitizeFileName = Trim(result)
+End Function
+
+' シート名が指定の接頭辞で始まるシートを探す（半角/全角スペースは無視）
+'   例: FindSheetByPrefix("明細書") は「明細書」「明細書 (追加分)」等にマッチ
+Private Function FindSheetByPrefix(ByVal prefix As String) As Worksheet
+    Dim ws As Worksheet
+    Dim normName As String
+    For Each ws In ThisWorkbook.Worksheets
+        normName = Replace(Replace(ws.Name, " ", ""), "　", "")
+        If Left(normName, Len(prefix)) = prefix Then
+            Set FindSheetByPrefix = ws
+            Exit Function
+        End If
+    Next ws
+    Set FindSheetByPrefix = Nothing
 End Function
