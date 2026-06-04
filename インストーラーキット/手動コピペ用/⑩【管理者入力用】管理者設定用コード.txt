@@ -25,7 +25,7 @@ Option Explicit
 '================================================================================
 
 ' ===== テストモード =====
-Public Const IS_TEST_MODE As Boolean = True
+Public Const IS_TEST_MODE As Boolean = False
 
 Public Const TEST_MASTER_PATH As String = "Z:\Users\n-machida\Desktop\工事番号管理表.xlsm"
 Public Const PROD_MASTER_PATH As String = "Z:\全社共有\建築事業部\00_現場関連\管理者用\工事番号管理表.xlsm"

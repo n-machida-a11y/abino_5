@@ -1444,6 +1444,3 @@ Private Function SheetExists(ByVal wb As Workbook, ByVal sheetName As String) As
     On Error GoTo 0
     SheetExists = Not ws Is Nothing
 End Function
-
-
--------------------------------------------------------------------------------
