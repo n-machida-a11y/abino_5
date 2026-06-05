@@ -195,6 +195,14 @@ Public Sub 保存_印刷作業()
                   vbYesNo + vbQuestion + vbDefaultButton2, "明細書・納品書の同梱") = vbYes Then
             Application.DisplayAlerts = False
             If Not wsMeisai Is Nothing Then
+                ' 【2026/6/5 追加】明細書の発行日（右上の年月日）だけ請求書に合わせる。
+                '   明細書は「毎月変更箇所を手入力」する運用のため、
+                '   作業内容など他の欄には一切書き込まない（日付のみ）。
+                On Error Resume Next
+                wsMeisai.Range("AB3").Value = activeSht.Range("AB3").Value   ' 年
+                wsMeisai.Range("AE3").Value = activeSht.Range("AE3").Value   ' 月
+                wsMeisai.Range("AG3").Value = activeSht.Range("AG3").Value   ' 日
+                On Error GoTo Cleanup
                 wsMeisai.Copy After:=newWb.Sheets(newWb.Sheets.count)
                 On Error Resume Next
                 newWb.Sheets(newWb.Sheets.count).Name = "明細書"
