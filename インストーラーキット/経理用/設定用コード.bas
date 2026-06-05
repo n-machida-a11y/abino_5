@@ -46,7 +46,7 @@ Option Explicit
 '
 '   ★ お客様環境にデプロイ時は必ず False にすること ★
 '================================================================================
-Public Const IS_TEST_MODE As Boolean = False
+Public Const IS_TEST_MODE As Boolean = True
 
 ' テスト用マスタファイルのパス（IS_TEST_MODE=True の時のみ参照される）
 Public Const TEST_MASTER_FILE_PATH As String = "Z:\Users\n-machida\Desktop\工事番号管理表.xlsm"
@@ -108,7 +108,18 @@ End Function
 '   依頼検索!C1（本番の保存先）が開発環境に存在しなくてもテストできる。
 '================================================================================
 Public Function GetTestSaveFolder() As String
-    GetTestSaveFolder = Environ("USERPROFILE") & "\Desktop\請求書テスト"
+    ' 【2026/6/5 修正】OneDrive環境(Known Folder Move)対応。
+    '   Environ("USERPROFILE") & "\Desktop" は、OneDriveでデスクトップが
+    '   移動されたPCでは「見えていない旧デスクトップ」を指してしまい、
+    '   保存したファイルが見当たらなくなる。
+    '   WScript.Shell の SpecialFolders("Desktop") は実際に表示されている
+    '   デスクトップ（OneDrive移動後のパス）を返すので、こちらを使う。
+    Dim desktopPath As String
+    On Error Resume Next
+    desktopPath = CreateObject("WScript.Shell").SpecialFolders("Desktop")
+    On Error GoTo 0
+    If desktopPath = "" Then desktopPath = Environ("USERPROFILE") & "\Desktop"  ' 念のためのフォールバック
+    GetTestSaveFolder = desktopPath & "\請求書テスト"
 End Function
 
 
