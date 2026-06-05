@@ -87,7 +87,13 @@ Public Function GetSheetSyncConfig() As Variant
     configs(2) = Array("管理マスタ",         "A",  2, "overwrite", "")    ' 全部署共通・key/value 形式のため全上書き
     configs(3) = Array("その他マスタ",        "A",  2, "merge",     "")    ' 全部署共通
     configs(4) = Array("依頼書セル設定",      "A", 10, "merge",     "")    ' 全部署共通
-    configs(5) = Array("担当者マスタ",        "A",  2, "merge",     "")    ' 全部署共通・担当者名がキー
+    ' 【2026/6/5 変更】担当者マスタは merge → overwrite に変更。
+    '   複数部門を担当する人（企画開発）は同じ名前で部門ごとに複数行登録するが、
+    '   merge は担当者名をキーにするため同名行が1行に潰れてしまう実害が発生した。
+    '   全行コピー(overwrite)なら複数行登録がそのまま保たれる。
+    '   ※overwrite は「最後に反映した人が勝つ」ため、担当者マスタの編集は
+    '     マスタ側で直接行うか、編集担当を一人に決める運用とすること。
+    configs(5) = Array("担当者マスタ",        "A",  2, "overwrite", "")    ' 全部署共通
     GetSheetSyncConfig = configs
 End Function
 
