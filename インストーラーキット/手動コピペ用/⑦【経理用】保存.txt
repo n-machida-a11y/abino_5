@@ -200,6 +200,10 @@ Public Sub 保存_印刷作業()
                 On Error GoTo Cleanup
             End If
             If Not wsNouhin Is Nothing Then
+                ' 【2026/6/5 追加】納品書へ請求書の内容を自動転記してから同梱する。
+                '   お客様は従来「請求書の内容をそのまま手でコピー」して納品書を
+                '   作っていたため、その作業を自動化（値は手コピーと同じになる）。
+                Call TransferToNouhinSheet(activeSht, wsNouhin)
                 wsNouhin.Copy After:=newWb.Sheets(newWb.Sheets.count)
                 On Error Resume Next
                 newWb.Sheets(newWb.Sheets.count).Name = "納品書"
@@ -372,3 +376,41 @@ Private Function FindSheetByPrefix(ByVal prefix As String) As Worksheet
     Next ws
     Set FindSheetByPrefix = Nothing
 End Function
+
+'================================================================================
+' TransferToNouhinSheet: 保存する請求書シートの内容を納品書シートへ転記する
+'--------------------------------------------------------------------------------
+' 【2026/6/5 追加・お客様運用の自動化】
+'   納品書は従来「請求書の内容をそのまま手でコピー」して作成されていた。
+'   同梱保存（はい）のとき、保存対象の請求書から同じ項目を自動転記する。
+'   納品書のレイアウトは請求書とほぼ同一（宛名C5/件名C18/金額AA19等）。
+'
+' 【金額の注意】納品書は税抜ベース（AA29小計 + AA30消費税10%加算）の構造。
+'   税込テンプレ請求書（AA19に税込額）から保存する場合は、
+'   ÷1.1 で税抜に変換してから転記する（でないと納品書の合計が
+'   税込×1.1 に膨らんでしまう）。税抜テンプレからはそのまま転記。
+'================================================================================
+Private Sub TransferToNouhinSheet(ByVal srcSht As Worksheet, ByVal wsNouhin As Worksheet)
+    On Error Resume Next
+    wsNouhin.Range("AB3").Value = srcSht.Range("AB3").Value     ' 日付: 年
+    wsNouhin.Range("AE3").Value = srcSht.Range("AE3").Value     ' 日付: 月
+    wsNouhin.Range("AG3").Value = srcSht.Range("AG3").Value     ' 日付: 日
+    wsNouhin.Range("C5").Value = srcSht.Range("C5").Value       ' 宛名
+    wsNouhin.Range("AF1").Value = srcSht.Range("AF1").Value     ' NO.(経理番号)
+    wsNouhin.Range("AK2").Value = srcSht.Range("AK2").Value     ' 工事番号
+    wsNouhin.Range("AB15").Value = srcSht.Range("AB15").Value   ' 担当部署
+    wsNouhin.Range("AG15").Value = srcSht.Range("AG15").Value   ' 担当者
+    wsNouhin.Range("C18").Value = srcSht.Range("C18").Value     ' 件名(工事名称)
+
+    ' 金額（税込テンプレからは税抜に変換）
+    Dim amt As Variant
+    amt = srcSht.Range("AA19").Value
+    If IsNumeric(amt) And CStr(amt) <> "" Then
+        If InStr(srcSht.Name, "税込") > 0 Then
+            wsNouhin.Range("AA19").Value = Application.WorksheetFunction.Round(CDbl(amt) / 1.1, 0)
+        Else
+            wsNouhin.Range("AA19").Value = amt
+        End If
+    End If
+    On Error GoTo 0
+End Sub
