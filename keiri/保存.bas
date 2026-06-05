@@ -115,22 +115,29 @@ Public Sub 保存_印刷作業()
     End If
 
     ' --- ⑤ 保存先ベースフォルダ取得 ---
-    '   依頼検索!C1 の値を優先使用、空なら Downloads フォルダにフォールバック
-    On Error Resume Next
-    baseFolder = Trim(CStr(ThisWorkbook.Sheets("依頼検索").Range("C1").Value))
-    On Error GoTo Cleanup
+    '   【2026/6/5 変更】テストモード対応:
+    '     IS_TEST_MODE = True  → デスクトップ「請求書テスト」フォルダ（開発・動作確認用。
+    '                            本番の保存先C1が開発環境に無くてもテストできる）
+    '     IS_TEST_MODE = False → 依頼検索!C1 の値（空なら Downloads）… 本番動作
+    If IS_TEST_MODE Then
+        baseFolder = GetTestSaveFolder()
+    Else
+        On Error Resume Next
+        baseFolder = Trim(CStr(ThisWorkbook.Sheets("依頼検索").Range("C1").Value))
+        On Error GoTo Cleanup
 
-    ' 両端のダブルクォート除去（C1 に "..." で入力されている場合の対策）
-    Do While Len(baseFolder) > 0 And (Left(baseFolder, 1) = Chr(34) Or Left(baseFolder, 1) = "“" Or Left(baseFolder, 1) = "”")
-        baseFolder = Mid(baseFolder, 2)
-    Loop
-    Do While Len(baseFolder) > 0 And (Right(baseFolder, 1) = Chr(34) Or Right(baseFolder, 1) = "“" Or Right(baseFolder, 1) = "”")
-        baseFolder = Left(baseFolder, Len(baseFolder) - 1)
-    Loop
-    baseFolder = Trim(baseFolder)
+        ' 両端のダブルクォート除去（C1 に "..." で入力されている場合の対策）
+        Do While Len(baseFolder) > 0 And (Left(baseFolder, 1) = Chr(34) Or Left(baseFolder, 1) = "“" Or Left(baseFolder, 1) = "”")
+            baseFolder = Mid(baseFolder, 2)
+        Loop
+        Do While Len(baseFolder) > 0 And (Right(baseFolder, 1) = Chr(34) Or Right(baseFolder, 1) = "“" Or Right(baseFolder, 1) = "”")
+            baseFolder = Left(baseFolder, Len(baseFolder) - 1)
+        Loop
+        baseFolder = Trim(baseFolder)
 
-    ' C1 が空なら Downloads にフォールバック
-    If baseFolder = "" Then baseFolder = Environ("USERPROFILE") & "\Downloads"
+        ' C1 が空なら Downloads にフォールバック
+        If baseFolder = "" Then baseFolder = Environ("USERPROFILE") & "\Downloads"
+    End If
 
     ' 末尾が \ なら削除（連結時の二重 \ 防止）
     If Right(baseFolder, 1) = "\" Then baseFolder = Left(baseFolder, Len(baseFolder) - 1)
