@@ -130,6 +130,8 @@ Public Sub マクロ_最新取得()
             On Error Resume Next
             dstSh.Columns("B").Hidden = True
             On Error GoTo 0
+            ' 依頼書作成済みの行をグレー表示【2026/6/5 追加・お客様要望】
+            Call ApplyDoneShading(dstSh, CLng(cfg(2)))
         End If
 
         successCount = successCount + 1
@@ -725,6 +727,39 @@ End Sub
 '================================================================================
 ' 反映直後に静かに最新取得（メッセージ無し、スナップショット再作成が目的）
 '================================================================================
+'================================================================================
+' ApplyDoneShading: 依頼書作成済みの行をグレーで表示する
+'--------------------------------------------------------------------------------
+' 【2026/6/5 追加・お客様要望】管理者用の工事番号一覧でも、どの工事が
+' 依頼書作成済みかを一目で分かるようにする。
+'   判定: S列(請求書提出先)が空でない行 ＝ 依頼書作成済み
+'         （依頼書作成時にマスタへ必ず記入される列のため、
+'           マスタ側のグレー塗りと判定基準が一致する）
+'   方式: データ部の背景を一旦リセットしてから該当行のA:Xを塗り直す。
+'         行位置は取得のたびに変わるため、リセットしないと前回のグレーが
+'         別の工事の行に残ってしまう。
+'   注意: データ部の「背景色」はこの処理が管理する（毎回リセットされる）。
+'         文字色・フォント・罫線・列幅は従来どおりローカルの書式を保持。
+'================================================================================
+Public Sub ApplyDoneShading(ByVal ws As Worksheet, ByVal dataStartRow As Long)
+    On Error Resume Next
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    If lastRow < dataStartRow Then Exit Sub
+
+    ' データ部の背景をリセット（前回のグレー残り防止）
+    ws.Range("A" & dataStartRow & ":X" & lastRow).Interior.Pattern = xlNone
+
+    ' 依頼書作成済みの行（S列に請求書提出先あり）をグレーに
+    Dim r As Long
+    For r = dataStartRow To lastRow
+        If Trim(CStr(ws.Cells(r, "S").Value)) <> "" Then
+            ws.Range("A" & r & ":X" & r).Interior.Color = RGB(220, 220, 220)
+        End If
+    Next r
+    On Error GoTo 0
+End Sub
+
 Public Sub SilentRefreshSnapshots()
     Dim masterPath As String: masterPath = GetMasterPath()
     If Dir(masterPath) = "" Then Exit Sub
