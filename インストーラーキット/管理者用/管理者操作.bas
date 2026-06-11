@@ -707,12 +707,20 @@ Public Sub CopyFilteredByDept(ByVal src As Worksheet, ByVal dst As Worksheet, _
                   dst.Cells(1, 1).Address & ":" & dst.Cells(resultRows.Count, lastCol).Address
     dst.Range(dst.Cells(1, 1), dst.Cells(resultRows.Count, lastCol)).Value = outArr
 
-    ' --- 文字色を自動（黒）にリセット【2026/6/4 追加・お客様要望】 ---
-    '   ローカルシートのセルに過去の書式（青字等）が残っていると、
-    '   値だけ書き込んでも青字のまま表示される。反映データは常に
-    '   黒字で見えるよう、書き込んだ範囲の文字色を「自動」に戻す。
+    ' --- 文字色をマスタ正本に合わせて貼り直す【2026/6/11 変更・お客様要望】 ---
+    '   管理者がデジタルビルダー等への入力済みを示すため行を青く塗る運用。
+    '   青はマスタ正本(src)に保持され、反映時に CopyRow の .Copy で
+    '   マスタへ書き込まれる。取得時はマスタ側の文字色をそのまま再現し、
+    '   行がシャッフルされても正しい工事に色が追従するようにする。
+    '   （旧仕様：一律で黒にリセット → 青を残せなかったため変更）
+    '   ※ 行全体を塗る運用のため、各行は A 列の色で代表させて行ごとに適用。
     On Error Resume Next
-    dst.Range(dst.Cells(1, 1), dst.Cells(resultRows.Count, lastCol)).Font.ColorIndex = xlColorIndexAutomatic
+    Dim cr As Long, srcRowC As Long
+    For cr = 1 To resultRows.Count
+        srcRowC = resultRows(cr)
+        dst.Range(dst.Cells(cr, 1), dst.Cells(cr, lastCol)).Font.Color = _
+            src.Cells(srcRowC, 1).Font.Color
+    Next cr
     On Error GoTo 0
     m_DiagExtra = ""
 
