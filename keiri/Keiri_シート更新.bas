@@ -184,6 +184,8 @@ Public Sub マクロ_新規作成()
     End If
     
     ' 新規IDセット
+    ' 【バグ修正 2026/6/11】"2-1"等の枝番がExcelで日付化するのを防ぐため書式を文字列("@")固定
+    wsSearch.Range(CELL_IRAI_NO).NumberFormat = "@"
     wsSearch.Range(CELL_IRAI_NO).Value = newIraiNo
     ' 経理番号は空にする
     wsSearch.Range(CELL_KEIRI_NO).Value = ""
@@ -193,7 +195,9 @@ Public Sub マクロ_新規作成()
     Dim nextRow As Long: nextRow = lastRow + 1
     ' 【シート保護対応】新規行追加前に保護解除
     Call SafeUnprotect(wsRireki)
-    wsRireki.Cells(nextRow, "A").Value = newIraiNo ' 文字列としてセットされるよう注意
+    ' 【バグ修正 2026/6/11】書式を文字列("@")固定してから代入（日付化防止）
+    wsRireki.Cells(nextRow, "A").NumberFormat = "@"
+    wsRireki.Cells(nextRow, "A").Value = newIraiNo
     
     Dim logMsg As String
     logMsg = "新規発行 (ID:" & newIraiNo & ")"
@@ -395,6 +399,8 @@ Public Function SyncAllDataToMaster(ByVal targetIraiNo As String, ByVal isNew As
     
     If isNew Then
         targetRow = wsM.Cells(wsM.Rows.Count, "A").End(xlUp).Row + 1
+        ' 【バグ修正 2026/6/11】マスタA列でも枝番の日付化を防ぐため書式を文字列("@")固定
+        wsM.Cells(targetRow, "A").NumberFormat = "@"
         wsM.Cells(targetRow, "A").Value = targetIraiNo
     Else
         Dim f As Range
@@ -517,6 +523,8 @@ Function ExecuteUpdateAndSearch() As Boolean
             Exit Function
         End If
         targetRow = candidates(pickIdx)
+        ' 【バグ修正 2026/6/11】選択した枝番をA2に戻す際も日付化を防ぐため書式を文字列("@")固定
+        wsS.Range(CELL_IRAI_NO).NumberFormat = "@"
         wsS.Range(CELL_IRAI_NO).Value = CStr(wsR.Cells(targetRow, 1).Value)
     End If
     
@@ -618,6 +626,9 @@ Function UpdateKeiriRirekiSheet(Optional ByVal ShowMessage As Boolean = True) As
     If l >= 2 Then
         wsSrc.Range("A2:Z" & l).Copy wsDst.Range("A3")
     End If
+
+    ' 【2026/6/11】Z列は現場用システムが書き込む明細JSON。経理では使わないので非表示にする。
+    wsDst.Columns("Z").Hidden = True
     
     ' 【2026/5/20】ローカル経理用ブックは保護なし運用 → SafeProtect不要
     

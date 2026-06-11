@@ -88,7 +88,9 @@ Public Sub 保存_印刷作業()
     On Error GoTo Cleanup
 
     ' --- ① マスタ同期：経理番号をマスタの依頼履歴へ書き込み ---
-    Call SyncInvoiceNoToMaster
+    '   ★ activeSht（請求書シート）を明示的に渡す。渡さないと SyncInvoiceNoToMaster 側が
+    '     Workbooks.Open 後の ActiveSheet（＝開いたマスタのシート）を読んでしまい、空が書かれる。
+    Call SyncInvoiceNoToMaster(activeSht)
 
     Dim baseFolder As String, invoiceFolder As String
     Dim fileName As String, monthYear As String
@@ -271,7 +273,7 @@ End Sub
 ' SyncInvoiceNoToMaster: マスタ同期処理
 '================================================================================
 ' 【役割】
-'   現在の請求書シート（ActiveSheet）の AF1（経理番号）を、
+'   呼び出し元から渡された請求書シート（wsInvoice）の AF1（経理番号）を、
 '   マスタファイルの「依頼履歴」シートのB列に書き込む。
 '   検索キーは「依頼検索!A2」の依頼NO。
 '
@@ -285,7 +287,7 @@ End Sub
 '   - マスタにロックがかかっている → Open で例外、Cleanup へ
 '   - 依頼NOがマスタに存在しない → メッセージ表示してスキップ
 '================================================================================
-Private Sub SyncInvoiceNoToMaster()
+Private Sub SyncInvoiceNoToMaster(ByVal wsInvoice As Worksheet)
     Dim mPath As String
     Dim wsSearch As Worksheet
     Dim wbMaster As Workbook
@@ -337,7 +339,10 @@ Private Sub SyncInvoiceNoToMaster()
     End If
 
     targetRow = found.Row
-    accountingNo = ActiveSheet.Range(CELL_ACCOUNTING_NO).Value
+    ' 【バグ修正 2026/6/11】Workbooks.Open 後は ActiveSheet が開いたマスタ側に切り替わるため、
+    '   ActiveSheet ではなく呼び出し元から渡された請求書シート(wsInvoice)の AF1 を読む。
+    '   旧: ActiveSheet.Range(CELL_ACCOUNTING_NO) ← マスタの空セルを読み空書きしていた
+    accountingNo = wsInvoice.Range(CELL_ACCOUNTING_NO).Value
     ' 【シート保護対応 2026/5/20】マスタの依頼履歴が保護されている場合に備え、解除→書込→再保護
     Call SafeUnprotect(wsRireki)
     wsRireki.Cells(targetRow, 2).Value = accountingNo   ' B列に経理No書き込み
