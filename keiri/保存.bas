@@ -346,6 +346,10 @@ Private Sub SyncInvoiceNoToMaster(ByVal wsInvoice As Worksheet)
     ' 【シート保護対応 2026/5/20】マスタの依頼履歴が保護されている場合に備え、解除→書込→再保護
     Call SafeUnprotect(wsRireki)
     wsRireki.Cells(targetRow, 2).Value = accountingNo   ' B列に経理No書き込み
+    ' 【追加 2026/6/11】発行日(C列)もマスタへ同期する。保存(印刷)経路では従来C列が
+    '   未同期で、再検索時にマスタの空C列でローカルが上書きされ発行日が消えていた。
+    '   発行日は直前の請求書作成(採番)で 依頼検索!F9 にセット済み。
+    wsRireki.Cells(targetRow, 3).Value = wsSearch.Range("F9").Value   ' C列=発行日
     Call SafeProtect(wsRireki)
 
     wbMaster.Save

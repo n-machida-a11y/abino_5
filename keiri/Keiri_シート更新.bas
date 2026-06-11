@@ -189,6 +189,9 @@ Public Sub マクロ_新規作成()
     wsSearch.Range(CELL_IRAI_NO).Value = newIraiNo
     ' 経理番号は空にする
     wsSearch.Range(CELL_KEIRI_NO).Value = ""
+    ' 【バグ修正 2026/6/11】発行日(F9)もクリアする。発行日は「請求書を発行した日」なので、
+    '   未発行の新規・枝番に親の発行日が残ってはいけない（請求書作成時に今日が入る）。
+    wsSearch.Range(CELL_DATE_ISSUE).Value = ""
     
     ' 履歴シートへの行追加
     lastRow = wsRireki.Cells(wsRireki.Rows.Count, "A").End(xlUp).Row
