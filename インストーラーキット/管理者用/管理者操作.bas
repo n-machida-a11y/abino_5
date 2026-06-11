@@ -263,6 +263,12 @@ Public Sub マクロ_マスタへ反映()
 
     Application.ScreenUpdating = False
     Application.DisplayAlerts = False
+    ' 【高速化 2026/6/11】再計算とイベントを止める。
+    '   行の書込・削除のたびに自動再計算/シートイベントが走ると
+    '   反映が極端に遅くなるため、処理中だけ停止する。
+    Dim prevCalc As XlCalculation: prevCalc = Application.Calculation
+    Application.Calculation = xlCalculationManual
+    Application.EnableEvents = False
     On Error GoTo Cleanup
 
     ' 【マスタロック時の自動リトライ 2026/5/22】
@@ -320,12 +326,24 @@ NextSheet:
     Next i
 
     wbMaster.Save
+
+    ' 【高速化 2026/6/11】スナップショットは“今開いているマスタ”から転写する。
+    '   従来は SilentRefreshSnapshots がマスタを再オープンしていたが、
+    '   大きいxlsmの2回目のオープンが反映を大幅に遅くしていたため、
+    '   閉じる前に開いたまま転写する方式へ変更。
+    Dim snapIdx As Long
+    For snapIdx = LBound(configs) To UBound(configs)
+        Dim snapSheetName As String: snapSheetName = CStr(configs(snapIdx)(0))
+        If SheetExistsIn(wbMaster, snapSheetName) Then
+            Call WriteSnapshotFromSheet(wbMaster.Sheets(snapSheetName), snapSheetName)
+        End If
+    Next snapIdx
+
     wbMaster.Close SaveChanges:=False
     Set wbMaster = Nothing
 
-    ' 反映成功したらスナップショットも新しいマスタ状態で更新しておく
-    Call SilentRefreshSnapshots
-
+    Application.Calculation = prevCalc
+    Application.EnableEvents = True
     Application.ScreenUpdating = True
     Application.DisplayAlerts = True
 
@@ -337,6 +355,8 @@ NextSheet:
 
 Cleanup:
     If Not wbMaster Is Nothing Then wbMaster.Close SaveChanges:=False
+    Application.Calculation = xlCalculationAutomatic
+    Application.EnableEvents = True
     Application.ScreenUpdating = True
     Application.DisplayAlerts = True
     MsgBox "反映中にエラーが発生しました: " & vbCrLf & Err.Description, vbCritical
