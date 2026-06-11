@@ -146,6 +146,9 @@ Sub UpdateKoujiBangoListSheet(Optional ByVal ShowMessage As Boolean = True)
     '   B列の連番表示は不要との運用方針。
     On Error Resume Next
     wsDest.Columns("B").Hidden = True
+    ' V・W列も非表示にする【2026/6/11 お客様要望】
+    wsDest.Columns("V").Hidden = True
+    wsDest.Columns("W").Hidden = True
     On Error GoTo 0
 
     If ShowMessage Then

@@ -129,6 +129,9 @@ Public Sub マクロ_最新取得()
         If sheetName = "工事番号一覧" Then
             On Error Resume Next
             dstSh.Columns("B").Hidden = True
+            ' V・W列も非表示にする【2026/6/11 お客様要望】
+            dstSh.Columns("V").Hidden = True
+            dstSh.Columns("W").Hidden = True
             On Error GoTo 0
             ' 依頼書作成済みの行をグレー表示【2026/6/5 追加・お客様要望】
             Call ApplyDoneShading(dstSh, CLng(cfg(2)))

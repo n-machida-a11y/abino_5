@@ -62,6 +62,9 @@ Private Sub Workbook_Open()
     '   「更新」マクロ未実行でも、ファイルを開いた時点で確実に非表示にする
     On Error Resume Next
     ThisWorkbook.Sheets(SHEET_KOUJI_LIST).Columns("B").Hidden = True
+    ' V・W列も非表示にする【2026/6/11 お客様要望】
+    ThisWorkbook.Sheets(SHEET_KOUJI_LIST).Columns("V").Hidden = True
+    ThisWorkbook.Sheets(SHEET_KOUJI_LIST).Columns("W").Hidden = True
     Err.Clear
     On Error GoTo ErrorHandler
 
